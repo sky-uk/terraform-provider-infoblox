@@ -1,11 +1,7 @@
 Terraform Provider
 ==================
 
-- Website: https://www.terraform.io
-- [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
-- Mailing list: [Google Groups](http://groups.google.com/group/terraform-tool)
-
-![Terraform](https://rawgithub.com/hashicorp/terraform/master/website/source/assets/images/logo-hashicorp.svg)
+Terraform provider for Infoblox appliance.
 
 Requirements
 ------------
@@ -16,17 +12,17 @@ Requirements
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-infoblox`
+Clone repository to: `$GOPATH/src/github.com/sky-uk/terraform-provider-infoblox`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone git@github.com:terraform-providers/terraform-provider-infoblox
+$ mkdir -p $GOPATH/src/github.com/sky-uk; cd $GOPATH/src/github.com/sky-uk
+$ git clone git@github.com:sky-uk/terraform-provider-infoblox
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-infoblox
+$ cd $GOPATH/src/github.com/sky-uk/terraform-provider-infoblox
 $ make build
 ```
 
