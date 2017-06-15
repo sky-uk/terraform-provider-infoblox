@@ -14,9 +14,9 @@ type Config struct {
 	IBXServer   string
 }
 
-// Client returns a new client for accessing VMWare vSphere.
+// Client returns a new client for accessing Infoblox server
 func (c *Config) Client() (*skyinfoblox.InfobloxClient, error) {
-	log.Printf("[INFO] VMWare NSX Client configured for URL: %s", c.IBXServer)
-	nsxclient := skyinfoblox.NewInfobloxClient("https://"+c.IBXServer, c.IBXUsername, c.IBXPassword, c.Insecure, c.Debug)
-	return nsxclient, nil
+	log.Printf("[INFO] Infoblox Client configured for URL: %s", c.IBXServer)
+	ibxclient := skyinfoblox.NewInfobloxClient("https://"+c.IBXServer, c.IBXUsername, c.IBXPassword, c.Insecure, c.Debug)
+	return ibxclient, nil
 }
