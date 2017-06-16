@@ -6,6 +6,7 @@ import (
 	"github.com/sky-uk/skyinfoblox"
 )
 
+// Provider : The infoblox terraform provider
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -42,6 +43,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"infoblox_cname_record": resourceCNAMERecord(),
 			"infoblox_arecord": resourceARecord(),
 		},
 		ConfigureFunc: providerConfigure,
