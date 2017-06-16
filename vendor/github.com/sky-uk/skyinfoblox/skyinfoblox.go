@@ -33,6 +33,13 @@ type InfobloxClient struct {
 	Debug     bool
 }
 
+// RespError : what POST/PUT/DELETE requests returns in case of error.
+type RespError struct {
+	Error string `json:"Error"`
+	Code  string `json:"code"`
+	Text  string `json:"text"`
+}
+
 // Do - makes the API call.
 func (infobloxClient *InfobloxClient) Do(api api.InfobloxAPI) error {
 	requestURL := fmt.Sprintf("%s%s", infobloxClient.URL, api.Endpoint())
@@ -86,20 +93,21 @@ func (infobloxClient *InfobloxClient) handleResponse(api api.InfobloxAPI, res *h
 		return err
 	}
 
+	strBodyText := string(bodyText)
 	api.SetRawResponse(bodyText)
 
 	if infobloxClient.Debug {
-		log.Println(string(bodyText))
+		log.Println(strBodyText)
 	}
 
-	if isJSON(res.Header.Get("Content-Type")) && api.StatusCode() == 200 {
+	if isJSON(res.Header.Get("Content-Type")) && api.StatusCode() >= 200 && api.StatusCode() < 400 {
 		JSONerr := json.Unmarshal(bodyText, api.ResponseObject())
 		if JSONerr != nil {
-			log.Println("ERROR unmarshalling response: ", JSONerr)
+			log.Println("ERROR unmarshalling response, probably a not JSON-encoded string: ", JSONerr)
 			return err
 		}
 	} else {
-		api.SetResponseObject(string(bodyText))
+		api.SetResponseObject(&strBodyText)
 	}
 	return nil
 }

@@ -25,6 +25,7 @@ func Provider() terraform.ResourceProvider {
 			"server": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_SERVER", nil),
 				Description: "Infoblox appliance to connect to eg https://192.168.0.1",
 			},
 			"allow_unverified_ssl": &schema.Schema{
@@ -40,7 +41,9 @@ func Provider() terraform.ResourceProvider {
 				Description: "infoblox client debug",
 			},
 		},
-		ResourcesMap:  map[string]*schema.Resource{},
+		ResourcesMap: map[string]*schema.Resource{
+			"infoblox_arecord": resourceARecord(),
+		},
 		ConfigureFunc: providerConfigure,
 	}
 }
