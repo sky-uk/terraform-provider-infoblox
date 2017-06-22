@@ -6,7 +6,6 @@ import (
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/records"
 	"log"
-	"strings"
 )
 
 func resourceSRVRecord() *schema.Resource {
@@ -116,7 +115,7 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createAPI.StatusCode(), createAPI.GetResponse())
 	}
 
-	id := strings.Replace(createAPI.GetResponse(), "\"", "", -1)
+	id := createAPI.GetResponse()
 	d.SetId(id)
 
 	return resourceSRVRecordRead(d, m)
@@ -133,9 +132,9 @@ func resourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Infoblox Read Error: %+v", err)
 	}
-	if getSingleSRVAPI.StatusCode() == 404 {
+	if getSingleSRVAPI.StatusCode() != 200 {
 		d.SetId("")
-		return nil
+		return fmt.Errorf("Infoblox Read Error: Invalid HTTP response code %+v returned. Response object was %+v", getSingleSRVAPI.StatusCode(), getSingleSRVAPI.GetResponse())
 	}
 
 	response := getSingleSRVAPI.GetResponse()
@@ -235,9 +234,9 @@ func resourceSRVRecordDelete(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Infoblox Delete Error when fetching resource: %+v", err)
 	}
-	if getSingleSRVAPI.StatusCode() == 404 {
+	if getSingleSRVAPI.StatusCode() != 200 {
 		d.SetId("")
-		return nil
+		return fmt.Errorf("Infoblox Read Error: Invalid HTTP response code %+v returned. Response object was %+v", getSingleSRVAPI.StatusCode(), getSingleSRVAPI.GetResponse())
 	}
 
 	deleteAPI := records.NewDelete(resourceReference)
