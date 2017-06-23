@@ -30,6 +30,44 @@ Using the provider
 ----------------------
 ## Fill in for each provider
 
+
+Template examples
+------------------
+
+ - Network
+  
+   This is an essential object to have DHCP scopes in Infoblox, by default when you create a network it makes it available for dhcp, this is controlled by the parameter "disable" which disables 
+    the network for DHCP as the name suggests.
+   Here we can see an example of how to create a network and the required parameters 
+   ```
+   resource "infoblox_network" "mynet" {
+        comment = "My awesome network",
+        network = "172.17.10.0/24",
+        option {
+               name = "routers",
+               num = 3,
+               useoption = true,
+               value =  "172.17.10.1",
+               vendorclass =  "DHCP"
+        }
+        option {
+             name =  "domain-name-servers",
+             num= 6,
+             useoption =  true
+             value = "8.8.8.8",
+             vendorclass =  "DHCP"
+        }
+   } 
+    ```
+   For each DHCP option you need, you have to setup a option block as per the example above. 
+   The only required field is the network field, so the bare minimum required to create a network is 
+    ```
+    resource "infoblox_network" "mynet" {
+              network = "172.17.10.0/24"
+    }
+    ```
+    
+
 Developing the Provider
 ---------------------------
 
@@ -57,3 +95,4 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 ```sh
 $ make testacc
 ```
+

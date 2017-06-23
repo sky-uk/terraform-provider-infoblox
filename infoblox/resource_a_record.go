@@ -6,6 +6,7 @@ import (
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/records"
 	"log"
+	"net/http"
 )
 
 func resourceARecord() *schema.Resource {
@@ -74,8 +75,10 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	if createARecordErr != nil {
 		return createARecordErr
 	}
+	if createAPI.StatusCode() != http.StatusCreated {
+		return fmt.Errorf("Error creating A Record, record already exists")
+	}
 	response := createAPI.GetResponse()
-
 	d.SetId(response)
 	resourceARecordRead(d, m)
 	return nil
@@ -90,12 +93,16 @@ func resourceARecordRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return fmt.Errorf("Record does not exist")
 	}
+	if getSingleARecordAPI.StatusCode() != http.StatusOK {
+		return fmt.Errorf("Error reading A record : %s", getSingleARecordAPI.ResponseObject())
+	}
 	readData := getSingleARecordAPI.GetResponse()
 	d.Set("name", readData.Name)
 	d.Set("zone", readData.Zone)
 	d.Set("address", readData.IPv4)
 	d.Set("ttl", readData.TTL)
 	d.Set("ref", readData.Ref)
+
 	return nil
 }
 
@@ -142,6 +149,9 @@ func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
 		if changeErr != nil {
 			log.Printf(fmt.Sprintf("[DEBUG] Error updating  A record: %s", changeErr))
 		}
+		if updateAPI.StatusCode() != http.StatusOK {
+			return fmt.Errorf("Error updating A Record : %s", updateAPI.ResponseObject())
+		}
 		d.SetId(updateAPI.GetResponse())
 		return resourceARecordRead(d, m)
 
@@ -157,6 +167,9 @@ func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
 	deleteRecordErr := infobloxClient.Do(deleteAPI)
 	if deleteRecordErr != nil {
 		return deleteRecordErr
+	}
+	if deleteAPI.StatusCode() != http.StatusOK {
+		return fmt.Errorf("Error deleting A Record : %s", deleteAPI.ResponseObject())
 	}
 	d.SetId("")
 	return nil
