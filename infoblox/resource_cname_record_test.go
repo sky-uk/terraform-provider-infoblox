@@ -15,6 +15,7 @@ func TestAccInfobloxCNAMEBasic(t *testing.T) {
 
 	randomInt := acctest.RandInt()
 	cname := fmt.Sprintf("acctest-infoblox-cname-%d.ovp.bskyb.com", randomInt)
+	cnameUpdate := fmt.Sprintf("acctest-infoblox-cname-%d-renamed.ovp.bskyb.com", randomInt)
 	canonical := fmt.Sprintf("acctest-infoblox-canonical-%d.ovp.bskyb.com", randomInt)
 	canonicalUpdate := fmt.Sprintf("acctest-infoblox-canonical-update-%d.ovp.bskyb.com", randomInt)
 	cnameResourceName := "infoblox_cname_record.acctest"
@@ -54,10 +55,10 @@ func TestAccInfobloxCNAMEBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccInfobloxCNAMEUpdateTemplate(cname, canonicalUpdate),
+				Config: testAccInfobloxCNAMEUpdateTemplate(cnameUpdate, canonicalUpdate),
 				Check: resource.ComposeTestCheckFunc(
-					testAccInfobloxCNAMEExists(cname, cnameResourceName),
-					resource.TestCheckResourceAttr(cnameResourceName, "name", cname),
+					testAccInfobloxCNAMEExists(cnameUpdate, cnameResourceName),
+					resource.TestCheckResourceAttr(cnameResourceName, "name", cnameUpdate),
 					resource.TestCheckResourceAttr(cnameResourceName, "comment", "Terraform Acceptance Testing for CNAMEs update test"),
 					resource.TestCheckResourceAttr(cnameResourceName, "canonical", canonicalUpdate),
 					resource.TestCheckResourceAttr(cnameResourceName, "view", "default"),

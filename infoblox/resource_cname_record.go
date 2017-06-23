@@ -20,7 +20,6 @@ func resourceCNAMERecord() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name for a CNAME record in FQDN format",
-				ForceNew:    true,
 			},
 			"ref": {
 				Type:        schema.TypeString,
@@ -138,6 +137,12 @@ func resourceCNAMEUpdate(d *schema.ResourceData, m interface{}) error {
 	resourceReference := d.Id()
 	var updateCNAME records.GenericRecord
 
+	if d.HasChange("name") {
+		if v, ok := d.GetOk("name"); ok {
+			updateCNAME.Name = v.(string)
+		}
+		hasChanges = true
+	}
 	if d.HasChange("comment") {
 		if v, ok := d.GetOk("comment"); ok {
 			updateCNAME.Comment = v.(string)
@@ -173,6 +178,8 @@ func resourceCNAMEUpdate(d *schema.ResourceData, m interface{}) error {
 		if updateAPI.StatusCode() != 200 {
 			return fmt.Errorf("Infoblox Update Error: Invalid HTTP response code %+v returned. Response was %+v", updateAPI.StatusCode(), updateAPI.GetResponse())
 		}
+		id := strings.Replace(updateAPI.GetResponse(), "\"", "", -1)
+		d.SetId(id)
 	}
 
 	return resourceCNAMERead(d, m)
