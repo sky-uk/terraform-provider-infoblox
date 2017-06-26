@@ -21,6 +21,7 @@ please feel free to send the pull requests.
 |-------------------------|--------|-------|---------|--------|
 | DNS Zones               |   N    |   N   |    N    |   N    |
 | DNS Records             |   N    |   N   |    N    |   N    |
+| Zone Auth               |   Y    |   Y   |    Y    |   Y    |
 
 
 ### Limitations

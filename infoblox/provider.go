@@ -47,6 +47,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_arecord":      resourceARecord(),
 			"infoblox_srv_record":   resourceSRVRecord(),
 			"infoblox_network":      resourceNetwork(),
+			"infoblox_zone_auth":    resourceZoneAuth(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
