@@ -24,6 +24,13 @@ func NewCreateARecord(requestPayload ARecord) *CreateRecordAPI {
 	return this
 }
 
+// NewCreateTXTRecord - Creates a new A record
+func NewCreateTXTRecord(requestPayload TXTRecord) *CreateRecordAPI {
+	this := new(CreateRecordAPI)
+	this.BaseAPI = api.NewBaseAPI(http.MethodPost, "/wapi/v2.3.1/record:txt", requestPayload, new(string))
+	return this
+}
+
 // GetResponse returns ResponseObject of CreateRecordAPI.
 func (c CreateRecordAPI) GetResponse() string {
 	return *c.ResponseObject().(*string)

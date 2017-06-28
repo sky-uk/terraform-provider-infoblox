@@ -8,6 +8,7 @@ type ARecord struct {
 	View    string `json:"view,omitempty"`
 	Zone    string `json:"zone,omitempty"`
 	TTL     uint   `json:"ttl,omitempty"`
+	UseTTL  *bool  `json:"use_ttl,omitempty"`
 	Comment string `json:"comment,omitempty"`
 }
 
@@ -19,6 +20,7 @@ type CNAMERecord struct {
 	View      string `json:"view,omitempty"`
 	Zone      string `json:"zone,omitempty"`
 	TTL       uint   `json:"ttl,omitempty"`
+	UseTTL    *bool  `json:"use_ttl,omitempty"`
 	Comment   string `json:"comment,omitempty"`
 }
 
@@ -30,6 +32,7 @@ type TXTRecord struct {
 	View    string `json:"view,omitempty"`
 	Zone    string `json:"zone,omitempty"`
 	TTL     uint   `json:"ttl,omitempty"`
+	UseTTL  *bool  `json:"use_ttl,omitemply"`
 	Comment string `json:"comment,omitempty"`
 }
 
@@ -44,6 +47,7 @@ type SRVRecord struct {
 	Weight   int    `json:"weight,omitempty"`
 	Zone     string `json:"zone,omitempty"`
 	TTL      uint   `json:"ttl,omitempty"`
+	UseTTL   *bool  `json:"use_ttl,omitempty"`
 	Comment  string `json:"comment,omitempty"`
 }
 
@@ -53,6 +57,7 @@ type GenericRecord struct {
 	Name      string `json:"name,omitempty"`
 	View      string `json:"view,omitempty"`
 	TTL       uint   `json:"ttl,omitempty"`
+	UseTTL    *bool  `json:"use_ttl,omitempty"`
 	Comment   string `json:"comment,omitempty"`
 	IPv4      string `json:"ipv4addr,omitempty"`
 	Canonical string `json:"canonical,omitempty"`
