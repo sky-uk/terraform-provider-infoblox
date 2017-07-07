@@ -487,10 +487,10 @@
 			"versionExact": "0.0.6"
 		},
 		{
-			"checksumSHA1": "I/qBt+N/qWl48Q50ObabOLaPo9g=",
+			"checksumSHA1": "b88maMEC2iI1RGPIU9BGLUZj/8E=",
 			"path": "github.com/sky-uk/skyinfoblox/api/network",
-			"revision": "5e5a44e27c39d795275bd0ec0dedb186be0cc3b9",
-			"revisionTime": "2017-06-20T15:50:55Z"
+			"revision": "ce2a98ed75d1dfce754b1c80ca967aaffc008421",
+			"revisionTime": "2017-06-26T16:00:48Z"
 		},
 		{
 			"checksumSHA1": "VeT0x4tOBtn8osVhEJwYSCuZ62o=",
