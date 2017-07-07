@@ -66,7 +66,7 @@ func testAccResourceSRVRecordExists(recordName, resourceName string) resource.Te
 		err := infobloxClient.Do(getAllSRVRecords)
 
 		if err != nil {
-			return fmt.Errorf("Error getting the SRV record", err)
+			return fmt.Errorf("Error getting the SRV record: %q", err.Error())
 		}
 		for _, x := range getAllSRVRecords.GetResponse() {
 			if x.Name == recordName {
@@ -96,7 +96,7 @@ func testAccResourceSRVRecordDestroy(state *terraform.State) error {
 		}
 
 		if api.GetResponse().Name == "srv-recordcreated.test-ovp.bskyb.com" {
-			return fmt.Errorf("A record still exists", api.GetResponse())
+			return fmt.Errorf("A record still exists: %+v", api.GetResponse())
 		}
 
 	}
