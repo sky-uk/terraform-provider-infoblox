@@ -65,6 +65,9 @@ func testAccResourceNetworkDestroy(state *terraform.State) error {
 
 func testAccResourceNetworkExists(networkAddr, resourceName string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
+
+		var fields []string
+
 		rs, ok := state.RootModule().Resources[resourceName]
 		if !ok {
 			return fmt.Errorf("\nInfoblox Network resource %s not found in resources", resourceName)
@@ -73,7 +76,7 @@ func testAccResourceNetworkExists(networkAddr, resourceName string) resource.Tes
 			return fmt.Errorf("\nInfoblox Network resource %s ID not set", resourceName)
 		}
 		infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		getAllARec := network.NewGetAllNetworks()
+		getAllARec := network.NewGetAllNetworks(fields)
 		err := infobloxClient.Do(getAllARec)
 		if err != nil {
 			return fmt.Errorf("Error getting the A record: %q", err.Error())
