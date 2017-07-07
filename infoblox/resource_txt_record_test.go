@@ -46,7 +46,7 @@ func testAccResourceTXTRecordExists(recordName, resourceName string) resource.Te
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("\nResource not found: ", resourceName)
+			return fmt.Errorf("\nResource not found: %s", resourceName)
 		}
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("\nInfoblox TXT record resource %s ID not set", resourceName)
@@ -57,7 +57,7 @@ func testAccResourceTXTRecordExists(recordName, resourceName string) resource.Te
 		recAPI := records.NewGetTXTRecord(ref, fields)
 		err := infobloxClient.Do(recAPI)
 		if err != nil {
-			return fmt.Errorf("Error getting the TXT record", err)
+			return fmt.Errorf("Error getting the TXT record: %q", err.Error())
 		}
 		if recAPI.StatusCode() == http.StatusOK {
 			return nil
@@ -80,7 +80,7 @@ func testAccResourceTXTRecordDestroy(state *terraform.State) error {
 		}
 
 		if api.StatusCode() == http.StatusOK {
-			return fmt.Errorf("TXT record still exists, ref: ", ref)
+			return fmt.Errorf("TXT record still exists, ref: %v", ref)
 		}
 		return nil
 	}

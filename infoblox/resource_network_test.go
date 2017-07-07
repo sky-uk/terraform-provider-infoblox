@@ -56,7 +56,7 @@ func testAccResourceNetworkDestroy(state *terraform.State) error {
 		}
 
 		if api.GetResponse().Network == "arecordcreated.test-ovp.bskyb.com" {
-			return fmt.Errorf("Network still exists", api.GetResponse())
+			return fmt.Errorf("Network still exists: %+v", api.GetResponse())
 		}
 
 	}
@@ -76,7 +76,7 @@ func testAccResourceNetworkExists(networkAddr, resourceName string) resource.Tes
 		getAllARec := network.NewGetAllNetworks()
 		err := infobloxClient.Do(getAllARec)
 		if err != nil {
-			return fmt.Errorf("Error getting the A record", err)
+			return fmt.Errorf("Error getting the A record: %q", err.Error())
 		}
 		for _, x := range getAllARec.GetResponse() {
 			if x.Network == networkAddr {

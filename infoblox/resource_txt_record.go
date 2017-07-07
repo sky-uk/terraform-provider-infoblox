@@ -246,7 +246,7 @@ func resourceTXTRecordRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId("")
-	errStr := fmt.Sprintf("[resourceTXTRecordRead]:Return code: ", recordAPI.StatusCode())
+	errStr := fmt.Sprintf("[resourceTXTRecordRead]:Return code: %d", recordAPI.StatusCode())
 	return errors.New(errStr)
 }
 

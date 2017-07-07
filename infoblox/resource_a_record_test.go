@@ -56,7 +56,7 @@ func testAccResourceARecordDestroy(state *terraform.State) error {
 		}
 
 		if api.GetResponse().Name == "arecordcreated.test-ovp.bskyb.com" {
-			return fmt.Errorf("A record still exists", api.GetResponse())
+			return fmt.Errorf("A record still exists: %+v", api.GetResponse())
 		}
 
 	}
@@ -67,7 +67,7 @@ func testAccResourceARecordExists(recordName, resourceName string) resource.Test
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[resourceName]
 		if !ok {
-			return fmt.Errorf("\nInfoblox A record resource %s not found in resources", resourceName)
+			return fmt.Errorf("\nInfoblox A record resource %s not found in resources: ", resourceName)
 		}
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("\nInfoblox A record resource %s ID not set", resourceName)
@@ -77,7 +77,7 @@ func testAccResourceARecordExists(recordName, resourceName string) resource.Test
 		getAllARec := records.NewGetAllARecords(fields)
 		err := infobloxClient.Do(getAllARec)
 		if err != nil {
-			return fmt.Errorf("Error getting the A record", err)
+			return fmt.Errorf("Error getting the A record: %+v", err)
 		}
 		for _, x := range getAllARec.GetResponse() {
 			if x.Name == recordName {
