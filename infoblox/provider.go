@@ -49,6 +49,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_txtrecord":    resourceTXTRecord(),
 			"infoblox_network":      resourceNetwork(),
 			"infoblox_zone_auth":    resourceZoneAuth(),
+			"infoblox_dhcp_range":   resourceDHCPRange(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

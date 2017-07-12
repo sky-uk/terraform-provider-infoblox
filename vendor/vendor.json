@@ -487,6 +487,12 @@
 			"versionExact": "0.0.6"
 		},
 		{
+			"checksumSHA1": "XLLS68MT3X+BnJi2qsAQdpu5pz0=",
+			"path": "github.com/sky-uk/skyinfoblox/api/dhcp_range",
+			"revision": "929897ee0b6821d3384e08737a33438af79e7661",
+			"revisionTime": "2017-07-10T11:15:23Z"
+		},
+		{
 			"checksumSHA1": "b88maMEC2iI1RGPIU9BGLUZj/8E=",
 			"path": "github.com/sky-uk/skyinfoblox/api/network",
 			"revision": "ce2a98ed75d1dfce754b1c80ca967aaffc008421",
