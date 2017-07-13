@@ -37,6 +37,11 @@ func resourceARecord() *schema.Resource {
 				Optional:    true,
 				Description: "TTL in seconds for host record",
 			},
+			"use_ttl": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				Optional: true,
+			},
 			"ref": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -70,6 +75,12 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 		createARecord.TTL = uint(ttl)
 	}
 
+	useTTL := false
+	if v, ok := d.GetOk("use_ttl"); ok {
+		useTTL = v.(bool)
+	}
+	createARecord.UseTTL = &useTTL
+
 	createAPI := records.NewCreateARecord(createARecord)
 	createARecordErr := infobloxClient.Do(createAPI)
 	if createARecordErr != nil {
@@ -86,7 +97,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceARecordRead(d *schema.ResourceData, m interface{}) error {
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	fields := []string{"name", "ipv4addr", "ttl", "zone"}
+	fields := []string{"name", "ipv4addr", "use_ttl", "ttl", "zone"}
 	getSingleARecordAPI := records.NewGetARecord(d.Id(), fields)
 	readErr := infobloxClient.Do(getSingleARecordAPI)
 	if readErr != nil {

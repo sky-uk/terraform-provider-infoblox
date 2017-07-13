@@ -44,6 +44,11 @@ func resourceCNAMERecord() *schema.Resource {
 				ValidateFunc: validateUnsignedInteger,
 				Description:  "The Time To Live assigned to CNAME",
 			},
+			"use_ttl": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				Optional: true,
+			},
 			"canonical": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -82,6 +87,13 @@ func resourceCNAMECreate(d *schema.ResourceData, m interface{}) error {
 		ttl := v.(int)
 		cnameRecord.TTL = uint(ttl)
 	}
+
+	useTTL := false
+	if v, ok := d.GetOk("use_ttl"); ok {
+		useTTL = v.(bool)
+	}
+	cnameRecord.UseTTL = &useTTL
+
 	if v, ok := d.GetOk("canonical"); ok {
 		cnameRecord.Canonical = v.(string)
 	}
@@ -94,7 +106,7 @@ func resourceCNAMECreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if createAPI.StatusCode() != 201 {
-		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createAPI.StatusCode(), createAPI.ResponseObject())
+		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createAPI.StatusCode(), createAPI.GetResponse())
 	}
 
 	id := strings.Replace(createAPI.GetResponse(), "\"", "", -1)
@@ -104,7 +116,7 @@ func resourceCNAMECreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceCNAMERead(d *schema.ResourceData, m interface{}) error {
 
-	returnFields := []string{"name", "comment", "view", "ttl", "canonical"}
+	returnFields := []string{"name", "comment", "view", "use_ttl", "ttl", "canonical"}
 
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
 	resourceReference := d.Id()
@@ -162,6 +174,15 @@ func resourceCNAMEUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		hasChanges = true
 	}
+
+	useTTL := false
+	if d.HasChange("use_ttl") {
+		hasChanges = true
+		value := d.Get("use_ttl")
+		useTTL = value.(bool)
+		updateCNAME.UseTTL = &useTTL
+	}
+
 	if d.HasChange("canonical") {
 		if v, ok := d.GetOk("canonical"); ok {
 			updateCNAME.Canonical = v.(string)

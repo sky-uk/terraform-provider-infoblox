@@ -54,6 +54,11 @@ func resourceSRVRecord() *schema.Resource {
 				ValidateFunc: validateUnsignedInteger,
 				Description:  "The Time To Live assigned to CNAME",
 			},
+			"use_ttl": &schema.Schema{
+				Type:     schema.TypeBool,
+				Required: false,
+				Optional: true,
+			},
 			"comment": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -100,6 +105,13 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 		ttl := v.(int)
 		srvRecord.TTL = uint(ttl)
 	}
+
+	useTTL := false
+	if v, ok := d.GetOk("use_ttl"); ok {
+		useTTL = v.(bool)
+	}
+	srvRecord.UseTTL = &useTTL
+
 	if v, ok := d.GetOk("comment"); ok {
 		srvRecord.Comment = v.(string)
 	}
@@ -122,7 +134,7 @@ func resourceSRVRecordCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceSRVRecordRead(d *schema.ResourceData, m interface{}) error {
-	returnFields := []string{"name", "comment", "port", "priority", "target", "weight", "zone", "ttl"}
+	returnFields := []string{"name", "comment", "port", "priority", "target", "weight", "zone", "use_ttl", "ttl"}
 
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
 	resourceReference := d.Id()
@@ -202,6 +214,14 @@ func resourceSRVRecordUpdate(d *schema.ResourceData, m interface{}) error {
 		_, newTTL := d.GetChange("ttl")
 		TTL = newTTL.(int)
 		updatedSVR.TTL = uint(TTL)
+	}
+
+	useTTL := false
+	if d.HasChange("use_ttl") {
+		hasChanges = true
+		value := d.Get("use_ttl")
+		useTTL = value.(bool)
+		updatedSVR.UseTTL = &useTTL
 	}
 
 	if d.HasChange("comment") {
