@@ -11,12 +11,18 @@ type Network struct {
 	Disable                          *bool             `json:"disable,omitempty"`
 	EnableDdns                       *bool             `json:"enable_ddns,omitempty"`
 	EnableDhcpThresholds             *bool             `json:"enable_dhcp_thresholds,omitempty"`
+	HighWaterMark                    int               `json:"high_water_mark,omitempty"`
+	HighWaterMarkReset               int               `json:"high_water_mark_reset,omitempty"`
+	LowWaterMark                     int               `json:"low_water_mark,omitempty"`
+	LowWaterMarkReset                int               `json:"low_water_mark_reset,omitempty"`
 	EnableDiscovery                  *bool             `json:"enable_discovery,omitempty"`
+	DiscoveryMember                  string            `json:"discovery_member,omitempty"`
 	Ipv4addr                         string            `json:"ipv4addr,omitempty"`
 	LeaseScavengeTime                int               `json:"lease_scavenge_time,omitempty"`
 	Netmask                          uint              `json:"netmask,omitempty"`
 	NetworkContainer                 string            `json:"network_container,omitempty"`
 	Options                          []DHCPOptions     `json:"options,omitempty"`
+	Members                          []Member          `json:"members,omitempty"`
 	RecycleLeases                    *bool             `json:"recycle_leases,omitempty"`
 	RestartIfNeeded                  *bool             `json:"restart_if_needed,omitempty"`
 	UpdateDNSOnLeaseRenewal          *bool             `json:"update_dns_on_lease_renewal,omitempty"`
@@ -59,4 +65,14 @@ type ZoneAssociation struct {
 	Fqdn      string `json:"fqdn"`
 	IsDefault bool   `json:"is_default"`
 	View      string `json:"view"`
+}
+
+// Member - Grid member serving DHCP struct
+// All members in the array must be of the same type.
+// the struct type must be indicated in each element, by setting the “_struct” member to the struct type.
+type Member struct {
+	ElementType string `json:"_struct"`
+	IPv4Address string `json:"ipv4addr,omitempty"`
+	IPv6Address string `json:"ipv6addr,omitempty"`
+	Name        string `json:"name,omitempty"`
 }

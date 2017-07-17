@@ -38,6 +38,10 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"use_authority": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"autocreatereversezone": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -51,12 +55,44 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"use_enableddns": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"high_watermark": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"high_watermark_reset": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"low_watermark": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"low_watermark_reset": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"enabledhcpthresholds": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"use_enabledhcpthresholds": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"enablediscovery": {
 				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"use_enablediscovery": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"discovery_member": {
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"ipv4addr": {
@@ -113,7 +149,15 @@ func resourceNetwork() *schema.Resource {
 					},
 				},
 			},
+			"use_options": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"recycleleases": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"use_recycleleases": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -133,7 +177,7 @@ func resourceNetwork() *schema.Resource {
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
 	var networkCreate network.Network
-	var authority, createReverseZone, networkDisable, enableDdns, enableDhcpThresholds, enableDiscovery bool
+	var authority, useAuthority, createReverseZone, networkDisable, enableDdns, useEnableDdns, enableDhcpThresholds, useEnableDhcpThresholds, enableDiscovery, useEnableDiscovery, recycleLeases, useRecycleLeases, useOptions bool
 
 	if v, ok := d.GetOk("network"); ok {
 		networkCreate.Network = v.(string)
@@ -148,6 +192,10 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 		authority = v.(bool)
 		networkCreate.Authority = &authority
 	}
+	if v, ok := d.GetOk("use_authority"); ok {
+		useAuthority = v.(bool)
+		networkCreate.UseAuthority = &useAuthority
+	}
 	if v, ok := d.GetOk("autocreatereversezone"); ok {
 		createReverseZone = v.(bool)
 		networkCreate.AutoCreateReversezone = &createReverseZone
@@ -160,13 +208,41 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 		enableDdns = v.(bool)
 		networkCreate.EnableDdns = &enableDdns
 	}
-	if v, ok := d.GetOk("enabledhcpthreshold"); ok {
+	if v, ok := d.GetOk("use_enableddns"); ok {
+		useEnableDdns = v.(bool)
+		networkCreate.UseEnableDdns = &useEnableDdns
+	}
+	if v, ok := d.GetOk("enabledhcpthresholds"); ok {
 		enableDhcpThresholds = v.(bool)
 		networkCreate.EnableDhcpThresholds = &enableDhcpThresholds
+	}
+	if v, ok := d.GetOk("use_enabledhcpthresholds"); ok {
+		useEnableDhcpThresholds = v.(bool)
+		networkCreate.UseEnableDhcpThresholds = &useEnableDhcpThresholds
+	}
+	if v, ok := d.GetOk("high_watermark"); ok {
+		networkCreate.HighWaterMark = v.(int)
+	}
+
+	if v, ok := d.GetOk("low_watermark"); ok {
+		networkCreate.LowWaterMark = v.(int)
+	}
+	if v, ok := d.GetOk("low_watermark_reset"); ok {
+		networkCreate.LowWaterMarkReset = v.(int)
+	}
+	if v, ok := d.GetOk("high_watermark_reset"); ok {
+		networkCreate.HighWaterMarkReset = v.(int)
 	}
 	if v, ok := d.GetOk("enablediscovery"); ok {
 		enableDiscovery = v.(bool)
 		networkCreate.EnableDiscovery = &enableDiscovery
+	}
+	if v, ok := d.GetOk("use_enablediscovery"); ok {
+		useEnableDiscovery = v.(bool)
+		networkCreate.UseEnableDiscovery = &useEnableDiscovery
+	}
+	if v, ok := d.GetOk("discovery_member"); ok {
+		networkCreate.DiscoveryMember = v.(string)
 	}
 	if v, ok := d.GetOk("ipv4addr"); ok {
 		networkCreate.Ipv4addr = v.(string)
@@ -188,6 +264,18 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 			networkCreate.Options = buildOptionsObject(options)
 		}
 	}
+	if v, ok := d.GetOk("use_options"); ok {
+		useOptions = v.(bool)
+		networkCreate.UseOptions = &useOptions
+	}
+	if v, ok := d.GetOk("recycleleases"); ok {
+		recycleLeases = v.(bool)
+		networkCreate.RecycleLeases = &recycleLeases
+	}
+	if v, ok := d.GetOk("use_recycleleases"); ok {
+		useRecycleLeases = v.(bool)
+		networkCreate.UseRecycleLeases = &useRecycleLeases
+	}
 
 	createNetworkAPI := network.NewCreateNetwork(networkCreate)
 	createNetworkError := infobloxClient.Do(createNetworkAPI)
@@ -196,7 +284,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if createNetworkAPI.StatusCode() != http.StatusCreated {
-		return fmt.Errorf("Error creating the Network request, network already exists")
+		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createNetworkAPI.StatusCode(), createNetworkAPI.GetResponse())
 	}
 	d.SetId(createNetworkAPI.GetResponse())
 	return resourceNetworkRead(d, m)
@@ -277,7 +365,101 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 				updateNetwork.Options = buildOptionsObject(options)
 			}
 		}
+	}
 
+	if d.HasChange("use_options") {
+		_, newUseOptions := d.GetChange("use_options")
+		useOptions := newUseOptions.(bool)
+		updateNetwork.UseOptions = &useOptions
+	}
+
+	if d.HasChange("authority") {
+		_, newAuthority := d.GetChange("authority")
+		authority := newAuthority.(bool)
+		updateNetwork.Authority = &authority
+	}
+
+	if d.HasChange("use_authority") {
+		_, newUseAuthority := d.GetChange("use_authority")
+		useAuthority := newUseAuthority.(bool)
+		updateNetwork.UseAuthority = &useAuthority
+	}
+
+	if d.HasChange("enableddns") {
+		_, newEnableDdns := d.GetChange("enableddns")
+		enableDdns := newEnableDdns.(bool)
+		updateNetwork.EnableDdns = &enableDdns
+	}
+
+	if d.HasChange("use_enableddns") {
+		_, newUseEnableDdns := d.GetChange("use_enableddns")
+		useEnableDdns := newUseEnableDdns.(bool)
+		updateNetwork.UseEnableDdns = &useEnableDdns
+	}
+
+	if d.HasChange("enabledhcpthresholds") {
+		_, newEnableDhcpThreshold := d.GetChange("enabledhcpthresholds")
+		enableDhcpThreshold := newEnableDhcpThreshold.(bool)
+		updateNetwork.EnableDhcpThresholds = &enableDhcpThreshold
+	}
+
+	if d.HasChange("use_enabledhcpthresholds") {
+		_, newUseEnableDhcpThreshold := d.GetChange("use_enabledhcpthresholds")
+		useEnableDhcpThreshold := newUseEnableDhcpThreshold.(bool)
+		updateNetwork.UseEnableDhcpThresholds = &useEnableDhcpThreshold
+	}
+
+	if d.HasChange("high_watermark") {
+		_, newHighWatermark := d.GetChange("high_watermark")
+		highWatermark := newHighWatermark.(int)
+		updateNetwork.HighWaterMark = highWatermark
+	}
+
+	if d.HasChange("high_watermark_reset") {
+		_, newHighWatermarkReset := d.GetChange("high_watermark_reset")
+		highWatermarkReset := newHighWatermarkReset.(int)
+		updateNetwork.HighWaterMarkReset = highWatermarkReset
+	}
+
+	if d.HasChange("low_watermark") {
+		_, newLowWatermark := d.GetChange("low_watermark")
+		lowWatermark := newLowWatermark.(int)
+		updateNetwork.LowWaterMark = lowWatermark
+	}
+	if d.HasChange("low_watermark_reset") {
+		_, newLowWatermarkReset := d.GetChange("low_watermark_reset")
+		lowWatermarkReset := newLowWatermarkReset.(int)
+		updateNetwork.LowWaterMarkReset = lowWatermarkReset
+	}
+
+	if d.HasChange("enablediscovery") {
+		_, newEnableDiscovery := d.GetChange("enablediscovery")
+		enableDiscovery := newEnableDiscovery.(bool)
+		updateNetwork.EnableDiscovery = &enableDiscovery
+	}
+
+	if d.HasChange("use_enablediscovery") {
+		_, newUseEnableDiscovery := d.GetChange("use_enablediscovery")
+		useEnableDiscovery := newUseEnableDiscovery.(bool)
+		updateNetwork.UseEnableDiscovery = &useEnableDiscovery
+	}
+
+	if d.HasChange("discovery_member") {
+		if v, ok := d.GetOk("discovery_member"); ok {
+			updateNetwork.DiscoveryMember = v.(string)
+		}
+	}
+
+	if d.HasChange("recycleleases") {
+		_, newRecycleLeases := d.GetChange("recycleleases")
+		recycleLeases := newRecycleLeases.(bool)
+		updateNetwork.RecycleLeases = &recycleLeases
+	}
+
+	if d.HasChange("use_recycleleases") {
+		_, newUseRecycleLeases := d.GetChange("use_recycleleases")
+		useRecycleLeases := newUseRecycleLeases.(bool)
+		updateNetwork.UseRecycleLeases = &useRecycleLeases
 	}
 
 	updateNetworkAPI := network.NewUpdateNetwork(updateNetwork)

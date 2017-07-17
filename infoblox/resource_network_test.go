@@ -113,5 +113,14 @@ func testAccResourceNetworkUpdateTemplate(networkAddr string) string {
             value =  "10.0.0.1",
             vendorclass =  "DHCP"
            }
+   	high_watermark = 90
+        high_watermark_reset = 80
+        low_watermark = 7
+        low_watermark_reset = 11
+        enabledhcpthresholds = false
+        use_enabledhcpthresholds = false
+        discovery_member = "testhost.devops.int.ovp.bskyb.com"
+        enablediscovery = true
+        use_enablediscovery = true
 	}`, networkAddr)
 }

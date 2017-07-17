@@ -19,9 +19,8 @@ func NewUpdateNetwork(updatedObj Network) *UpdateNetworkAPI {
 	return this
 }
 
-// GetResponse casts the response object and
-// returns the string representing the updated object reference
-// or nil in case of errors
+// GetResponse casts the response object and returns the string representing
+// the updated object reference or nil in case of errors
 func (ga UpdateNetworkAPI) GetResponse() string {
 	return *ga.ResponseObject().(*string)
 }
