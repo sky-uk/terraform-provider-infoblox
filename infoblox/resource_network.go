@@ -104,6 +104,30 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"members": {
+				Type:        schema.TypeList,
+				Description: "DHCP Member which is going to serve this network.",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ipv4addr": {
+							Type:        schema.TypeString,
+							Description: "IPv4 address of the member pair",
+							Optional:    true,
+						},
+						"ipv6addr": {
+							Type:        schema.TypeString,
+							Description: "IPv6 address of the member pair",
+							Optional:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "FQDN of the member pair",
+							Optional:    true,
+						},
+					},
+				},
+			},
 			"netmask": {
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -255,7 +279,9 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	if v, ok := d.GetOk("netmask"); ok {
 		networkCreate.Netmask = uint(v.(int))
 	}
-
+	if v, ok := d.GetOk("members"); ok && v != nil {
+		networkCreate.Members = buildNetworkMembersList(v.([]interface{}))
+	}
 	if v, ok := d.GetOk("networkcontainer"); ok {
 		networkCreate.NetworkContainer = v.(string)
 	}
@@ -308,7 +334,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 // resourceNetworkRead - Reads the resource
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	fields := []string{"ipv4addr", "disable", "network", "network_view", "comment", "netmask", "authority", "enable_ddns", "options"}
+	fields := []string{"ipv4addr", "disable", "network", "network_view", "comment", "netmask", "members", "authority", "enable_ddns", "options"}
 	getNetworkAPI := network.NewGetNetwork(d.Id(), fields)
 	networkReadErr := infobloxClient.Do(getNetworkAPI)
 	if networkReadErr != nil {
@@ -325,6 +351,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("netmask", readNetwork.Netmask)
 	d.Set("disable", readNetwork.Disable)
 	d.Set("options", readNetwork.Options)
+	d.Set("members", readNetwork.Members)
 	d.Set("comment", readNetwork.Comment)
 	d.Set("authority", readNetwork.Authority)
 	d.Set("enable_ddns", readNetwork.EnableDdns)
@@ -337,6 +364,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 // resourceNetworkUpdate - Updates the resource
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
+	hasChanges := false
 	var updateNetwork network.Network
 	if v, ok := d.GetOk("ref"); ok {
 		updateNetwork.Ref = v.(string)
@@ -344,19 +372,21 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("network") {
 		_, newNetwork := d.GetChange("network")
 		updateNetwork.NetworkView = newNetwork.(string)
+		hasChanges = true
 	}
 
 	if d.HasChange("disable") {
 		_, newDisable := d.GetChange("disable")
 		Disable := newDisable.(bool)
 		updateNetwork.Disable = &Disable
+		hasChanges = true
 	}
 
 	if d.HasChange("comment") {
 		if v, ok := d.GetOk("comment"); ok {
 			updateNetwork.Comment = v.(string)
+			hasChanges = true
 		}
-
 	}
 
 	if d.HasChange("option") {
@@ -364,6 +394,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 			if options, ok := v.(*schema.Set); ok {
 				updateNetwork.Options = buildOptionsObject(options)
 			}
+			hasChanges = true
 		}
 	}
 
@@ -455,21 +486,27 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 		recycleLeases := newRecycleLeases.(bool)
 		updateNetwork.RecycleLeases = &recycleLeases
 	}
-
 	if d.HasChange("use_recycleleases") {
 		_, newUseRecycleLeases := d.GetChange("use_recycleleases")
 		useRecycleLeases := newUseRecycleLeases.(bool)
 		updateNetwork.UseRecycleLeases = &useRecycleLeases
 	}
-
-	updateNetworkAPI := network.NewUpdateNetwork(updateNetwork)
-	updateNetworkErr := infobloxClient.Do(updateNetworkAPI)
-	if updateNetworkErr != nil {
-		return updateNetworkErr
+	if d.HasChange("members") {
+		if v, ok := d.GetOk("members"); ok && v != nil {
+			updateNetwork.Members = buildNetworkMembersList(v.([]interface{}))
+		}
+		hasChanges = true
 	}
 
-	if updateNetworkAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Error updating the Network record %s ", updateNetworkAPI.GetResponse())
+	if hasChanges {
+		updateNetworkAPI := network.NewUpdateNetwork(updateNetwork)
+		updateNetworkErr := infobloxClient.Do(updateNetworkAPI)
+		if updateNetworkErr != nil {
+			return updateNetworkErr
+		}
+		if updateNetworkAPI.StatusCode() != http.StatusOK {
+			return fmt.Errorf("Error updating the Network record %s ", updateNetworkAPI.GetResponse())
+		}
 	}
 	return resourceNetworkRead(d, m)
 }
@@ -503,4 +540,21 @@ func buildOptionsObject(options *schema.Set) []network.DHCPOptions {
 
 	}
 	return optionValues
+}
+
+func buildNetworkMembersList(membersList []interface{}) []network.Member {
+	members := make([]network.Member, len(membersList))
+	var memberObj network.Member
+
+	for idx, value := range membersList {
+		v, ok := value.(map[string]interface{})
+		if ok {
+			memberObj.ElementType = "dhcpmember"
+			memberObj.IPv4Address = v["ipv4addr"].(string)
+			memberObj.IPv6Address = v["ipv6addr"].(string)
+			memberObj.Name = v["name"].(string)
+			members[idx] = memberObj
+		}
+	}
+	return members
 }
