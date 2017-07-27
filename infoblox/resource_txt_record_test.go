@@ -11,7 +11,7 @@ import (
 )
 
 func TestAccResourceTXTRecord(t *testing.T) {
-	recordName := "txtrecordcreated.test-ovp.bskyb.com"
+	recordName := "txtrecordcreated.testzone.slupaas.bskyb.com"
 	resourceName := "infoblox_txtrecord.acctest"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

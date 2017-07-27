@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccResourceSRVRecord(t *testing.T) {
-	recordName := "srv-recordcreated.test-ovp.bskyb.com"
+	recordName := "srv-recordcreated.slupaas.bskyb.com"
 	resourceName := "infoblox_srv_record.acctest"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -24,7 +24,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", recordName),
 					resource.TestCheckResourceAttr(resourceName, "port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "priority", "99"),
-					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.test-ovp.bskyb.com"),
+					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.testzone.slupaas.bskyb.com"),
 					resource.TestCheckResourceAttr(resourceName, "weight", "10"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "test test"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "900"),
@@ -37,7 +37,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", recordName),
 					resource.TestCheckResourceAttr(resourceName, "port", "65"),
 					resource.TestCheckResourceAttr(resourceName, "priority", "50"),
-					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.test-ovp.bskyb.com"),
+					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.testzone.slupaas.bskyb.com"),
 					resource.TestCheckResourceAttr(resourceName, "weight", "20"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "test test test test"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "4000"),
@@ -95,7 +95,7 @@ func testAccResourceSRVRecordDestroy(state *terraform.State) error {
 			return nil
 		}
 
-		if api.GetResponse().Name == "srv-recordcreated.test-ovp.bskyb.com" {
+		if api.GetResponse().Name == "srv-recordcreated.slupaas.bskyb.com" {
 			return fmt.Errorf("A record still exists: %+v", api.GetResponse())
 		}
 
@@ -109,7 +109,7 @@ func testAccResourceSRVRecordCreateTemplate(srvRecordName string) string {
    	name = "%s"
     	port = 8080
     	priority = 99
-    	target = "craig4test.test-ovp.bskyb.com"
+    	target = "craig4test.testzone.slupaas.bskyb.com"
     	weight = 10
     	comment = "test test"
     	ttl = 900
@@ -122,7 +122,7 @@ func testAccResourceSRVRecordUpdateTemplate(srvRecordName string) string {
    	name = "%s"
     	port = 65
     	priority = 50
-    	target = "craig4test.test-ovp.bskyb.com"
+    	target = "craig4test.testzone.slupaas.bskyb.com"
     	weight = 20
     	comment = "test test test test"
     	ttl = 4000

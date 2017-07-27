@@ -323,7 +323,7 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("Infoblox Zone Auth Create Error: %+v", err)
 	}
 	if createAPI.StatusCode() != http.StatusCreated {
-		return fmt.Errorf("Infoblox Zone Create Error: Invalid HTTP response code %d returned", createAPI.StatusCode())
+		return fmt.Errorf("Infoblox Zone Create Error: Invalid HTTP response code %d returned - response %s", createAPI.StatusCode(), createAPI.GetResponse())
 	}
 
 	ref := createAPI.GetResponse()
@@ -332,10 +332,10 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	appendAPI := zoneauth.NewUpdate(appendDNSZone, nil)
 	err = infobloxClient.Do(appendAPI)
 	if err != nil {
-		return fmt.Errorf("Infoblox Zone Auth Create Append Error: %+v", err)
+		return fmt.Errorf("Infoblox Zone Auth Create Append Error: %+v ", err)
 	}
 	if appendAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Infoblox Zone Auth Create Append: Invalid HTTP resposne code %d returned", appendAPI.StatusCode())
+		return fmt.Errorf("Infoblox Zone Auth Create Append: Invalid HTTP response code %d returned - response %s", appendAPI.StatusCode(), appendAPI.GetResponse())
 	}
 
 	d.SetId(ref)
@@ -515,7 +515,7 @@ func resourceZoneAuthDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if deleteAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Infoblox Delete - Error deleting resource %s - return code != 200", resourceReference)
+		return fmt.Errorf("Infoblox Delete - Error deleting resource %s - return code != 200 error: %s", resourceReference, deleteAPI.GetResponse())
 	}
 
 	d.SetId("")

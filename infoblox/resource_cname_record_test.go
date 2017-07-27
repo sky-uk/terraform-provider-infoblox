@@ -14,10 +14,10 @@ import (
 func TestAccInfobloxCNAMEBasic(t *testing.T) {
 
 	randomInt := acctest.RandInt()
-	cname := fmt.Sprintf("acctest-infoblox-cname-%d.ovp.bskyb.com", randomInt)
-	cnameUpdate := fmt.Sprintf("acctest-infoblox-cname-%d-renamed.ovp.bskyb.com", randomInt)
-	canonical := fmt.Sprintf("acctest-infoblox-canonical-%d.ovp.bskyb.com", randomInt)
-	canonicalUpdate := fmt.Sprintf("acctest-infoblox-canonical-update-%d.ovp.bskyb.com", randomInt)
+	cname := fmt.Sprintf("acctest-infoblox-cname-%d.slupaas.bskyb.com", randomInt)
+	cnameUpdate := fmt.Sprintf("acctest-infoblox-cname-%d-renamed.slupaas.bskyb.com", randomInt)
+	canonical := fmt.Sprintf("acctest-infoblox-canonical-%d.slupaas.bskyb.com", randomInt)
+	canonicalUpdate := fmt.Sprintf("acctest-infoblox-canonical-update-%d.slupaas.bskyb.com", randomInt)
 	cnameResourceName := "infoblox_cname_record.acctest"
 
 	fmt.Printf("\n\nCNAME is %s\n\n", cname)
@@ -123,7 +123,7 @@ func testAccInfobloxCNAMECheckDestroy(state *terraform.State) error {
 			return nil
 		}
 		for _, cname := range api.GetResponse() {
-			matched, _ := regexp.MatchString("acctest-infoblox-cname-.*.ovp.bskyb.com", cname.Name)
+			matched, _ := regexp.MatchString("acctest-infoblox-cname-.*.slupaas.bskyb.com", cname.Name)
 			if matched {
 				return fmt.Errorf("Sky Infoblox CNAME %s still exists", cname.Name)
 			}

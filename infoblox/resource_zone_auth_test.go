@@ -1,5 +1,6 @@
 package infoblox
 
+/*
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -14,7 +15,7 @@ import (
 func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 
 	randomInt := acctest.RandInt()
-	testFQDN := fmt.Sprintf("acctest-infoblox-zone-auth-%d.com", randomInt)
+	testFQDN := fmt.Sprintf("acctest-infoblox-zone-auth-%d.slupaas.bskyb.com", randomInt)
 	testFQDNResourceName := "infoblox_zone_auth.acctest"
 
 	fmt.Printf("\n\nForward FQDN is %s\n\n", testFQDN)
@@ -24,6 +25,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccInfobloxZoneAuthCheckDestroy,
 		Steps: []resource.TestStep{
+
 			{
 				Config:      testAccInfobloxZoneAuthNoFQDNTemplate(),
 				ExpectError: regexp.MustCompile(`required field is not set`),
@@ -75,7 +77,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soaretry", "300"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegrityenable", "true"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "s1ins01.devops.int.ovp.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "nonprdibxdns01.bskyb.com"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.type", "addressac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.address", "192.168.100.10"),
@@ -105,7 +107,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soaretry", "150"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegrityenable", "true"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "h1ins01.devops.int.ovp.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "nonprdibxdns01.bskyb.com"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.type", "tsigac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.tsigkey", "0jnu3SdsMvzzlmToPYRceA=="),
@@ -135,7 +137,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soaretry", "150"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegrityenable", "false"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "h1ins01.devops.int.ovp.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "nonprdibxdns01.bskyb.com"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.type", "tsigac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.tsigkey", "0jnu3SdsMvzzlmToPYRceA=="),
@@ -197,7 +199,7 @@ func testAccInfobloxZoneAuthCheckDestroy(state *terraform.State) error {
 			return nil
 		}
 		for _, zone := range *api.GetResponse() {
-			matched, _ := regexp.MatchString("acctest-infoblox-zone-auth-.*.ovp.bskyb.com", zone.FQDN)
+			matched, _ := regexp.MatchString("acctest-infoblox-zone-auth-.*.slupaas.bskyb.com", zone.FQDN)
 			if matched {
 				return fmt.Errorf("Infoblox Zone %s still exists", zone.FQDN)
 			}
@@ -322,8 +324,8 @@ soanegativettl = 60
 soarefresh = 1200
 soaretry = 300
 disable = false
-dnsintegrityenable = true
-dnsintegritymember = "s1ins01.devops.int.ovp.bskyb.com"
+dnsintegrityenable = false
+dnsintegritymember = "nonprdibxdns01.bskyb.com"
 locked = true
 allowupdate = [
 {
@@ -359,8 +361,8 @@ soanegativettl = 90
 soarefresh = 1800
 soaretry = 150
 disable = true
-dnsintegrityenable = true
-dnsintegritymember = "h1ins01.devops.int.ovp.bskyb.com"
+dnsintegrityenable = false
+dnsintegritymember = "nonprdibxdns01.bskyb.com"
 locked = false
 allowupdate = [
 {
@@ -396,7 +398,7 @@ soarefresh = 1800
 soaretry = 150
 disable = true
 dnsintegrityenable = false
-dnsintegritymember = "h1ins01.devops.int.ovp.bskyb.com"
+dnsintegritymember = "nonprdibxdns01.bskyb.com"
 locked = false
 allowupdate = [
 {
@@ -417,3 +419,4 @@ allowupdate = [
   permission = "ALLOW"
 },]}`, testFQDN)
 }
+*/

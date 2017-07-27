@@ -119,8 +119,8 @@ func testAccResourceNetworkUpdateTemplate(networkAddr string) string {
         low_watermark_reset = 11
         enabledhcpthresholds = false
         use_enabledhcpthresholds = false
-        discovery_member = "testhost.devops.int.ovp.bskyb.com"
-        enablediscovery = true
+        //discovery_member = "slunonprdirep01.bskyb.com"
+        //enablediscovery = true
         use_enablediscovery = true
 	}`, networkAddr)
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccResourceARecord(t *testing.T) {
-	recordName := "arecordcreated.test-ovp.bskyb.com"
+	recordName := "arecordcreatedtest.slupaas.bskyb.com"
 	resourceName := "infoblox_arecord.acctest"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -55,7 +55,7 @@ func testAccResourceARecordDestroy(state *terraform.State) error {
 			return nil
 		}
 
-		if api.GetResponse().Name == "arecordcreated.test-ovp.bskyb.com" {
+		if api.GetResponse().Name == "arecordcreatedtest.slupaas.bskyb.com" {
 			return fmt.Errorf("A record still exists: %+v", api.GetResponse())
 		}
 

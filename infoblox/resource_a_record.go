@@ -87,7 +87,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 		return createARecordErr
 	}
 	if createAPI.StatusCode() != http.StatusCreated {
-		return fmt.Errorf("Error creating A Record, record already exists")
+		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createAPI.StatusCode(), createAPI.GetResponse())
 	}
 	response := createAPI.GetResponse()
 	d.SetId(response)
