@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/dhcp_range"
+	"log"
 	"net/http"
 )
 
@@ -13,6 +14,7 @@ func resourceDHCPRange() *schema.Resource {
 		Create: resourceDHCPRangeCreate,
 		Read:   resourceDHCPRangeRead,
 		Delete: resourceDHCPRangeDelete,
+		Update: resourceDHCPRangeUpdate,
 
 		Schema: map[string]*schema.Schema{
 			"ref": {
@@ -20,31 +22,42 @@ func resourceDHCPRange() *schema.Resource {
 				Computed:    true,
 				Description: "Unique reference to Infoblox Network resource",
 			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
+			"comment": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: false,
+			},
 			"network": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"network_view": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				ForceNew: false,
 				Default:  "default",
 			},
 			"start": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"end": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"member": &schema.Schema{
 				Type:        schema.TypeSet,
 				Optional:    true,
-				ForceNew:    true,
+				ForceNew:    false,
 				Description: "Infoblox DHCP member that serves this range",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -64,14 +77,14 @@ func resourceDHCPRange() *schema.Resource {
 			"restart": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
+				ForceNew:    false,
 				Description: "Restarts any services if required by this change. Default: true.",
-				Default:     true,
+				Default:     false,
 			},
 			"server_association": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
+				ForceNew:    false,
 				Description: "Must be set to 'MEMBER' if member is specified",
 				Default:     "NONE",
 			},
@@ -83,6 +96,13 @@ func resourceDHCPRange() *schema.Resource {
 func resourceDHCPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
 	var rangeCreate dhcprange.DHCPRange
+
+	if v, ok := d.GetOk("name"); ok {
+		rangeCreate.Name = v.(string)
+	}
+	if v, ok := d.GetOk("comment"); ok {
+		rangeCreate.Comment = v.(string)
+	}
 
 	if v, ok := d.GetOk("network"); ok {
 		rangeCreate.Network = v.(string)
@@ -105,7 +125,8 @@ func resourceDHCPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if v, ok := d.GetOk("restart"); ok {
-		rangeCreate.Restart = v.(bool)
+		rangeRestart := v.(bool)
+		rangeCreate.Restart = &rangeRestart
 	}
 
 	createDHCPRangeAPI := dhcprange.NewCreateDHCPRange(rangeCreate)
@@ -139,7 +160,7 @@ func resourceDHCPRangeDelete(d *schema.ResourceData, m interface{}) error {
 // resourceDHCPRangeRead - Reads the resource
 func resourceDHCPRangeRead(d *schema.ResourceData, m interface{}) error {
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	fields := []string{"end_addr", "start_addr", "network", "network_view", "member", "server_association_type"}
+	fields := []string{"name", "comment", "end_addr", "start_addr", "network", "network_view", "member", "server_association_type"}
 	getDHCPRangeRequest := dhcprange.NewGetDHCPRangeAPI(d.Id(), fields)
 	getErr := infobloxClient.Do(getDHCPRangeRequest)
 	if getErr != nil {
@@ -157,19 +178,104 @@ func resourceDHCPRangeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("server_association", response.ServerAssociation)
 	d.Set("member", flattenMember(&response.Member))
 	d.Set("ref", response.Ref)
+	d.Set("name", response.Name)
+	d.Set("comment", response.Comment)
+	return nil
+}
 
+//resourceDHCPRangeUpdate - update the DHCPRange object
+func resourceDHCPRangeUpdate(d *schema.ResourceData, m interface{}) error {
+	var rangeUpdate dhcprange.DHCPRange
+	var hasChanges bool
+	infobloxClient := m.(*skyinfoblox.InfobloxClient)
+	fields := []string{"name", "comment", "end_addr", "start_addr", "network", "network_view", "member", "server_association_type"}
+	rangeUpdateAPI := dhcprange.NewGetDHCPRangeAPI(d.Id(), fields)
+	getErr := infobloxClient.Do(rangeUpdateAPI)
+	if getErr != nil {
+		return fmt.Errorf("Could not read resource %s", getErr)
+	}
+	rangeUpdate = rangeUpdateAPI.GetResponse()
+	//rangeUpdate.Ref = d.Id()
+	if d.HasChange("name") {
+		hasChanges = true
+		_, newName := d.GetChange("name")
+		rangeUpdate.Name = newName.(string)
+	}
+	if d.HasChange("comment") {
+		hasChanges = true
+		_, newComment := d.GetChange("comment")
+		rangeUpdate.Comment = newComment.(string)
+	}
+	if d.HasChange("network") {
+		hasChanges = true
+		_, newNetwork := d.GetChange("network")
+		rangeUpdate.Network = newNetwork.(string)
+	}
+	if d.HasChange("network_view") {
+		hasChanges = true
+		_, newNetworkView := d.GetChange("network_view")
+		rangeUpdate.NetworkView = newNetworkView.(string)
+	}
+
+	if d.HasChange("start") {
+		hasChanges = true
+		_, newStart := d.GetChange("start")
+		rangeUpdate.Start = newStart.(string)
+	}
+
+	if d.HasChange("end") {
+		hasChanges = true
+		_, newEnd := d.GetChange("end")
+		rangeUpdate.End = newEnd.(string)
+	}
+
+	if d.HasChange("member") {
+		hasChanges = true
+		_, newMember := d.GetChange("member")
+		rangeUpdate.Member = newMember.(dhcprange.Member)
+
+	}
+
+	if d.HasChange("restart") {
+		hasChanges = true
+		_, newRestart := d.GetChange("restart")
+		restart := newRestart.(bool)
+		rangeUpdate.Restart = &restart
+	}
+
+	if d.HasChange("server_association") {
+		hasChanges = true
+		_, newServerAssociation := d.GetChange("server_association")
+		rangeUpdate.ServerAssociation = newServerAssociation.(string)
+	}
+	if hasChanges {
+		updateRangeAPI := dhcprange.NewUpdateDHCPRange(rangeUpdate)
+		updateErr := infobloxClient.Do(updateRangeAPI)
+		if updateErr != nil {
+
+			return fmt.Errorf("cound not update the dhcprange , status code:  %d", updateRangeAPI.StatusCode())
+		}
+		if updateRangeAPI.StatusCode() != 200 {
+			log.Println(rangeUpdate)
+			log.Println("Endpoint used: " + updateRangeAPI.Endpoint())
+			log.Println("Response :" + updateRangeAPI.GetResponse())
+			return fmt.Errorf("cound not update the dhcprange , status code:  %d", updateRangeAPI.StatusCode())
+		}
+		d.SetId(updateRangeAPI.GetResponse())
+		return resourceDHCPRangeRead(d, m)
+	}
 	return nil
 }
 
 // buildMemberObject - This is to avoid having to repeat the code every time I need to read this field
 func buildMemberObject(memberSet *schema.Set) dhcprange.Member {
 
-	member := dhcprange.Member{InternalType: "dhcpmember"}
+	member := dhcprange.Member{ElementType: "dhcpmember"}
 
 	for _, object := range memberSet.List() {
 		memberObject := object.(map[string]interface{})
 		if address, ok := memberObject["ipv4_addr"].(string); ok {
-			member.Address = address
+			member.IPv4Address = address
 		}
 		if memberFQDN, ok := memberObject["name"].(string); ok {
 			member.Name = memberFQDN
@@ -185,7 +291,7 @@ func flattenMember(member *dhcprange.Member) []map[string]interface{} {
 		return nil
 	}
 	r := make(map[string]interface{})
-	r["ipv4_addr"] = member.Address
+	r["ipv4_addr"] = member.IPv4Address
 	r["name"] = member.Name
 	result = append(result, r)
 	return result

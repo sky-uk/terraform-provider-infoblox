@@ -7,14 +7,19 @@ type DHCPRange struct {
 	End               string `json:"end_addr"`
 	Network           string `json:"network"`
 	NetworkView       string `json:"network_view"`
-	Restart           bool   `json:"restart_if_needed"`
-	ServerAssociation string `json:"server_association_type"`
-	Member            Member `json:"member"`
+	Restart           *bool  `json:"restart_if_needed,omitempty"`
+	ServerAssociation string `json:"server_association_type,omitempty"`
+	Name              string `json:"name,omitempty"`
+	Comment           string `json:"comment,omitempty"`
+	Member            Member `json:"member,omitempty"`
 }
 
-// Member struct
+// Member - Grid member serving DHCP struct
+// All members in the array must be of the same type.
+// the struct type must be indicated in each element, by setting the “_struct” member to the struct type.
 type Member struct {
-	InternalType string `json:"_struct"`
-	Address      string `json:"ipv4addr"`
-	Name         string `json:"name"`
+	ElementType string `json:"_struct"`
+	IPv4Address string `json:"ipv4addr,omitempty"`
+	IPv6Address string `json:"ipv6addr,omitempty"`
+	Name        string `json:"name,omitempty"`
 }
