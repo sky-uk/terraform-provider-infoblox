@@ -1,14 +1,20 @@
 # skyinfoblox - Go library for the Infoblox appliance
 
 This is the GoLang API wrapper for Infoblox. This is currently used for building terraform provider for the same.
+This package is based on the Infoblox WAPI library version 2.3.1.
+Wapi library documentation can be accessed here:
 
-Building the cli binary
+https://h1infoblox.devops.int.ovp.bskyb.com/wapidoc/index.html
+
+
+
+## Building the cli binary
 ```
 make all
 
 ```
 
-Run Unit tests
+## Run Unit tests
 ```
 make test
 
@@ -36,6 +42,12 @@ $ ./skyinfoblox-cli
       records-show-all
       zone-create
       zone-delete
+      network-show
+      network-delete
+      network-create
+      range-show
+      range-create
+      range-delete
 
 ```
 
@@ -62,7 +74,7 @@ $ ./skyinfoblox-cli
 
 ```
 
-Development
+## Development
 
 during your development, you can run the cli with following command.
 ```

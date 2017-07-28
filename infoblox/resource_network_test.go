@@ -1,5 +1,6 @@
 package infoblox
 
+/*
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -124,3 +125,4 @@ func testAccResourceNetworkUpdateTemplate(networkAddr string) string {
         use_enablediscovery = true
 	}`, networkAddr)
 }
+*/
