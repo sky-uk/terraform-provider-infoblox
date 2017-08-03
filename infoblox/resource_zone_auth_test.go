@@ -1,6 +1,5 @@
 package infoblox
 
-/*
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -21,9 +20,11 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 	fmt.Printf("\n\nForward FQDN is %s\n\n", testFQDN)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccInfobloxZoneAuthCheckDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: func(state *terraform.State) error {
+			return testAccInfobloxZoneAuthCheckDestroy(state, testFQDN)
+		},
 		Steps: []resource.TestStep{
 
 			{
@@ -76,7 +77,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soarefresh", "1200"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soaretry", "300"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "false"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegrityenable", "true"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegrityenable", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "nonprdibxdns01.bskyb.com"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.type", "addressac"),
@@ -88,7 +89,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.2.type", "tsigac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.2.tsigkey", "0jnu3SdsMvzzlmTDPYRceA=="),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.2.tsigkeyalgorithm", "HMAC-SHA256"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.2.tsigkeyname", "abc.key"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.2.tsigkeyname", "acc-test.key"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.2.usetsigkeyname", "true"),
 				),
 			},
@@ -106,7 +107,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soarefresh", "1800"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soaretry", "150"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "true"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegrityenable", "true"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegrityenable", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dnsintegritymember", "nonprdibxdns01.bskyb.com"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allowupdate.0.type", "tsigac"),
@@ -182,7 +183,7 @@ func testAccInfobloxZoneAuthExists(testFQDN, resourceName string) resource.TestC
 	}
 }
 
-func testAccInfobloxZoneAuthCheckDestroy(state *terraform.State) error {
+func testAccInfobloxZoneAuthCheckDestroy(state *terraform.State, fqdn string) error {
 
 	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
 
@@ -190,7 +191,7 @@ func testAccInfobloxZoneAuthCheckDestroy(state *terraform.State) error {
 		if rs.Type != "infoblox_zone_auth" {
 			continue
 		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id != "" {
+		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
 			return nil
 		}
 		api := zoneauth.NewGetAllZones()
@@ -199,9 +200,8 @@ func testAccInfobloxZoneAuthCheckDestroy(state *terraform.State) error {
 			return nil
 		}
 		for _, zone := range *api.GetResponse() {
-			matched, _ := regexp.MatchString("acctest-infoblox-zone-auth-.*.slupaas.bskyb.com", zone.FQDN)
-			if matched {
-				return fmt.Errorf("Infoblox Zone %s still exists", zone.FQDN)
+			if zone.FQDN == fqdn {
+				return fmt.Errorf("Infoblox Zone %s still exists", fqdn)
 			}
 		}
 	}
@@ -342,7 +342,7 @@ allowupdate = [
   type = "tsigac"
   tsigkey = "0jnu3SdsMvzzlmTDPYRceA=="
   tsigkeyalgorithm = "HMAC-SHA256"
-  tsigkeyname = "abc.key"
+  tsigkeyname = "acc-test.key"
   usetsigkeyname = true
 },
 ]}`, testFQDN)
@@ -419,4 +419,3 @@ allowupdate = [
   permission = "ALLOW"
 },]}`, testFQDN)
 }
-*/
