@@ -49,10 +49,10 @@ func testAccResourceARecordDestroy(state *terraform.State) error {
 			return nil
 		}
 		fields := []string{"name", "ipv4addr", "ttl"}
-		api := records.NewGetARecord(rs.Primary.Attributes["res"], fields)
+		api := records.NewGetARecord(rs.Primary.Attributes["id"], fields)
 		err := infobloxClient.Do(api)
 		if err != nil {
-			return nil
+			return err
 		}
 
 		if api.GetResponse().Name == "arecordcreatedtest.slupaas.bskyb.com" {

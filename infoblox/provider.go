@@ -50,6 +50,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_network":      resourceNetwork(),
 			"infoblox_zone_auth":    resourceZoneAuth(),
 			"infoblox_dhcp_range":   resourceDHCPRange(),
+			"infoblox_admin_user":   resourceAdminUser(),
 			"infoblox_admin_group":  resourceAdminGroup(),
 			"infoblox_admin_role":   resourceAdminRole(),
 		},

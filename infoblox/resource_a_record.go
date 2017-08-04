@@ -91,8 +91,7 @@ func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	response := createAPI.GetResponse()
 	d.SetId(response)
-	resourceARecordRead(d, m)
-	return nil
+	return resourceARecordRead(d, m)
 }
 
 func resourceARecordRead(d *schema.ResourceData, m interface{}) error {
