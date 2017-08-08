@@ -8,13 +8,17 @@ import (
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/records"
 	"net/http"
-	"strconv"
 	"testing"
 )
 
 func TestAccResourceTXTRecord(t *testing.T) {
-	recordName := "txtrecordcreated-" + strconv.Itoa(acctest.RandInt()) + ".testzone.slupaas.bskyb.com"
+
+	randInt := acctest.RandInt()
+	recordName := fmt.Sprintf("txt-record-created-%d.slupaas.bskyb.com", randInt)
 	resourceName := "infoblox_txtrecord.acctest"
+
+	fmt.Printf("\n\nAcc Test record name is %s\n\n", recordName)
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -86,7 +90,6 @@ func testAccResourceTXTRecordDestroy(state *terraform.State) error {
 		}
 		return nil
 	}
-	//return errors.New("infoblox_txtrecord resorce not found")
 	return nil
 }
 

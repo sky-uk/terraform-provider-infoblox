@@ -7,17 +7,23 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/records"
-	"strconv"
 	"testing"
 )
 
 func TestAccResourceSRVRecord(t *testing.T) {
-	recordName := "srv-recordcreated-" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
+
+	randInt := acctest.RandInt()
+	recordName := fmt.Sprintf("srv-recordcreated-%d.slupaas.bskyb.com", randInt)
 	resourceName := "infoblox_srv_record.acctest"
+
+	fmt.Printf("\n\nAcc Test record name is %s\n\n", recordName)
+
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccResourceSRVRecordDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: func(state *terraform.State) error {
+			return testAccResourceSRVRecordDestroy(state, recordName)
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceSRVRecordCreateTemplate(recordName),
@@ -80,7 +86,7 @@ func testAccResourceSRVRecordExists(recordName, resourceName string) resource.Te
 	}
 }
 
-func testAccResourceSRVRecordDestroy(state *terraform.State) error {
+func testAccResourceSRVRecordDestroy(state *terraform.State, recordName string) error {
 	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
 	returnFields := []string{"name"}
 
@@ -88,7 +94,7 @@ func testAccResourceSRVRecordDestroy(state *terraform.State) error {
 		if rs.Type != "infoblox_srv_record" {
 			continue
 		}
-		if res, ok := rs.Primary.Attributes["ref"]; ok && res != "" {
+		if res, ok := rs.Primary.Attributes["ref"]; ok && res == "" {
 			return nil
 		}
 		api := records.NewGetSRVRecord(rs.Primary.Attributes["res"], returnFields)
@@ -96,11 +102,11 @@ func testAccResourceSRVRecordDestroy(state *terraform.State) error {
 		if err != nil {
 			return nil
 		}
+		response := *api.ResponseObject().(*string)
 
-		if api.GetResponse().Name == "srv-recordcreated.slupaas.bskyb.com" {
-			return fmt.Errorf("A record still exists: %+v", api.GetResponse())
+		if response == recordName {
+			return fmt.Errorf("A record %s still exists", recordName)
 		}
-
 	}
 	return nil
 }

@@ -53,6 +53,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_admin_user":   resourceAdminUser(),
 			"infoblox_admin_group":  resourceAdminGroup(),
 			"infoblox_admin_role":   resourceAdminRole(),
+			"infoblox_ns_record":    resourceNSRecord(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

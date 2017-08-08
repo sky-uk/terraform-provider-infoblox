@@ -7,17 +7,23 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/records"
-	"strconv"
 	"testing"
 )
 
 func TestAccResourceARecord(t *testing.T) {
-	recordName := "arecordcreatedtest-" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
+
+	randInt := acctest.RandInt()
+	recordName := fmt.Sprintf("a-record-test-%d.slupaas.bskyb.com", randInt)
 	resourceName := "infoblox_arecord.acctest"
+
+	fmt.Printf("\n\nAcc Test record name is %s\n\n", recordName)
+
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccResourceARecordDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: func(state *terraform.State) error {
+			return testAccResourceARecordDestroy(state, recordName)
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceARecordCreateTemplate(recordName),
@@ -41,13 +47,15 @@ func TestAccResourceARecord(t *testing.T) {
 	})
 }
 
-func testAccResourceARecordDestroy(state *terraform.State) error {
+func testAccResourceARecordDestroy(state *terraform.State, recordName string) error {
+
 	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
+
 	for _, rs := range state.RootModule().Resources {
 		if rs.Type != "infoblox_arecord" {
 			continue
 		}
-		if res, ok := rs.Primary.Attributes["ref"]; ok && res != "" {
+		if res, ok := rs.Primary.Attributes["ref"]; ok && res == "" {
 			return nil
 		}
 		fields := []string{"name", "ipv4addr", "ttl"}
@@ -56,8 +64,9 @@ func testAccResourceARecordDestroy(state *terraform.State) error {
 		if err != nil {
 			return err
 		}
+		response := *api.ResponseObject().(*string)
 
-		if api.GetResponse().Name == "arecordcreatedtest.slupaas.bskyb.com" {
+		if response == recordName {
 			return fmt.Errorf("A record still exists: %+v", api.GetResponse())
 		}
 
