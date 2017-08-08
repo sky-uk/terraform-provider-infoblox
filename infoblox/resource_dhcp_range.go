@@ -125,8 +125,8 @@ func resourceDHCPRangeCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if v, ok := d.GetOk("restart"); ok {
-		rangeRestart := v.(bool)
-		rangeCreate.Restart = &rangeRestart
+		flag := v.(bool)
+		rangeCreate.Restart = &flag
 	}
 
 	createDHCPRangeAPI := dhcprange.NewCreateDHCPRange(rangeCreate)

@@ -17,28 +17,28 @@ func TestAccResourceDHCPRange(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceDHCPRangeDestroy,
 		Steps:        []resource.TestStep{
-		/*
-			{
-				Config: testAccResourceDHCPRangeCreateTemplate(network),
-				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDHCPRangeExists(network, resourceName),
-					resource.TestCheckResourceAttr(resourceName, "network", network),
-					resource.TestCheckResourceAttr(resourceName, "network_view", "default"),
-					resource.TestCheckResourceAttr(resourceName, "start", "10.154.0.30"),
-					resource.TestCheckResourceAttr(resourceName, "end", "10.154.0.40"),
-					resource.TestCheckResourceAttr(resourceName, "server_association", "MEMBER"),
-				),
-			}, {
-				Config: testAccResourceDHCPRangeUpdateTemplate(network),
-				Check: resource.ComposeTestCheckFunc(
-					testAccResourceDHCPRangeExists(network, resourceName),
-					resource.TestCheckResourceAttr(resourceName, "network", network),
-					resource.TestCheckResourceAttr(resourceName, "network_view", "new_view"),
-					resource.TestCheckResourceAttr(resourceName, "start", "10.154.0.30"),
-					resource.TestCheckResourceAttr(resourceName, "start", "10.154.0.50"),
-					resource.TestCheckResourceAttr(resourceName, "server_association", "MEMBER"),
-				),
-			},*/
+		/* DO NOT UNCOMMENT THESE LINES UNLESS YOU KNOW WHAT YOU ARE DOING !!!
+		{
+			Config: testAccResourceDHCPRangeCreateTemplate(network),
+			Check: resource.ComposeTestCheckFunc(
+				testAccResourceDHCPRangeExists(network, resourceName),
+				resource.TestCheckResourceAttr(resourceName, "network", network),
+				resource.TestCheckResourceAttr(resourceName, "network_view", "default"),
+				resource.TestCheckResourceAttr(resourceName, "start", "10.154.0.30"),
+				resource.TestCheckResourceAttr(resourceName, "end", "10.154.0.40"),
+				resource.TestCheckResourceAttr(resourceName, "server_association", "MEMBER"),
+			),
+		}, {
+			Config: testAccResourceDHCPRangeUpdateTemplate(network),
+			Check: resource.ComposeTestCheckFunc(
+				testAccResourceDHCPRangeExists(network, resourceName),
+				resource.TestCheckResourceAttr(resourceName, "network", network),
+				resource.TestCheckResourceAttr(resourceName, "network_view", "new_view"),
+				resource.TestCheckResourceAttr(resourceName, "start", "10.154.0.30"),
+				resource.TestCheckResourceAttr(resourceName, "start", "10.154.0.50"),
+				resource.TestCheckResourceAttr(resourceName, "server_association", "MEMBER"),
+			),
+		},*/
 		},
 	})
 

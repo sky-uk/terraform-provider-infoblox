@@ -8,13 +8,13 @@ import (
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/zoneauth"
 	"regexp"
+	"strconv"
 	"testing"
 )
 
 func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 
-	randomInt := acctest.RandInt()
-	testFQDN := fmt.Sprintf("acctest-infoblox-zone-auth-%d.slupaas.bskyb.com", randomInt)
+	testFQDN := "acctest-infoblox-zone-auth-" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
 	testFQDNResourceName := "infoblox_zone_auth.acctest"
 
 	fmt.Printf("\n\nForward FQDN is %s\n\n", testFQDN)

@@ -1,17 +1,18 @@
 package infoblox
 
-/*
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/network"
+	"strconv"
 	"testing"
 )
 
 func TestAccResourceNetwork(t *testing.T) {
-	networkAddr := "10.0.0.0/24"
+	networkAddr := "10.0." + strconv.Itoa(acctest.RandIntRange(0, 255)) + ".0/24"
 	resourceName := "infoblox_network.net3"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -98,6 +99,7 @@ func testAccResourceNetworkCreateTemplate(networkAddr string) string {
 	resource "infoblox_network" "net3"{
 	network = "%s"
 	comment = "a comment on a network"
+    disable = true
 	}`, networkAddr)
 }
 
@@ -107,22 +109,14 @@ func testAccResourceNetworkUpdateTemplate(networkAddr string) string {
 	network = "%s"
 	comment = "another comment on a network"
 	disable = true
-	option {
-            name = "routers",
-            num = 3,
-            useoption = true,
-            value =  "10.0.0.1",
-            vendorclass =  "DHCP"
-           }
    	high_watermark = 90
-        high_watermark_reset = 80
-        low_watermark = 7
-        low_watermark_reset = 11
-        enabledhcpthresholds = false
-        use_enabledhcpthresholds = false
-        //discovery_member = "slunonprdirep01.bskyb.com"
-        //enablediscovery = true
-        use_enablediscovery = true
+    high_watermark_reset = 80
+    low_watermark = 7
+    low_watermark_reset = 11
+    enabledhcpthresholds = false
+    use_enabledhcpthresholds = false
+    //discovery_member = "slunonprdirep01.bskyb.com"
+    //enablediscovery = true
+    use_enablediscovery = true
 	}`, networkAddr)
 }
-*/

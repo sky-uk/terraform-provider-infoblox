@@ -2,15 +2,17 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/records"
+	"strconv"
 	"testing"
 )
 
 func TestAccResourceARecord(t *testing.T) {
-	recordName := "arecordcreatedtest.slupaas.bskyb.com"
+	recordName := "arecordcreatedtest-" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
 	resourceName := "infoblox_arecord.acctest"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +24,7 @@ func TestAccResourceARecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceARecordExists(recordName, resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", recordName),
-					resource.TestCheckResourceAttr(resourceName, "address", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "address", "10.0.0.10"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "9000"),
 				),
 			},
@@ -31,7 +33,7 @@ func TestAccResourceARecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceARecordExists(recordName, resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", recordName),
-					resource.TestCheckResourceAttr(resourceName, "address", "1.2.3.4"),
+					resource.TestCheckResourceAttr(resourceName, "address", "10.0.0.10"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "900"),
 				),
 			},
@@ -94,7 +96,7 @@ func testAccResourceARecordCreateTemplate(arecordName string) string {
 	return fmt.Sprintf(`
 	resource "infoblox_arecord" "acctest"{
 	name = "%s"
-	address = "1.2.3.4"
+	address = "10.0.0.10"
 	ttl = 9000
 	}`, arecordName)
 }
@@ -103,7 +105,7 @@ func testAccResourceARecordUpdateTemplate(arecordName string) string {
 	return fmt.Sprintf(`
 	resource "infoblox_arecord" "acctest"{
 	name = "%s"
-	address = "1.2.3.4"
+	address = "10.0.0.10"
 	ttl = 900
 	}`, arecordName)
 }

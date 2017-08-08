@@ -2,16 +2,18 @@ package infoblox
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/records"
 	"net/http"
+	"strconv"
 	"testing"
 )
 
 func TestAccResourceTXTRecord(t *testing.T) {
-	recordName := "txtrecordcreated.testzone.slupaas.bskyb.com"
+	recordName := "txtrecordcreated-" + strconv.Itoa(acctest.RandInt()) + ".testzone.slupaas.bskyb.com"
 	resourceName := "infoblox_txtrecord.acctest"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

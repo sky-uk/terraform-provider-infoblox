@@ -171,10 +171,10 @@
 			"revisionTime": "2017-02-02T18:38:21Z"
 		},
 		{
-			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
+			"checksumSHA1": "mrz/kicZiUaHxkyfvC/DyQcr8Do=",
 			"path": "github.com/davecgh/go-spew/spew",
-			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
-			"revisionTime": "2016-10-29T20:57:26Z"
+			"revision": "adab96458c51a58dc1783b3335dcce5461522e75",
+			"revisionTime": "2017-07-11T18:34:51Z"
 		},
 		{
 			"checksumSHA1": "KIui02MZXkQsIP+Oir4Iv/tq/SU=",
@@ -465,6 +465,11 @@
 			"revisionTime": "2017-05-08T17:38:06Z"
 		},
 		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
 			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
 			"path": "github.com/satori/go.uuid",
 			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
@@ -543,12 +548,32 @@
 			"versionExact": "0.0.16"
 		},
 		{
+			"checksumSHA1": "NoyKr+WLafmpetdNpjaeIQQoXbQ=",
+			"path": "github.com/sky-uk/skyinfoblox/api/records",
+			"revision": "f84fca9b318d3acc57340caf6a29b153ff497bfd",
+			"revisionTime": "2017-08-01T09:20:35Z",
+			"version": "0.0.12",
+			"versionExact": "0.0.12"
+		},
+		{
 			"checksumSHA1": "6aqyL0x5SoONWi6I51irvwDteI4=",
 			"path": "github.com/sky-uk/skyinfoblox/api/zoneauth",
 			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
 			"revisionTime": "2017-08-03T16:41:40Z",
 			"version": "0.0.16",
 			"versionExact": "0.0.16"
+		},
+                {
+                        "checksumSHA1": "J+ppEq6nYMKxhB9+c+MD1x9UwSc=",
+                        "path": "github.com/stretchr/testify/assert",
+                        "revision": "05e8a0eda380579888eb53c394909df027f06991",
+                        "revisionTime": "2017-07-13T16:51:06Z"
+                },
+		{
+			"checksumSHA1": "J+ppEq6nYMKxhB9+c+MD1x9UwSc=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "05e8a0eda380579888eb53c394909df027f06991",
+			"revisionTime": "2017-07-13T16:51:06Z"
 		},
 		{
 			"checksumSHA1": "UWjVYmoHlIfHzVIskELHiJQtMOI=",

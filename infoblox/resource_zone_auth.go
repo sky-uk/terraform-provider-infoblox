@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/zoneauth"
+	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
 	"net/http"
 	"strings"
 )
@@ -46,6 +47,12 @@ func resourceZoneAuth() *schema.Resource {
 				Computed:     true,
 				ForceNew:     true,
 			},
+			"restart_if_needed": {
+				Type:        schema.TypeBool,
+				Description: "Restarts the member service. The default value is False. Not readable",
+				Optional:    true,
+				Computed:    true,
+			},
 			"prefix": {
 				Type:         schema.TypeString,
 				Description:  "The RFC2317 prefix value of this DNS zone",
@@ -70,6 +77,281 @@ func resourceZoneAuth() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
+			"externalprimaries": {
+				Type:        schema.TypeList,
+				Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Type:        schema.TypeString,
+							Description: "The IPv4 Address or IPv6 Address of the server.",
+							Required:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "A resolvable domain name for the external DNS server.",
+							Required:    true,
+						},
+						"sharedwithmsparentdelegation": {
+							Type:        schema.TypeBool,
+							Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
+							Optional:    true,
+							Computed:    true,
+						},
+						"stealth": {
+							Type:        schema.TypeBool,
+							Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
+							Optional:    true,
+						},
+						"tsigkey": {
+							Type:        schema.TypeString,
+							Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
+							Optional:    true,
+							Default:     "",
+						},
+						"tsigkeyalg": {
+							Type:        schema.TypeString,
+							Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
+							Optional:    true,
+						},
+						"tsigkeyname": {
+							Type:        schema.TypeString,
+							Description: "The TSIG key name.",
+							Optional:    true,
+						},
+						"usetsigkeyname": {
+							Type:        schema.TypeBool,
+							Description: "Use flag for: tsig_key_name",
+							Optional:    true,
+						},
+					},
+				},
+			},
+			"externalsecondaries": {
+				Type:        schema.TypeList,
+				Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"address": {
+							Type:        schema.TypeString,
+							Description: "The IPv4 Address or IPv6 Address of the server.",
+							Required:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "A resolvable domain name for the external DNS server.",
+							Required:    true,
+						},
+						"sharedwithmsparentdelegation": {
+							Type:        schema.TypeBool,
+							Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
+							Optional:    true,
+							Computed:    true,
+						},
+						"stealth": {
+							Type:        schema.TypeBool,
+							Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
+							Optional:    true,
+						},
+						"tsigkey": {
+							Type:        schema.TypeString,
+							Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
+							Optional:    true,
+						},
+						"tsigkeyalg": {
+							Type:        schema.TypeString,
+							Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
+							Optional:    true,
+						},
+						"tsigkeyname": {
+							Type:        schema.TypeString,
+							Description: "The TSIG key name.",
+							Optional:    true,
+						},
+						"usetsigkeyname": {
+							Type:        schema.TypeBool,
+							Description: "Use flag for: tsig_key_name",
+							Optional:    true,
+						},
+					},
+				},
+			},
+			"gridprimary": {
+				Type:        schema.TypeList,
+				Description: "The grid primary servers for this zone.",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"gridreplicate": {
+							Type:        schema.TypeBool,
+							Description: "The flag represents DNS zone transfers if set to True, and ID Grid Replication if set to False. This flag is ignored if the struct is specified as part of a stub zone or if it is set as grid_member in an authoritative zone.",
+							Optional:    true,
+						},
+						"lead": {
+							Type:        schema.TypeBool,
+							Description: "This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.",
+							Optional:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The grid member name.",
+							Required:    true,
+						},
+						"enablepreferredprimaries": {
+							Type:        schema.TypeBool,
+							Description: "This flag represents whether the preferred_primaries field values of this member are used. Defaults to false",
+							Optional:    true,
+						},
+						"preferredprimaries": {
+							Type:        schema.TypeList,
+							Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": {
+										Type:        schema.TypeString,
+										Description: "The IPv4 Address or IPv6 Address of the server.",
+										Required:    true,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Description: "A resolvable domain name for the external DNS server.",
+										Required:    true,
+									},
+									"sharedwithmsparentdelegation": {
+										Type:        schema.TypeBool,
+										Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
+										Optional:    true,
+										Computed:    true,
+									},
+									"stealth": {
+										Type:        schema.TypeBool,
+										Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
+										Optional:    true,
+									},
+									"tsigkey": {
+										Type:        schema.TypeString,
+										Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
+										Optional:    true,
+									},
+									"tsigkeyalg": {
+										Type:        schema.TypeString,
+										Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
+										Optional:    true,
+									},
+									"tsigkeyname": {
+										Type:        schema.TypeString,
+										Description: "The TSIG key name.",
+										Optional:    true,
+									},
+									"usetsigkeyname": {
+										Type:        schema.TypeBool,
+										Description: "Use flag for: tsig_key_name",
+										Optional:    true,
+									},
+								},
+							},
+						},
+						"stealth": {
+							Type:        schema.TypeBool,
+							Description: "This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.",
+							Optional:    true,
+						},
+					},
+				},
+			},
+			"gridprimarysharedwithmsparentdelegation": {
+				Type:        schema.TypeBool,
+				Description: "Determines if the server is duplicated with parent delegation.cannot be updated, nor written",
+				Optional:    true,
+				Computed:    true,
+			},
+			"gridsecondaries": {
+				Type:        schema.TypeList,
+				Description: "The list with Grid members that are secondary servers for this zone.",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"gridreplicate": {
+							Type:        schema.TypeBool,
+							Description: "The flag represents DNS zone transfers if set to True, and ID Grid Replication if set to False. This flag is ignored if the struct is specified as part of a stub zone or if it is set as grid_member in an authoritative zone.",
+							Optional:    true,
+						},
+						"lead": {
+							Type:        schema.TypeBool,
+							Description: "This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.",
+							Optional:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The grid member name.",
+							Required:    true,
+						},
+						"enablepreferredprimaries": {
+							Type:        schema.TypeBool,
+							Description: "This flag represents whether the preferred_primaries field values of this member are used. Defaults to false",
+							Optional:    true,
+						},
+						"preferredprimaries": {
+							Type:        schema.TypeList,
+							Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": {
+										Type:        schema.TypeString,
+										Description: "The IPv4 Address or IPv6 Address of the server.",
+										Required:    true,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Description: "A resolvable domain name for the external DNS server.",
+										Required:    true,
+									},
+									"sharedwithmsparentdelegation": {
+										Type:        schema.TypeBool,
+										Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
+										Optional:    true,
+										Computed:    true,
+									},
+									"stealth": {
+										Type:        schema.TypeBool,
+										Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
+										Optional:    true,
+									},
+									"tsigkey": {
+										Type:        schema.TypeString,
+										Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
+										Optional:    true,
+									},
+									"tsigkeyalg": {
+										Type:        schema.TypeString,
+										Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
+										Optional:    true,
+									},
+									"tsigkeyname": {
+										Type:        schema.TypeString,
+										Description: "The TSIG key name.",
+										Optional:    true,
+									},
+									"usetsigkeyname": {
+										Type:        schema.TypeBool,
+										Description: "Use flag for: tsig_key_name",
+										Optional:    true,
+									},
+								},
+							},
+						},
+						"stealth": {
+							Type:        schema.TypeBool,
+							Description: "This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.",
+							Optional:    true,
+						},
+					},
+				},
+			},
 			"locked": {
 				Type:        schema.TypeBool,
 				Description: "If you enable this flag, other administrators cannot make conflicting changes",
@@ -84,6 +366,12 @@ func resourceZoneAuth() *schema.Resource {
 			"networkview": {
 				Type:        schema.TypeString,
 				Description: "The name of the network view in which this zone resides (read-only)",
+				Computed:    true,
+			},
+			"nsgroup": {
+				Type:        schema.TypeString,
+				Description: "The name server group that serves DNS for this zone.",
+				Optional:    true,
 				Computed:    true,
 			},
 			"soaserialnumber": {
@@ -265,6 +553,9 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	} else {
 		return fmt.Errorf("Infoblox Zone Auth Create Error: name argument required")
 	}
+	if v, ok := d.GetOk("nsgroup"); ok && v != "" {
+		dnsZone.NSGroup = v.(string)
+	}
 	if v, ok := d.GetOk("view"); ok && v != "" {
 		dnsZone.View = v.(string)
 	}
@@ -287,6 +578,34 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	}
 	if v, ok := d.GetOk("dnsintegritymember"); ok {
 		dnsZone.DNSIntegrityMember = v.(string)
+	}
+	if v, ok := d.GetOk("externalprimaries"); ok {
+		servers := []map[string]interface{}{}
+		for _, server := range v.([]interface{}) {
+			servers = append(servers, server.(map[string]interface{}))
+		}
+		dnsZone.ExternalPrimaries = util.BuildExternalServerListFromT(servers)
+	}
+	if v, ok := d.GetOk("externalsecondaries"); ok {
+		servers := []map[string]interface{}{}
+		for _, server := range v.([]interface{}) {
+			servers = append(servers, server.(map[string]interface{}))
+		}
+		dnsZone.ExternalSecondaries = util.BuildExternalServerListFromT(servers)
+	}
+	if v, ok := d.GetOk("gridprimary"); ok {
+		servers := make([]map[string]interface{}, 0)
+		for _, server := range v.([]interface{}) {
+			servers = append(servers, server.(map[string]interface{}))
+		}
+		dnsZone.GridPrimary = util.BuildMemberServerListFromT(servers)
+	}
+	if v, ok := d.GetOk("gridsecondaries"); ok {
+		servers := make([]map[string]interface{}, 0)
+		for _, server := range v.([]interface{}) {
+			servers = append(servers, server.(map[string]interface{}))
+		}
+		dnsZone.GridSecondaries = util.BuildMemberServerListFromT(servers)
 	}
 	if v, ok := d.GetOk("locked"); ok {
 		zoneLocked := v.(bool)
@@ -342,9 +661,13 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	return resourceZoneAuthRead(d, m)
 }
 
+func returnFields() []string {
+	return []string{"fqdn", "comment", "zone_format", "view", "prefix", "soa_serial_number", "soa_default_ttl", "soa_negative_ttl", "soa_refresh", "soa_retry", "disable", "dns_integrity_enable", "dns_integrity_member", "external_primaries", "external_secondaries", "grid_primary", "grid_secondaries", "grid_primary_shared_with_ms_parent_delegation", "locked", "locked_by", "network_view", "ns_group", "allow_update"}
+}
+
 func resourceZoneAuthRead(d *schema.ResourceData, m interface{}) error {
 
-	returnFields := []string{"fqdn", "comment", "zone_format", "view", "prefix", "soa_default_ttl", "soa_negative_ttl", "soa_refresh", "soa_retry", "soa_serial_number", "disable", "dns_integrity_enable", "dns_integrity_member", "locked", "locked_by", "network_view", "allow_update"}
+	returnFields := returnFields()
 	resourceReference := d.Id()
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
 	getZone := zoneauth.NewGetSingleZone(resourceReference, returnFields)
@@ -374,9 +697,15 @@ func resourceZoneAuthRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("disable", response.Disable)
 	d.Set("dnsintegrityenable", response.DNSIntegrityEnable)
 	d.Set("dnsintegritymember", response.DNSIntegrityMember)
-	d.Set("locked", response.DNSIntegrityMember)
+	d.Set("externalprimaries", util.BuildExternalServersListFromIBX(response.ExternalPrimaries))
+	d.Set("externalsecondaries", util.BuildExternalServersListFromIBX(response.ExternalSecondaries))
+	d.Set("gridprimarysharedwithmsparentdelegation", response.GridPrimarySharedWithMSParentDelegation)
+	d.Set("gridprimary", util.BuildMemberServerListFromIBX(response.GridPrimary))
+	d.Set("gridsecondaries", util.BuildMemberServerListFromIBX(response.GridSecondaries))
+	d.Set("locked", response.Locked)
 	d.Set("lockedby", response.LockedBy)
 	d.Set("networkview", response.NetworkView)
+	d.Set("nsgroup", response.NSGroup)
 	d.Set("allowupdate", response.AllowUpdate)
 
 	return nil
@@ -387,7 +716,7 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 	var updateZoneAuth zoneauth.DNSZone
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
 	hasChanges := false
-	returnFields := []string{"fqdn", "comment", "prefix", "soa_default_ttl", "soa_negative_ttl", "soa_refresh", "soa_retry", "disable", "dns_integrity_enable", "dns_integrity_member", "locked", "allow_update"}
+	returnFields := returnFields()
 	resourceReference := d.Id()
 	updateZoneAuth.Reference = resourceReference
 	gridTimer := true
@@ -395,6 +724,14 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("comment") {
 		if v, ok := d.GetOk("comment"); ok {
 			updateZoneAuth.Comment = v.(string)
+		}
+		hasChanges = true
+	}
+	if d.HasChange("restart_if_needed") {
+		if v, ok := d.GetOk("restart_if_needed"); ok && v != nil {
+			soaTTL := v.(int)
+			updateZoneAuth.SOADefaultTTL = uint(soaTTL)
+			updateZoneAuth.UseGridZoneTimer = &gridTimer
 		}
 		hasChanges = true
 	}
@@ -441,6 +778,11 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		updateZoneAuth.Disable = &dnsZoneDisable
 		hasChanges = true
 	}
+	if d.HasChange("restart_if_needed") {
+		flag := d.Get("restart_if_needed").(bool)
+		updateZoneAuth.RestartIfNeeded = &flag
+		hasChanges = true
+	}
 	if d.HasChange("dnsintegrityenable") {
 		dnsIntegrityEnable := d.Get("dnsintegrityenable").(bool)
 		updateZoneAuth.DNSIntegrityEnable = &dnsIntegrityEnable
@@ -452,9 +794,55 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		hasChanges = true
 	}
+	if d.HasChange("externalprimaries") {
+		if v, ok := d.GetOk("externalprimaries"); ok {
+			servers := []map[string]interface{}{}
+			for _, server := range v.([]interface{}) {
+				servers = append(servers, server.(map[string]interface{}))
+			}
+			updateZoneAuth.ExternalPrimaries = util.BuildExternalServerListFromT(servers)
+		}
+		hasChanges = true
+	}
+	if d.HasChange("externalsecondaries") {
+		if v, ok := d.GetOk("externalsecondaries"); ok {
+			servers := []map[string]interface{}{}
+			for _, server := range v.([]interface{}) {
+				servers = append(servers, server.(map[string]interface{}))
+			}
+			updateZoneAuth.ExternalSecondaries = util.BuildExternalServerListFromT(servers)
+		}
+		hasChanges = true
+	}
+	if d.HasChange("gridprimary") {
+		if v, ok := d.GetOk("gridprimary"); ok {
+			servers := make([]map[string]interface{}, 0)
+			for _, server := range v.([]interface{}) {
+				servers = append(servers, server.(map[string]interface{}))
+			}
+			updateZoneAuth.GridPrimary = util.BuildMemberServerListFromT(servers)
+		}
+		hasChanges = true
+	}
+	if d.HasChange("gridsecondaries") {
+		if v, ok := d.GetOk("gridsecondaries"); ok {
+			servers := make([]map[string]interface{}, 0)
+			for _, server := range v.([]interface{}) {
+				servers = append(servers, server.(map[string]interface{}))
+			}
+			updateZoneAuth.GridSecondaries = util.BuildMemberServerListFromT(servers)
+		}
+		hasChanges = true
+	}
 	if d.HasChange("locked") {
 		zoneLocked := d.Get("locked").(bool)
 		updateZoneAuth.Locked = &zoneLocked
+		hasChanges = true
+	}
+	if d.HasChange("nsgroup") {
+		if v, ok := d.GetOk("nsgroup"); ok && v != "" {
+			updateZoneAuth.NSGroup = v.(string)
+		}
 		hasChanges = true
 	}
 	if d.HasChange("allowupdate") {
@@ -464,7 +852,7 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		hasChanges = true
 	}
 
-	if hasChanges {
+	if hasChanges == true {
 		updateAPI := zoneauth.NewUpdate(updateZoneAuth, returnFields)
 		err := infobloxClient.Do(updateAPI)
 		if err != nil {
@@ -473,20 +861,6 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		if updateAPI.StatusCode() != http.StatusOK {
 			return fmt.Errorf("Infoblox Zone Auth Update return code != 200")
 		}
-
-		response := updateAPI.GetResponse()
-		d.SetId(response.Reference)
-		d.Set("comment", response.Comment)
-		d.Set("prefix", response.Prefix)
-		d.Set("soattl", response.SOADefaultTTL)
-		d.Set("soanegativettl", response.SOANegativeTTL)
-		d.Set("soarefresh", response.SOARefresh)
-		d.Set("soaretry", response.SOARetry)
-		d.Set("disable", *response.Disable)
-		d.Set("dnsintegrityenable", *response.DNSIntegrityEnable)
-		d.Set("dnsintegritymember", response.DNSIntegrityMember)
-		d.Set("locked", *response.Locked)
-		d.Set("allowupdate", response.AllowUpdate)
 	}
 	return resourceZoneAuthRead(d, m)
 }
