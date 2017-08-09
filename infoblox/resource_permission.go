@@ -37,6 +37,7 @@ func resourcePermission() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The type of resource this permission applies to.",
 				Optional:    true,
+				ForceNew:    true,
 			},
 			"role": {
 				Type:        schema.TypeString,
