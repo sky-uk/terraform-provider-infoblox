@@ -42,7 +42,7 @@ func resourceZoneAuth() *schema.Resource {
 			"zoneformat": {
 				Type:         schema.TypeString,
 				Description:  "Determines the format of this zone - API default FORWARD",
-				ValidateFunc: validateZoneFormat,
+				ValidateFunc: util.ValidateZoneFormat,
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
@@ -384,28 +384,28 @@ func resourceZoneAuth() *schema.Resource {
 				Description:  "The Time to Live (TTL) value of the SOA record of this zone",
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateZoneAuthUnsignedInteger,
+				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"soanegativettl": {
 				Type:         schema.TypeInt,
 				Description:  "The negative Time to Live (TTL)",
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateZoneAuthUnsignedInteger,
+				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"soarefresh": {
 				Type:         schema.TypeInt,
 				Description:  "This indicates the interval at which a secondary server sends a message to the primary server for a zone to check that its data is current, and retrieve fresh data if it is not",
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateZoneAuthUnsignedInteger,
+				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"soaretry": {
 				Type:         schema.TypeInt,
 				Description:  "This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs",
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateZoneAuthUnsignedInteger,
+				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"allowupdate": {
 				Type:        schema.TypeList,
@@ -441,7 +441,7 @@ func resourceZoneAuth() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "The TSIG key algorithm",
 							Optional:     true,
-							ValidateFunc: validateZoneAuthAllowUpdateTSIGAlgorithm,
+							ValidateFunc: util.ValidateTSIGAlgorithm,
 						},
 						"tsigkeyname": {
 							Type:         schema.TypeString,
@@ -461,22 +461,6 @@ func resourceZoneAuth() *schema.Resource {
 	}
 }
 
-func validateZoneFormat(v interface{}, k string) (ws []string, errors []error) {
-	zoneFormat := v.(string)
-	if zoneFormat != "FORWARD" && zoneFormat != "IPV4" && zoneFormat != "IPV6" {
-		errors = append(errors, fmt.Errorf("%q must be one of FORWARD, IPV4 or IPV6", k))
-	}
-	return
-}
-
-func validateZoneAuthUnsignedInteger(v interface{}, k string) (ws []string, errors []error) {
-	ttl := v.(int)
-	if ttl < 0 {
-		errors = append(errors, fmt.Errorf("%q can't be negative", k))
-	}
-	return
-}
-
 func validateZoneAuthAllowUpdateType(v interface{}, k string) (ws []string, errors []error) {
 	allowUpdateType := v.(string)
 	if allowUpdateType != "addressac" && allowUpdateType != "tsigac" {
@@ -489,14 +473,6 @@ func validateZoneAuthAllowUpdatePermission(v interface{}, k string) (ws []string
 	permission := v.(string)
 	if permission != "ALLOW" && permission != "DENY" {
 		errors = append(errors, fmt.Errorf("%q must be one of ALLOW or DENY", k))
-	}
-	return
-}
-
-func validateZoneAuthAllowUpdateTSIGAlgorithm(v interface{}, k string) (ws []string, errors []error) {
-	tsigAlgorithm := v.(string)
-	if tsigAlgorithm != "HMAC-MD5" && tsigAlgorithm != "HMAC-SHA256" {
-		errors = append(errors, fmt.Errorf("%q must be one of HMAC-MD5 or HMAC-SHA256", k))
 	}
 	return
 }

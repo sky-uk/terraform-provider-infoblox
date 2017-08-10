@@ -476,100 +476,108 @@
 			"revisionTime": "2017-03-21T23:07:31Z"
 		},
 		{
-			"checksumSHA1": "RFmfBSd6AsJ+Q7q8zHiteR1qFL4=",
+			"checksumSHA1": "E1aDSvhny4JomSzYg81pzQ8FHFQ=",
 			"path": "github.com/sky-uk/skyinfoblox",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "wrHBYwDp40K+MM4UsIPNddcFYfc=",
 			"path": "github.com/sky-uk/skyinfoblox/api",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "aGTlCzIFy4JlbvsnRELtB99OYeo=",
 			"path": "github.com/sky-uk/skyinfoblox/api/admingroup",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "3R2UyIxAAjlC1CPaROefSsOS4QQ=",
 			"path": "github.com/sky-uk/skyinfoblox/api/adminrole",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "cxIePYr1WvEJhgXPIS10eZH5ZuQ=",
 			"path": "github.com/sky-uk/skyinfoblox/api/adminuser",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "Tvc3XaxKbDH+QdTh3DEvDxQN2K0=",
 			"path": "github.com/sky-uk/skyinfoblox/api/common",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "mpA6C5Vc5q0vXVX8B/SmHNDT43Q=",
 			"path": "github.com/sky-uk/skyinfoblox/api/dhcp_range",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "xnKxITJuC2Adu4Td80/zYWk/RzI=",
 			"path": "github.com/sky-uk/skyinfoblox/api/network",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "Ayrr/VJIW36q3ZkHJYfVefjytOQ=",
 			"path": "github.com/sky-uk/skyinfoblox/api/permission",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "uZ6Y5SKlXM3BCV0WiTozxnOGn2c=",
 			"path": "github.com/sky-uk/skyinfoblox/api/records",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "xW+5fqeq8bd9Z1s5dQruX4Hpgzk=",
 			"path": "github.com/sky-uk/skyinfoblox/api/records/nameserver",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "6aqyL0x5SoONWi6I51irvwDteI4=",
 			"path": "github.com/sky-uk/skyinfoblox/api/zoneauth",
-			"revision": "76f1c489f4417f774c9b845cebfe2441fbbe4c4f",
-			"revisionTime": "2017-08-03T16:41:40Z",
-			"version": "0.0.16",
-			"versionExact": "0.0.16"
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
+		},
+		{
+			"checksumSHA1": "vA1ewXVms0gIWp4ptvQCXp35wiw=",
+			"path": "github.com/sky-uk/skyinfoblox/api/zonedelegated",
+			"revision": "d065388b5b733f2921aca5f49cf6dc5f1090c300",
+			"revisionTime": "2017-08-09T15:50:18Z",
+			"version": "0.0.17",
+			"versionExact": "0.0.17"
 		},
 		{
 			"checksumSHA1": "J+ppEq6nYMKxhB9+c+MD1x9UwSc=",
