@@ -3,6 +3,9 @@ Terraform Provider
 
 Terraform provider for Infoblox appliance.
 
+https://jenkins.paas.int.ovp.bskyb.com/job/pipelines/job/terraform-provider-infoblox/job/master/badge/icon
+
+
 Requirements
 ------------
 
