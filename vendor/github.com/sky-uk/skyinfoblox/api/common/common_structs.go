@@ -21,3 +21,11 @@ type MemberServer struct {
 	PreferredPrimaries      []ExternalServer `json:"preferred_primaries,omitempty"`
 	Stealth                 *bool            `json:"stealth,omitempty"`
 }
+
+// ForwardingMemberServer - used by the zoneforward resource
+type ForwardingMemberServer struct {
+	Name                  string           `json:"name"`
+	ForwardTo             []ExternalServer `json:"forward_to,omitempty"`
+	ForwardersOnly        *bool            `json:"forwarders_only,omitempty"`
+	UseOverrideForwarders *bool            `json:"use_override_forwarders,omitempty"`
+}

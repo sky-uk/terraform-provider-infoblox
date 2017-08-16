@@ -115,6 +115,11 @@ func resourceZoneDelegated() *schema.Resource {
 				Default:      "FORWARD",
 				ValidateFunc: util.ValidateZoneFormat,
 			},
+			"ns_group": {
+				Type:        schema.TypeString,
+				Description: "NameServer group for this zone",
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -168,6 +173,11 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 	if v, ok := d.GetOk("zoneformat"); ok {
 		createZoneDelegated.ZoneFormat = v.(string)
 	}
+
+	if v, ok := d.GetOk("ns_group"); ok {
+		createZoneDelegated.NsGroup = v.(string)
+	}
+
 	createZoneDeletagedAPI := zonedelegated.NewCreate(createZoneDelegated)
 	errCreate := infobloxClient.Do(createZoneDeletagedAPI)
 	if errCreate != nil {
@@ -271,13 +281,24 @@ func resourceZoneDelegateUpdate(d *schema.ResourceData, m interface{}) error {
 		hasChange = true
 	}
 
+	if d.HasChange("ns_group") {
+		_, newNsGroup := d.GetChange("ns_group")
+		updateZoneDelegated.NsGroup = newNsGroup.(string)
+		hasChange = true
+	}
+
 	if hasChange {
 		updateZoneDelegatedAPI := zonedelegated.NewUpdate(d.Id(), updateZoneDelegated)
 		updateZoneErr := infobloxClient.Do(updateZoneDelegatedAPI)
 		if updateZoneErr != nil {
 			return fmt.Errorf("Could not update the zone : %s", updateZoneErr.Error())
 		}
+		if updateZoneDelegatedAPI.StatusCode() != http.StatusOK {
+			return fmt.Errorf("Infoblox Zone Auth Update return code != 200")
+		}
+		return resourceZoneDelegatedRead(d, m)
 	}
+
 	return nil
 
 }

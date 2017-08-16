@@ -35,19 +35,50 @@ $ ./skyinfoblox-cli
   -username string
     	Authentication username (Env: IBX_USERNAME)
   Commands:
-      zone-show
-      zone-show-all
-      zone-update
-      record-show
-      records-show-all
-      zone-create
-      zone-delete
-      network-show
-      network-delete
-      network-create
-      range-show
-      range-create
-      range-delete
+    admin-group-create
+    admin-group-delete
+    admin-group-show
+    admin-group-show-all
+    admin-group-update
+    admin-role-create
+    admin-role-delete
+    admin-role-show
+    admin-role-show-all
+    admin-role-update
+    adminuser-create
+    adminuser-delete
+    adminuser-show
+    adminuser-update
+    network-create
+    network-delete
+    network-show
+    network-update
+    networks-show-all
+    permission-create
+    permission-delete
+    permission-show
+    permission-show-all
+    permission-update
+    range-create
+    range-delete
+    range-show
+    range-update
+    record
+    record-ns-create
+    record-ns-delete
+    record-ns-update
+    record-txt-create
+    records-show-all
+    zone-create
+    zone-delete
+    zone-show
+    zone-show-all
+    zone-update
+    zoneforward-create
+    zoneforward-delete
+    zoneforward-show
+    zoneforward-show-all
+    zoneforward-update
 
 ```
 

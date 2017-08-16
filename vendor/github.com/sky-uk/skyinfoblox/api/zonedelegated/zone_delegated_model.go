@@ -20,4 +20,5 @@ type ZoneDelegated struct {
 	UseDelegatedTTL        *bool                   `json:"use_delegated_ttl,omitempty"`
 	View                   string                  `json:"view,omitempty"`
 	ZoneFormat             string                  `json:"zone_format,omitempty"`
+	NsGroup                string                  `json:"ns_group,omitempty"`
 }

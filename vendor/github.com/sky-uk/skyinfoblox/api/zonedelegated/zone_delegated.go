@@ -11,7 +11,7 @@ var endPoint string
 
 // NewCreate - Create a new Zone
 func NewCreate(newZoneDelegated ZoneDelegated) *api.BaseAPI {
-	endPoint = "/wapi/v2.3.1/zone_delegated"
+	endPoint = "/wapi/v2.6.1/zone_delegated"
 	createZoneAPI := api.NewBaseAPI(http.MethodPost, endPoint, newZoneDelegated, new(string))
 	return createZoneAPI
 }
@@ -19,9 +19,9 @@ func NewCreate(newZoneDelegated ZoneDelegated) *api.BaseAPI {
 // NewGet - Read an existing zone
 func NewGet(ref string, returnFields []string) *api.BaseAPI {
 	if returnFields != nil && len(returnFields) > 0 {
-		endPoint = fmt.Sprintf("/wapi/v2.3.1/%s/?_return_fields=%s", ref, strings.Join(returnFields, ","))
+		endPoint = fmt.Sprintf("/wapi/v2.6.1/%s/?_return_fields=%s", ref, strings.Join(returnFields, ","))
 	} else {
-		endPoint = fmt.Sprintf("/wapi/v2.3.1/%s", ref)
+		endPoint = fmt.Sprintf("/wapi/v2.6.1/%s", ref)
 	}
 	getZoneAPI := api.NewBaseAPI(http.MethodGet, endPoint, nil, new(ZoneDelegated))
 	return getZoneAPI
@@ -31,9 +31,9 @@ func NewGet(ref string, returnFields []string) *api.BaseAPI {
 // NewGetAll - Get all existing zones
 func NewGetAll(returnFields []string) *api.BaseAPI {
 	if returnFields != nil && len(returnFields) > 0 {
-		endPoint = fmt.Sprintf("/wapi/v2.3.1/zone_delegated?_return_fields=%s", strings.Join(returnFields, ","))
+		endPoint = fmt.Sprintf("/wapi/v2.6.1/zone_delegated?_return_fields=%s", strings.Join(returnFields, ","))
 	} else {
-		endPoint = fmt.Sprintf("/wapi/v2.3.1/zone_delegated")
+		endPoint = fmt.Sprintf("/wapi/v2.6.1/zone_delegated")
 	}
 	getAllZoneAPI := api.NewBaseAPI(http.MethodGet, endPoint, nil, new([]ZoneDelegated))
 	return getAllZoneAPI
@@ -41,7 +41,7 @@ func NewGetAll(returnFields []string) *api.BaseAPI {
 
 // NewUpdate - Update a zone
 func NewUpdate(ref string, updateZoneDelegated ZoneDelegated) *api.BaseAPI {
-	endPoint := fmt.Sprintf("/wapi/v2.3.1/%s", ref)
+	endPoint := fmt.Sprintf("/wapi/v2.6.1/%s", ref)
 	updateZoneAPI := api.NewBaseAPI(http.MethodPut, endPoint, updateZoneDelegated, new(string))
 	return updateZoneAPI
 
@@ -49,7 +49,7 @@ func NewUpdate(ref string, updateZoneDelegated ZoneDelegated) *api.BaseAPI {
 
 // NewDelete - Delete a zone
 func NewDelete(ref string) *api.BaseAPI {
-	endPoint := fmt.Sprintf("/wapi/v2.3.1/%s", ref)
+	endPoint := fmt.Sprintf("/wapi/v2.6.1/%s", ref)
 	deleteZoneAPI := api.NewBaseAPI(http.MethodDelete, endPoint, nil, new(string))
 	return deleteZoneAPI
 
