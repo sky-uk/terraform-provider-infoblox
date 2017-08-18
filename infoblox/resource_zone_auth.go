@@ -7,7 +7,6 @@ import (
 	"github.com/sky-uk/skyinfoblox/api/zoneauth"
 	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
 	"net/http"
-	"strings"
 )
 
 func resourceZoneAuth() *schema.Resource {
@@ -23,7 +22,7 @@ func resourceZoneAuth() *schema.Resource {
 				Required:     true,
 				Description:  "The name of this DNS zone. For a reverse zone, this is in “address/cidr” format",
 				ForceNew:     true,
-				ValidateFunc: validateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
 			},
 			"view": {
 				Type:         schema.TypeString,
@@ -31,13 +30,13 @@ func resourceZoneAuth() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				ValidateFunc: validateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
 			},
 			"comment": {
 				Type:         schema.TypeString,
 				Description:  "Comment for the zone; maximum 256 characters",
 				Optional:     true,
-				ValidateFunc: validateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
 			},
 			"zoneformat": {
 				Type:         schema.TypeString,
@@ -57,7 +56,7 @@ func resourceZoneAuth() *schema.Resource {
 				Type:         schema.TypeString,
 				Description:  "The RFC2317 prefix value of this DNS zone",
 				Optional:     true,
-				ValidateFunc: validateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
 			},
 			"disable": {
 				Type:        schema.TypeBool,
@@ -423,7 +422,7 @@ func resourceZoneAuth() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "The address this rule applies to or ANY",
 							Optional:     true,
-							ValidateFunc: validateZoneAuthCheckLeadingTrailingSpaces,
+							ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
 						},
 						"permission": {
 							Type:         schema.TypeString,
@@ -435,7 +434,7 @@ func resourceZoneAuth() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "A generated TSIG key",
 							Optional:     true,
-							ValidateFunc: validateZoneAuthCheckLeadingTrailingSpaces,
+							ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
 						},
 						"tsigkeyalgorithm": {
 							Type:         schema.TypeString,
@@ -447,7 +446,7 @@ func resourceZoneAuth() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "The name of the TSIG key",
 							Optional:     true,
-							ValidateFunc: validateZoneAuthCheckLeadingTrailingSpaces,
+							ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
 						},
 						"usetsigkeyname": {
 							Type:        schema.TypeBool,
@@ -473,15 +472,6 @@ func validateZoneAuthAllowUpdatePermission(v interface{}, k string) (ws []string
 	permission := v.(string)
 	if permission != "ALLOW" && permission != "DENY" {
 		errors = append(errors, fmt.Errorf("%q must be one of ALLOW or DENY", k))
-	}
-	return
-}
-
-func validateZoneAuthCheckLeadingTrailingSpaces(v interface{}, k string) (ws []string, errors []error) {
-	stringToCheck := v.(string)
-	trimedString := strings.Trim(stringToCheck, " ")
-	if trimedString != stringToCheck {
-		errors = append(errors, fmt.Errorf("%q must not contain trailing or leading white space", k))
 	}
 	return
 }
@@ -590,6 +580,12 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	if v, ok := d.GetOk("allowupdate"); ok && v != nil {
 		dnsZone.AllowUpdate = buildAllowUpdateList(v.([]interface{}))
 	}
+
+	if v, ok := d.GetOk("restart_if_needed"); ok {
+		restart := v.(bool)
+		appendDNSZone.RestartIfNeeded = &restart
+	}
+
 	// Some attributes can't be set on creation. They need to be sent in a subsequent request after initial creation.
 	if v, ok := d.GetOk("soattl"); ok && v != nil {
 		soaTTL := v.(int)
@@ -683,6 +679,8 @@ func resourceZoneAuthRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("networkview", response.NetworkView)
 	d.Set("nsgroup", response.NSGroup)
 	d.Set("allowupdate", response.AllowUpdate)
+	restart, _ := d.GetOk("restart_if_needed")
+	d.Set("restart_if_needed", &restart)
 
 	return nil
 }
@@ -703,14 +701,7 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		hasChanges = true
 	}
-	if d.HasChange("restart_if_needed") {
-		if v, ok := d.GetOk("restart_if_needed"); ok && v != nil {
-			soaTTL := v.(int)
-			updateZoneAuth.SOADefaultTTL = uint(soaTTL)
-			updateZoneAuth.UseGridZoneTimer = &gridTimer
-		}
-		hasChanges = true
-	}
+
 	if d.HasChange("prefix") {
 		if v, ok := d.GetOk("prefix"); ok {
 			updateZoneAuth.Prefix = v.(string)

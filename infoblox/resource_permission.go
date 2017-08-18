@@ -100,7 +100,7 @@ func resourcePermissionCreate(d *schema.ResourceData, m interface{}) error {
 	err := client.Do(createAPI)
 	httpStatus := createAPI.StatusCode()
 	if err != nil || httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
-		return fmt.Errorf("Infoblox Permission Create failed with status code %d and error: %+v", httpStatus, string(createAPI.RawResponse()))
+		return fmt.Errorf("Infoblox Permission Create failed with status code %d and error: %+v", httpStatus, *createAPI.ResponseObject().(*string))
 	}
 	permissionReference := *createAPI.ResponseObject().(*string)
 	d.SetId(permissionReference)

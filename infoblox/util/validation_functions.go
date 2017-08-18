@@ -1,6 +1,9 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // ValidateZoneFormat - Checks the Zone Format is valid
 func ValidateZoneFormat(v interface{}, k string) (ws []string, errors []error) {
@@ -25,6 +28,16 @@ func ValidateUnsignedInteger(v interface{}, k string) (ws []string, errors []err
 	ttl := v.(int)
 	if ttl < 0 {
 		errors = append(errors, fmt.Errorf("%q can't be negative", k))
+	}
+	return
+}
+
+// ValidateZoneAuthCheckLeadingTrailingSpaces - Checks trailing spaces
+func ValidateZoneAuthCheckLeadingTrailingSpaces(v interface{}, k string) (ws []string, errors []error) {
+	stringToCheck := v.(string)
+	trimedString := strings.Trim(stringToCheck, " ")
+	if trimedString != stringToCheck {
+		errors = append(errors, fmt.Errorf("%q must not contain trailing or leading white space", k))
 	}
 	return
 }
