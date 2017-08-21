@@ -22,7 +22,7 @@ func resourceZoneAuth() *schema.Resource {
 				Required:     true,
 				Description:  "The name of this DNS zone. For a reverse zone, this is in “address/cidr” format",
 				ForceNew:     true,
-				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.CheckLeadingTrailingSpaces,
 			},
 			"view": {
 				Type:         schema.TypeString,
@@ -30,13 +30,13 @@ func resourceZoneAuth() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.CheckLeadingTrailingSpaces,
 			},
 			"comment": {
 				Type:         schema.TypeString,
 				Description:  "Comment for the zone; maximum 256 characters",
 				Optional:     true,
-				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.CheckLeadingTrailingSpaces,
 			},
 			"zoneformat": {
 				Type:         schema.TypeString,
@@ -56,7 +56,7 @@ func resourceZoneAuth() *schema.Resource {
 				Type:         schema.TypeString,
 				Description:  "The RFC2317 prefix value of this DNS zone",
 				Optional:     true,
-				ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
+				ValidateFunc: util.CheckLeadingTrailingSpaces,
 			},
 			"disable": {
 				Type:        schema.TypeBool,
@@ -76,281 +76,16 @@ func resourceZoneAuth() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
-			"externalprimaries": {
-				Type:        schema.TypeList,
-				Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"address": {
-							Type:        schema.TypeString,
-							Description: "The IPv4 Address or IPv6 Address of the server.",
-							Required:    true,
-						},
-						"name": {
-							Type:        schema.TypeString,
-							Description: "A resolvable domain name for the external DNS server.",
-							Required:    true,
-						},
-						"sharedwithmsparentdelegation": {
-							Type:        schema.TypeBool,
-							Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
-							Optional:    true,
-							Computed:    true,
-						},
-						"stealth": {
-							Type:        schema.TypeBool,
-							Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
-							Optional:    true,
-						},
-						"tsigkey": {
-							Type:        schema.TypeString,
-							Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
-							Optional:    true,
-							Default:     "",
-						},
-						"tsigkeyalg": {
-							Type:        schema.TypeString,
-							Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
-							Optional:    true,
-						},
-						"tsigkeyname": {
-							Type:        schema.TypeString,
-							Description: "The TSIG key name.",
-							Optional:    true,
-						},
-						"usetsigkeyname": {
-							Type:        schema.TypeBool,
-							Description: "Use flag for: tsig_key_name",
-							Optional:    true,
-						},
-					},
-				},
-			},
-			"externalsecondaries": {
-				Type:        schema.TypeList,
-				Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"address": {
-							Type:        schema.TypeString,
-							Description: "The IPv4 Address or IPv6 Address of the server.",
-							Required:    true,
-						},
-						"name": {
-							Type:        schema.TypeString,
-							Description: "A resolvable domain name for the external DNS server.",
-							Required:    true,
-						},
-						"sharedwithmsparentdelegation": {
-							Type:        schema.TypeBool,
-							Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
-							Optional:    true,
-							Computed:    true,
-						},
-						"stealth": {
-							Type:        schema.TypeBool,
-							Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
-							Optional:    true,
-						},
-						"tsigkey": {
-							Type:        schema.TypeString,
-							Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
-							Optional:    true,
-						},
-						"tsigkeyalg": {
-							Type:        schema.TypeString,
-							Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
-							Optional:    true,
-						},
-						"tsigkeyname": {
-							Type:        schema.TypeString,
-							Description: "The TSIG key name.",
-							Optional:    true,
-						},
-						"usetsigkeyname": {
-							Type:        schema.TypeBool,
-							Description: "Use flag for: tsig_key_name",
-							Optional:    true,
-						},
-					},
-				},
-			},
-			"gridprimary": {
-				Type:        schema.TypeList,
-				Description: "The grid primary servers for this zone.",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"gridreplicate": {
-							Type:        schema.TypeBool,
-							Description: "The flag represents DNS zone transfers if set to True, and ID Grid Replication if set to False. This flag is ignored if the struct is specified as part of a stub zone or if it is set as grid_member in an authoritative zone.",
-							Optional:    true,
-						},
-						"lead": {
-							Type:        schema.TypeBool,
-							Description: "This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.",
-							Optional:    true,
-						},
-						"name": {
-							Type:        schema.TypeString,
-							Description: "The grid member name.",
-							Required:    true,
-						},
-						"enablepreferredprimaries": {
-							Type:        schema.TypeBool,
-							Description: "This flag represents whether the preferred_primaries field values of this member are used. Defaults to false",
-							Optional:    true,
-						},
-						"preferredprimaries": {
-							Type:        schema.TypeList,
-							Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
-							Optional:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"address": {
-										Type:        schema.TypeString,
-										Description: "The IPv4 Address or IPv6 Address of the server.",
-										Required:    true,
-									},
-									"name": {
-										Type:        schema.TypeString,
-										Description: "A resolvable domain name for the external DNS server.",
-										Required:    true,
-									},
-									"sharedwithmsparentdelegation": {
-										Type:        schema.TypeBool,
-										Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
-										Optional:    true,
-										Computed:    true,
-									},
-									"stealth": {
-										Type:        schema.TypeBool,
-										Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
-										Optional:    true,
-									},
-									"tsigkey": {
-										Type:        schema.TypeString,
-										Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
-										Optional:    true,
-									},
-									"tsigkeyalg": {
-										Type:        schema.TypeString,
-										Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
-										Optional:    true,
-									},
-									"tsigkeyname": {
-										Type:        schema.TypeString,
-										Description: "The TSIG key name.",
-										Optional:    true,
-									},
-									"usetsigkeyname": {
-										Type:        schema.TypeBool,
-										Description: "Use flag for: tsig_key_name",
-										Optional:    true,
-									},
-								},
-							},
-						},
-						"stealth": {
-							Type:        schema.TypeBool,
-							Description: "This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.",
-							Optional:    true,
-						},
-					},
-				},
-			},
+			"externalprimaries":   util.ExternalServerListSchema(true, false),
+			"externalsecondaries": util.ExternalServerListSchema(true, false),
+			"gridprimary":         util.MemberServerListSchema(),
 			"gridprimarysharedwithmsparentdelegation": {
 				Type:        schema.TypeBool,
 				Description: "Determines if the server is duplicated with parent delegation.cannot be updated, nor written",
 				Optional:    true,
 				Computed:    true,
 			},
-			"gridsecondaries": {
-				Type:        schema.TypeList,
-				Description: "The list with Grid members that are secondary servers for this zone.",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"gridreplicate": {
-							Type:        schema.TypeBool,
-							Description: "The flag represents DNS zone transfers if set to True, and ID Grid Replication if set to False. This flag is ignored if the struct is specified as part of a stub zone or if it is set as grid_member in an authoritative zone.",
-							Optional:    true,
-						},
-						"lead": {
-							Type:        schema.TypeBool,
-							Description: "This flag controls whether the Grid lead secondary server performs zone transfers to non lead secondaries. This flag is ignored if the struct is specified as grid_member in an authoritative zone.",
-							Optional:    true,
-						},
-						"name": {
-							Type:        schema.TypeString,
-							Description: "The grid member name.",
-							Required:    true,
-						},
-						"enablepreferredprimaries": {
-							Type:        schema.TypeBool,
-							Description: "This flag represents whether the preferred_primaries field values of this member are used. Defaults to false",
-							Optional:    true,
-						},
-						"preferredprimaries": {
-							Type:        schema.TypeList,
-							Description: "The primary preference list with Grid member names and/or External Server structs for this member.",
-							Optional:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"address": {
-										Type:        schema.TypeString,
-										Description: "The IPv4 Address or IPv6 Address of the server.",
-										Required:    true,
-									},
-									"name": {
-										Type:        schema.TypeString,
-										Description: "A resolvable domain name for the external DNS server.",
-										Required:    true,
-									},
-									"sharedwithmsparentdelegation": {
-										Type:        schema.TypeBool,
-										Description: "This flag represents whether the name server is shared with the parent Microsoft primary zone’s delegation server.",
-										Optional:    true,
-										Computed:    true,
-									},
-									"stealth": {
-										Type:        schema.TypeBool,
-										Description: "Set this flag to hide the NS record for the primary name server from DNS queries.",
-										Optional:    true,
-									},
-									"tsigkey": {
-										Type:        schema.TypeString,
-										Description: "A generated TSIG key. Values with leading or trailing whitespace are not valid for this field.",
-										Optional:    true,
-									},
-									"tsigkeyalg": {
-										Type:        schema.TypeString,
-										Description: "The TSIG key algorithm. Valid values: HMAC-MD5 or HMAC-SHA256. The default value is HMAC-MD5.",
-										Optional:    true,
-									},
-									"tsigkeyname": {
-										Type:        schema.TypeString,
-										Description: "The TSIG key name.",
-										Optional:    true,
-									},
-									"usetsigkeyname": {
-										Type:        schema.TypeBool,
-										Description: "Use flag for: tsig_key_name",
-										Optional:    true,
-									},
-								},
-							},
-						},
-						"stealth": {
-							Type:        schema.TypeBool,
-							Description: "This flag governs whether the specified Grid member is in stealth mode or not. If set to True, the member is in stealth mode. This flag is ignored if the struct is specified as part of a stub zone.",
-							Optional:    true,
-						},
-					},
-				},
-			},
+			"gridsecondaries": util.MemberServerListSchema(),
 			"locked": {
 				Type:        schema.TypeBool,
 				Description: "If you enable this flag, other administrators cannot make conflicting changes",
@@ -422,7 +157,7 @@ func resourceZoneAuth() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "The address this rule applies to or ANY",
 							Optional:     true,
-							ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
+							ValidateFunc: util.CheckLeadingTrailingSpaces,
 						},
 						"permission": {
 							Type:         schema.TypeString,
@@ -434,7 +169,7 @@ func resourceZoneAuth() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "A generated TSIG key",
 							Optional:     true,
-							ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
+							ValidateFunc: util.CheckLeadingTrailingSpaces,
 						},
 						"tsigkeyalgorithm": {
 							Type:         schema.TypeString,
@@ -446,7 +181,7 @@ func resourceZoneAuth() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "The name of the TSIG key",
 							Optional:     true,
-							ValidateFunc: util.ValidateZoneAuthCheckLeadingTrailingSpaces,
+							ValidateFunc: util.CheckLeadingTrailingSpaces,
 						},
 						"usetsigkeyname": {
 							Type:        schema.TypeBool,

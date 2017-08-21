@@ -6,27 +6,6 @@ import (
 	"testing"
 )
 
-func TestBuildExternalServerListFromT(t *testing.T) {
-	IBXExternalServersList := make([]common.ExternalServer, 1)
-	b := true
-	IBXExternalServer := common.ExternalServer{
-		Address: "10.10.10.10",
-		Name:    "Foo",
-		Stealth: &b,
-	}
-	IBXExternalServersList[0] = IBXExternalServer
-
-	externalServers := make([]map[string]interface{}, 1)
-	member := make(map[string]interface{})
-	member["name"] = "Foo"
-	member["address"] = "10.10.10.10"
-	member["stealth"] = true
-	externalServers[0] = member
-
-	computedExternalServers := BuildExternalServerListFromT(externalServers)
-	assert.Equal(t, IBXExternalServersList, computedExternalServers)
-}
-
 func TestBuildMemberServerListFromT(t *testing.T) {
 	preferredPrimaries := make([]map[string]interface{}, 0)
 	preferredPrimary := make(map[string]interface{})
@@ -90,8 +69,8 @@ func TestBuildMemberServerListFromIBX(t *testing.T) {
 	assert.Equal(t, "10.10.10.10", preferredPrimaries[0]["address"])
 	assert.Equal(t, "bar", preferredPrimaries[0]["name"])
 	assert.Equal(t, b, preferredPrimaries[0]["stealth"])
-	assert.Equal(t, "baz", preferredPrimaries[0]["tsigkey"])
-	assert.Equal(t, "HMAC", preferredPrimaries[0]["tsigkeyalg"])
-	assert.Equal(t, "foobar", preferredPrimaries[0]["tsigkeyname"])
-	assert.Equal(t, b, preferredPrimaries[0]["usetsigkeyname"])
+	assert.Equal(t, "baz", preferredPrimaries[0]["tsig_key"])
+	assert.Equal(t, "HMAC", preferredPrimaries[0]["tsig_key_alg"])
+	assert.Equal(t, "foobar", preferredPrimaries[0]["tsig_key_name"])
+	assert.Equal(t, b, preferredPrimaries[0]["use_tsig_key_name"])
 }

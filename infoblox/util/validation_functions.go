@@ -32,8 +32,8 @@ func ValidateUnsignedInteger(v interface{}, k string) (ws []string, errors []err
 	return
 }
 
-// ValidateZoneAuthCheckLeadingTrailingSpaces - Checks trailing spaces
-func ValidateZoneAuthCheckLeadingTrailingSpaces(v interface{}, k string) (ws []string, errors []error) {
+// CheckLeadingTrailingSpaces - Checks strings for any leading/trailing space
+func CheckLeadingTrailingSpaces(v interface{}, k string) (ws []string, errors []error) {
 	stringToCheck := v.(string)
 	trimedString := strings.Trim(stringToCheck, " ")
 	if trimedString != stringToCheck {
