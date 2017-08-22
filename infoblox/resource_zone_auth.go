@@ -114,7 +114,7 @@ func resourceZoneAuth() *schema.Resource {
 				Description: "The SOA serial number to be used in conjunction with set_soa_serial_number (read-only)",
 				Computed:    true,
 			},
-			"soa_ttl": {
+			"soa_default_ttl": {
 				Type:         schema.TypeInt,
 				Description:  "The Time to Live (TTL) value of the SOA record of this zone",
 				Optional:     true,
@@ -267,7 +267,7 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	// Some attributes can't be set on creation. They need to be sent in a subsequent request after initial creation.
-	if v, ok := d.GetOk("soa_ttl"); ok && v != nil {
+	if v, ok := d.GetOk("soa_default_ttl"); ok && v != nil {
 		soaTTL := v.(int)
 		appendDNSZone.SOADefaultTTL = uint(soaTTL)
 		appendDNSZone.UseGridZoneTimer = &gridTimer
@@ -358,7 +358,7 @@ func resourceZoneAuthRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("comment", response.Comment)
 	d.Set("zone_format", response.ZoneFormat)
 	d.Set("prefix", response.Prefix)
-	d.Set("soa_ttl", response.SOADefaultTTL)
+	d.Set("soa_default_ttl", response.SOADefaultTTL)
 	d.Set("soa_negative_ttl", response.SOANegativeTTL)
 	d.Set("soa_refresh", response.SOARefresh)
 	d.Set("soa_retry", response.SOARetry)
@@ -409,8 +409,8 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		hasChanges = true
 	}
-	if d.HasChange("soa_ttl") {
-		if v, ok := d.GetOk("soa_ttl"); ok && v != nil {
+	if d.HasChange("soa_default_ttl") {
+		if v, ok := d.GetOk("soa_default_ttl"); ok && v != nil {
 			soaTTL := v.(int)
 			updateZoneAuth.SOADefaultTTL = uint(soaTTL)
 			updateZoneAuth.UseGridZoneTimer = &gridTimer

@@ -72,7 +72,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "view", "default"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "prefix", "128/16"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_ttl", "3600"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_default_ttl", "3600"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_negative_ttl", "60"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_refresh", "1200"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_retry", "300"),
@@ -105,7 +105,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "view", "default"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "prefix", "128-189"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_ttl", "7200"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_default_ttl", "7200"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_negative_ttl", "90"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_refresh", "1800"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_retry", "150"),
@@ -138,7 +138,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "view", "default"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "prefix", "128-189"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_ttl", "7200"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_default_ttl", "7200"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_negative_ttl", "90"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_refresh", "1800"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_retry", "150"),
@@ -253,7 +253,7 @@ func testAccInfobloxZoneAuthInvalidSOATTL(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
 fqdn = "%s"
-soa_ttl = -1
+soa_default_ttl = -1
 }`, testFQDN)
 }
 
@@ -326,7 +326,7 @@ comment = "Created a zone"
 zone_format = "FORWARD"
 view = "default"
 prefix = "128/16"
-soa_ttl = 3600
+soa_default_ttl = 3600
 soa_negative_ttl = 60
 soa_refresh = 1200
 soa_retry = 300
@@ -366,7 +366,7 @@ comment = "Updated a zone"
 zone_format = "FORWARD"
 view = "default"
 prefix = "128-189"
-soa_ttl = 7200
+soa_default_ttl = 7200
 soa_negative_ttl = 90
 soa_refresh = 1800
 soa_retry = 150
@@ -430,7 +430,7 @@ comment = "Updated a zone"
 zone_format = "FORWARD"
 view = "default"
 prefix = "128-189"
-soa_ttl = 7200
+soa_default_ttl = 7200
 soa_negative_ttl = 90
 soa_refresh = 1800
 soa_retry = 150
