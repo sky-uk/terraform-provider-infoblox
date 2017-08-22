@@ -26,7 +26,7 @@ func resourceAdminGroup() *schema.Resource {
 				Description: "Comment field",
 				Optional:    true,
 			},
-			"super-user": {
+			"superuser": {
 				Type:        schema.TypeBool,
 				Description: "Whether the group is a super user group or not",
 				Optional:    true,
@@ -38,14 +38,14 @@ func resourceAdminGroup() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 			},
-			"access-method": {
+			"access_method": {
 				Type:        schema.TypeList,
 				Description: "Methods the group can use to access Infoblox",
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"email-addresses": {
+			"email_addresses": {
 				// Need to use TypeSet as the read order doesn't match the sent order.
 				Type:        schema.TypeSet,
 				Description: "List of email addresses to associated with the Admin Group",
@@ -91,7 +91,7 @@ func resourceAdminGroupCreate(d *schema.ResourceData, m interface{}) error {
 	if v, ok := d.GetOk("comment"); ok && v != "" {
 		adminGroupObject.Comment = v.(string)
 	}
-	if v, ok := d.GetOk("super-user"); ok && v != nil {
+	if v, ok := d.GetOk("superuser"); ok && v != nil {
 		superUser := v.(bool)
 		adminGroupObject.SuperUser = &superUser
 	}
@@ -99,10 +99,10 @@ func resourceAdminGroupCreate(d *schema.ResourceData, m interface{}) error {
 		disable := v.(bool)
 		adminGroupObject.Disable = &disable
 	}
-	if v, ok := d.GetOk("access-method"); ok && v != nil {
+	if v, ok := d.GetOk("access_method"); ok && v != nil {
 		adminGroupObject.AccessMethod = adminGroupBuildStringArray(v)
 	}
-	if v, ok := d.GetOk("email-addresses"); ok && v != nil {
+	if v, ok := d.GetOk("email_addresses"); ok && v != nil {
 		adminGroupObject.EmailAddresses = adminGroupBuildEmailAddressArray(v.(*schema.Set))
 	}
 	if v, ok := d.GetOk("roles"); ok && v != nil {
@@ -143,10 +143,10 @@ func resourceAdminGroupRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(response.Reference)
 	d.Set("name", response.Name)
 	d.Set("comment", response.Comment)
-	d.Set("super-user", *response.SuperUser)
+	d.Set("superuser", *response.SuperUser)
 	d.Set("disable", *response.Disable)
-	d.Set("access-method", response.AccessMethod)
-	d.Set("email-addresses", response.EmailAddresses)
+	d.Set("access_method", response.AccessMethod)
+	d.Set("email_addresses", response.EmailAddresses)
 	d.Set("roles", response.Roles)
 
 	return nil
@@ -169,8 +169,8 @@ func resourceAdminGroupUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		hasChanges = true
 	}
-	if d.HasChange("super-user") {
-		superUser := d.Get("super-user").(bool)
+	if d.HasChange("superuser") {
+		superUser := d.Get("superuser").(bool)
 		adminGroupObject.SuperUser = &superUser
 		hasChanges = true
 	}
@@ -179,14 +179,14 @@ func resourceAdminGroupUpdate(d *schema.ResourceData, m interface{}) error {
 		adminGroupObject.Disable = &disable
 		hasChanges = true
 	}
-	if d.HasChange("access-method") {
-		if v, ok := d.GetOk("access-method"); ok && v != nil {
+	if d.HasChange("access_method") {
+		if v, ok := d.GetOk("access_method"); ok && v != nil {
 			adminGroupObject.AccessMethod = adminGroupBuildStringArray(v)
 		}
 		hasChanges = true
 	}
-	if d.HasChange("email-addresses") {
-		if v, ok := d.GetOk("email-addresses"); ok && v != nil {
+	if d.HasChange("email_addresses") {
+		if v, ok := d.GetOk("email_addresses"); ok && v != nil {
 			adminGroupObject.EmailAddresses = adminGroupBuildEmailAddressArray(v.(*schema.Set))
 		}
 		hasChanges = true
@@ -216,10 +216,10 @@ func resourceAdminGroupUpdate(d *schema.ResourceData, m interface{}) error {
 		d.SetId(response.Reference)
 		d.Set("name", response.Name)
 		d.Set("comment", response.Comment)
-		d.Set("super-user", *response.SuperUser)
+		d.Set("superuser", *response.SuperUser)
 		d.Set("disable", *response.Disable)
-		d.Set("access-method", response.AccessMethod)
-		d.Set("email-addresses", response.EmailAddresses)
+		d.Set("access_method", response.AccessMethod)
+		d.Set("email_addresses", response.EmailAddresses)
 		d.Set("roles", response.Roles)
 	}
 

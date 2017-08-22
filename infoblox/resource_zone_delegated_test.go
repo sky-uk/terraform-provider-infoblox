@@ -27,7 +27,7 @@ func TestAccInfobloxZoneDelegated(t *testing.T) {
 					testAccInfobloxZoneDelegatedExists(zoneFqdn, resourceName),
 					resource.TestCheckResourceAttr(resourceName, "fqdn", zoneFqdn),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is a comment"),
-					resource.TestCheckResourceAttr(resourceName, "zoneformat", "FORWARD"),
+					resource.TestCheckResourceAttr(resourceName, "zone_format", "FORWARD"),
 				),
 			}, {
 				Config: testAccInfobloxZoneDelegatedUpdateTemplate(zoneFqdn),
@@ -35,7 +35,7 @@ func TestAccInfobloxZoneDelegated(t *testing.T) {
 					testAccInfobloxZoneDelegatedExists(zoneFqdn, resourceName),
 					resource.TestCheckResourceAttr(resourceName, "fqdn", zoneFqdn),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is the comment after we changed it"),
-					resource.TestCheckResourceAttr(resourceName, "zoneformat", "FORWARD"),
+					resource.TestCheckResourceAttr(resourceName, "zone_format", "FORWARD"),
 				),
 			},
 		},
@@ -99,8 +99,8 @@ func testAccInfobloxZoneDelegatedCreateTemplate(zoneName string) string {
         fqdn = "%s"
         comment = "this is a comment"
         disable = false
-        zoneformat = "FORWARD"
-        delegateto {
+        zone_format = "FORWARD"
+        delegate_to {
                 name="prdibxdns03.bskyb.com"
                 address="10.92.16.131"
         }
@@ -113,8 +113,8 @@ func testAccInfobloxZoneDelegatedUpdateTemplate(zoneName string) string {
         fqdn = "%s"
         comment = "this is the comment after we changed it"
         disable = true
-        zoneformat = "FORWARD"
-        delegateto {
+        zone_format = "FORWARD"
+        delegate_to {
                 name="prdibxdns03.bskyb.com"
                 address="10.92.16.131"
         }

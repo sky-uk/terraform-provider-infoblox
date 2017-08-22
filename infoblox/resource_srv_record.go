@@ -16,29 +16,29 @@ func resourceSRVRecord() *schema.Resource {
 		Delete: resourceSRVRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name for a SRV record in FQDN format",
 			},
-			"ref": &schema.Schema{
+			"ref": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Unique reference to Infoblox resource",
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"priority": &schema.Schema{
+			"priority": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"target": &schema.Schema{
+			"target": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"weight": &schema.Schema{
+			"weight": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
@@ -54,7 +54,7 @@ func resourceSRVRecord() *schema.Resource {
 				ValidateFunc: validateUnsignedInteger,
 				Description:  "The Time To Live assigned to CNAME",
 			},
-			"use_ttl": &schema.Schema{
+			"use_ttl": {
 				Type:     schema.TypeBool,
 				Required: false,
 				Optional: true,

@@ -27,7 +27,7 @@ func TestAccAdminUserResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", recordUserName),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is a comment"),
 					resource.TestCheckResourceAttr(resourceName, "email", "exampleuser@domain.internal.com"),
-					resource.TestCheckResourceAttr(resourceName, "groups", "APP-OVP-INFOBLOX-READONLY"),
+					resource.TestCheckResourceAttr(resourceName, "admin_groups", "APP-OVP-INFOBLOX-READONLY"),
 				),
 			}, {
 				Config: testAccResourceAdminUserNameUpdateTemplate(recordUserName),
@@ -36,7 +36,7 @@ func TestAccAdminUserResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", recordUserName),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is a comment updated"),
 					resource.TestCheckResourceAttr(resourceName, "email", "user@domain.internal.com"),
-					resource.TestCheckResourceAttr(resourceName, "groups", "APP-OVP-INFOBLOX-READONLY"),
+					resource.TestCheckResourceAttr(resourceName, "admin_groups", "APP-OVP-INFOBLOX-READONLY"),
 				),
 			},
 		},
@@ -101,7 +101,7 @@ func testAccResourceAdminUserNameCreateTemplate(username string) string {
 	name = "%s"
 	comment = "this is a comment"
 	email = "exampleuser@domain.internal.com"
-	groups = "APP-OVP-INFOBLOX-READONLY"
+	admin_groups = "APP-OVP-INFOBLOX-READONLY"
 	password = "c0a6264f0f128d94cd8ef26652e7d9fd"}`, username)
 }
 
@@ -111,7 +111,7 @@ func testAccResourceAdminUserNameUpdateTemplate(username string) string {
   		name = "%s"
 		comment = "this is a comment updated"
 		email = "user@domain.internal.com"
-		groups = "APP-OVP-INFOBLOX-READONLY"
+		admin_groups = "APP-OVP-INFOBLOX-READONLY"
 		password = "c0a6264f0f128d94cd8ef26652e7d9fd"
 	}
 	`, username)

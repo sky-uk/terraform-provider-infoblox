@@ -26,10 +26,10 @@ func resourceAdminUser() *schema.Resource {
 				Required:    true,
 				Description: "Name for the user",
 			},
-			"groups": {
+			"admin_groups": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The groups the user bellongs to , there can be only 1 ",
+				Description: "The admin_groups the user belongs to , there can be only 1 ",
 				Elem:        schema.TypeString,
 			},
 			"email": {
@@ -65,7 +65,7 @@ func resourceAdminUserCreate(d *schema.ResourceData, m interface{}) error {
 
 	}
 
-	if v, ok := d.GetOk("groups"); ok {
+	if v, ok := d.GetOk("admin_groups"); ok {
 		groups := []string{v.(string)}
 		userCreate.Groups = groups
 	}
@@ -119,7 +119,7 @@ func resourceAdminUserRead(d *schema.ResourceData, m interface{}) error {
 	userRead = *readAPI.ResponseObject().(*adminuser.AdminUser)
 
 	d.Set("name", userRead.Name)
-	d.Set("groups", userRead.Groups)
+	d.Set("admin_groups", userRead.Groups)
 	d.Set("email", userRead.Email)
 	d.Set("disable", userRead.Disable)
 	d.Set("comment", userRead.Comment)
@@ -140,9 +140,9 @@ func resourceAdminUserUpdate(d *schema.ResourceData, m interface{}) error {
 		_, newName := d.GetChange("name")
 		updateUser.Name = newName.(string)
 	}
-	if d.HasChange("groups") {
+	if d.HasChange("admin_groups") {
 		hasChanges = true
-		_, newGroups := d.GetChange("groups")
+		_, newGroups := d.GetChange("admin_groups")
 		updateUser.Groups = []string{newGroups.(string)}
 	}
 	if d.HasChange("email") {

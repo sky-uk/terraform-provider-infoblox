@@ -26,38 +26,38 @@ func resourceTXTRecord() *schema.Resource {
 		Delete: resourceTXTRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"text": &schema.Schema{
+			"text": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"view": &schema.Schema{
+			"view": {
 				Type:     schema.TypeString,
 				Required: false,
 				Computed: true,
 				Optional: true,
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: false,
 				Optional: true,
 				Computed: true,
 			},
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:         schema.TypeInt,
 				Required:     false,
 				Optional:     true,
 				ValidateFunc: validateUINT,
 			},
-			"use_ttl": &schema.Schema{
+			"use_ttl": {
 				Type:     schema.TypeBool,
 				Required: false,
 				Optional: true,
 			},
-			"comment": &schema.Schema{
+			"comment": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

@@ -16,7 +16,7 @@ func resourceZoneDelegated() *schema.Resource {
 		Update: resourceZoneDelegateUpdate,
 		Delete: resourceZoneDelegatedDelete,
 		Schema: map[string]*schema.Schema{
-			"Reference": {
+			"reference": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -32,52 +32,8 @@ func resourceZoneDelegated() *schema.Resource {
 				Description: "Comment for the zone; maximum 256 characters",
 				Optional:    true,
 			},
-			"delegateto": {
-				Type:        schema.TypeList,
-				Description: "A list of name servers the zone is delegated to",
-				Required:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "Name of the delegation server",
-						},
-						"address": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The ip address of the delegation server",
-						},
-						"stealth": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: "Set this flag to hide the NS record for the primary name server from DNS queries",
-						},
-						"tsigkey": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "A generated TSIG key.",
-						},
-						"tsigkeyalg": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Description:  "The TSIG key algorithm",
-							ValidateFunc: util.ValidateTSIGAlgorithm,
-						},
-						"tsigkeyname": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "The TSIG key name",
-						},
-						"usetsigkeyname": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: "Use flag for: tsigkeyname",
-						},
-					},
-				},
-			},
-			"delegatedttl": {
+			"delegate_to": util.ExternalServerListSchema(false, true),
+			"delegated_ttl": {
 				Type:        schema.TypeInt,
 				Description: "a TTL for the delegated zone",
 				Optional:    true,
@@ -101,12 +57,12 @@ func resourceZoneDelegated() *schema.Resource {
 				Optional:    true,
 				ForceNew:    false,
 			},
-			"usedelegatedttl": {
+			"use_delegated_ttl": {
 				Type:        schema.TypeBool,
 				Description: "Should we use the deletated ttl",
 				Optional:    true,
 			},
-			"zoneformat": {
+			"zone_format": {
 				Type:         schema.TypeString,
 				Description:  "Format of the zone, default is FORWARD",
 				Optional:     true,
@@ -143,7 +99,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 		createZoneDelegated.Disable = &delegationDisable
 	}
 
-	if v, ok := d.GetOk("delegateto"); ok {
+	if v, ok := d.GetOk("delegate_to"); ok {
 		delegatedServers := []map[string]interface{}{}
 		for _, delegatedServer := range v.([]interface{}) {
 			delegatedServers = append(delegatedServers, delegatedServer.(map[string]interface{}))
@@ -151,11 +107,11 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 		createZoneDelegated.DelegateTo = util.BuildExternalServerListFromT(delegatedServers)
 	}
 
-	if v, ok := d.GetOk("delegatedttl"); ok {
+	if v, ok := d.GetOk("delegated_ttl"); ok {
 		createZoneDelegated.DelegatedTTL = uint(v.(int))
 	}
 
-	if v, ok := d.GetOk("usedelegatedttl"); ok {
+	if v, ok := d.GetOk("use_delegated_ttl"); ok {
 		useTTL := v.(bool)
 		createZoneDelegated.UseDelegatedTTL = &useTTL
 	}
@@ -165,7 +121,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 		createZoneDelegated.Locked = &locked
 	}
 
-	if v, ok := d.GetOk("zoneformat"); ok {
+	if v, ok := d.GetOk("zone_format"); ok {
 		createZoneDelegated.ZoneFormat = v.(string)
 	}
 
@@ -203,14 +159,14 @@ func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 	d.SetId(readZoneDelegated.Ref)
 	d.Set("comment", readZoneDelegated.Comment)
 	d.Set("view", readZoneDelegated.View)
-	d.Set("delegateto", readZoneDelegated.DelegateTo)
-	d.Set("delegatedttl", readZoneDelegated.DelegatedTTL)
+	d.Set("delegate_to", readZoneDelegated.DelegateTo)
+	d.Set("delegated_ttl", readZoneDelegated.DelegatedTTL)
 	d.Set("disable", readZoneDelegated.Disable)
 	d.Set("fqdn", readZoneDelegated.Fqdn)
 	d.Set("locked", readZoneDelegated.Locked)
-	d.Set("usedelegatedttl", readZoneDelegated.UseDelegatedTTL)
-	d.Set("zoneformat", readZoneDelegated.ZoneFormat)
 	d.Set("ns_group", readZoneDelegated.NsGroup)
+	d.Set("use_delegated_ttl", readZoneDelegated.UseDelegatedTTL)
+	d.Set("zone_format", readZoneDelegated.ZoneFormat)
 	return nil
 }
 
@@ -228,8 +184,8 @@ func resourceZoneDelegateUpdate(d *schema.ResourceData, m interface{}) error {
 		updateZoneDelegated.View = newView.(string)
 		hasChange = true
 	}
-	if d.HasChange("delegateto") {
-		_, newDelegateto := d.GetChange("delegateto")
+	if d.HasChange("delegate_to") {
+		_, newDelegateto := d.GetChange("delegate_to")
 		delegatedServers := []map[string]interface{}{}
 		for _, delegatedServer := range newDelegateto.([]interface{}) {
 			delegatedServers = append(delegatedServers, delegatedServer.(map[string]interface{}))
@@ -238,8 +194,8 @@ func resourceZoneDelegateUpdate(d *schema.ResourceData, m interface{}) error {
 		hasChange = true
 	}
 
-	if d.HasChange("delegatettl") {
-		_, newDelegateTTL := d.GetChange("delegatettl")
+	if d.HasChange("delegated_ttl") {
+		_, newDelegateTTL := d.GetChange("delegated_ttl")
 		updateZoneDelegated.DelegatedTTL = newDelegateTTL.(uint)
 		hasChange = true
 	}
@@ -260,16 +216,16 @@ func resourceZoneDelegateUpdate(d *schema.ResourceData, m interface{}) error {
 		hasChange = true
 	}
 
-	if d.HasChange("usedelegatedttl") {
+	if d.HasChange("use_delegated_ttl") {
 		var useDelegated bool
-		_, newUseDelegatedTTL := d.GetChange("usedelegatedttl")
+		_, newUseDelegatedTTL := d.GetChange("use_delegated_ttl")
 		useDelegated = newUseDelegatedTTL.(bool)
 		updateZoneDelegated.UseDelegatedTTL = &useDelegated
 		hasChange = true
 	}
 
-	if d.HasChange("zoneformat") {
-		_, newZoneFormat := d.GetChange("zoneformat")
+	if d.HasChange("zone_format") {
+		_, newZoneFormat := d.GetChange("zone_format")
 		updateZoneDelegated.ZoneFormat = newZoneFormat.(string)
 		hasChange = true
 	}

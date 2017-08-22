@@ -17,7 +17,7 @@ func TestAccInfobloxAdminGroupBasic(t *testing.T) {
 	adminGroupName := fmt.Sprintf("acctest-infoblox-admin-group-%d", randomInt)
 	updateAdminGroupName := fmt.Sprintf("%s-updated", adminGroupName)
 	adminGroupResource := "infoblox_admin_group.acctest"
-	emailAddressKeyPattern := regexp.MustCompile(`email-addresses\.[0-9]+`)
+	emailAddressKeyPattern := regexp.MustCompile(`email_addresses\.[0-9]+`)
 
 	fmt.Printf("\n\nAcceptance Test Admin Group is %s\n\n", adminGroupName)
 
@@ -38,13 +38,13 @@ func TestAccInfobloxAdminGroupBasic(t *testing.T) {
 					testAccInfobloxAdminGroupCheckExists(adminGroupName, adminGroupResource),
 					resource.TestCheckResourceAttr(adminGroupResource, "name", adminGroupName),
 					resource.TestCheckResourceAttr(adminGroupResource, "comment", "Infoblox Terraform Acceptance test"),
-					resource.TestCheckResourceAttr(adminGroupResource, "super-user", "true"),
+					resource.TestCheckResourceAttr(adminGroupResource, "superuser", "true"),
 					resource.TestCheckResourceAttr(adminGroupResource, "disable", "true"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.#", "3"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.0", "GUI"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.1", "API"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.2", "TAXII"),
-					resource.TestCheckResourceAttr(adminGroupResource, "email-addresses.#", "4"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.#", "3"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.0", "GUI"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.1", "API"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.2", "TAXII"),
+					resource.TestCheckResourceAttr(adminGroupResource, "email_addresses.#", "4"),
 					testAccInfobloxAdminGroupCheckValueInKeyPattern(adminGroupResource, emailAddressKeyPattern, "user.one@example.com"),
 					testAccInfobloxAdminGroupCheckValueInKeyPattern(adminGroupResource, emailAddressKeyPattern, "user.two@example.com"),
 					testAccInfobloxAdminGroupCheckValueInKeyPattern(adminGroupResource, emailAddressKeyPattern, "user.three@example.com"),
@@ -60,13 +60,13 @@ func TestAccInfobloxAdminGroupBasic(t *testing.T) {
 					testAccInfobloxAdminGroupCheckExists(updateAdminGroupName, adminGroupResource),
 					resource.TestCheckResourceAttr(adminGroupResource, "name", updateAdminGroupName),
 					resource.TestCheckResourceAttr(adminGroupResource, "comment", "Infoblox Terraform Acceptance test - updated"),
-					resource.TestCheckResourceAttr(adminGroupResource, "super-user", "false"),
+					resource.TestCheckResourceAttr(adminGroupResource, "superuser", "false"),
 					resource.TestCheckResourceAttr(adminGroupResource, "disable", "false"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.#", "3"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.0", "GUI"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.1", "API"),
-					resource.TestCheckResourceAttr(adminGroupResource, "access-method.2", "TAXII"),
-					resource.TestCheckResourceAttr(adminGroupResource, "email-addresses.#", "5"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.#", "3"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.0", "GUI"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.1", "API"),
+					resource.TestCheckResourceAttr(adminGroupResource, "access_method.2", "TAXII"),
+					resource.TestCheckResourceAttr(adminGroupResource, "email_addresses.#", "5"),
 					testAccInfobloxAdminGroupCheckValueInKeyPattern(adminGroupResource, emailAddressKeyPattern, "user.one@example.com"),
 					testAccInfobloxAdminGroupCheckValueInKeyPattern(adminGroupResource, emailAddressKeyPattern, "user.two@example.com"),
 					testAccInfobloxAdminGroupCheckValueInKeyPattern(adminGroupResource, emailAddressKeyPattern, "user.three@example.com"),
@@ -152,10 +152,10 @@ func testAccInfobloxAdminGroupNoNameTemplate() string {
 	return fmt.Sprintf(`
 resource "infoblox_admin_group" "acctest" {
 comment = "Infoblox Terraform Acceptance test"
-super-user = true
+superuser = true
 disable = true
-access-method = ["GUI", "API", "TAXII"]
-email-addresses = ["user.one@example.com", "user.two@example.com", "user.three@example.com", "user.four@example.com"]
+access_method = ["GUI", "API", "TAXII"]
+email_addresses = ["user.one@example.com", "user.two@example.com", "user.three@example.com", "user.four@example.com"]
 roles = ["DNS Admin", "DHCP Admin"]
 }
 `)
@@ -166,10 +166,10 @@ func testAccInfobloxAdminGroupCreateTemplate(name string) string {
 resource "infoblox_admin_group" "acctest" {
 name = "%s"
 comment = "Infoblox Terraform Acceptance test"
-super-user = true
+superuser = true
 disable = true
-access-method = ["GUI", "API", "TAXII"]
-email-addresses = ["user.one@example.com", "user.two@example.com", "user.three@example.com", "user.four@example.com"]
+access_method = ["GUI", "API", "TAXII"]
+email_addresses = ["user.one@example.com", "user.two@example.com", "user.three@example.com", "user.four@example.com"]
 roles = ["DNS Admin", "DHCP Admin"]
 }
 `, name)
@@ -180,10 +180,10 @@ func testAccInfobloxAdminGroupUpdateTemplate(name string) string {
 resource "infoblox_admin_group" "acctest" {
 name = "%s"
 comment = "Infoblox Terraform Acceptance test - updated"
-super-user = false
+superuser = false
 disable = false
-access-method = ["GUI", "API", "TAXII"]
-email-addresses = ["user.one@example.com", "user.two@example.com", "user.three@example.com", "user.four@example.com", "user.five@example.com"]
+access_method = ["GUI", "API", "TAXII"]
+email_addresses = ["user.one@example.com", "user.two@example.com", "user.three@example.com", "user.four@example.com", "user.five@example.com"]
 roles = ["DHCP Admin"]
 }
 `, name)

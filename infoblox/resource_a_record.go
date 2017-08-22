@@ -17,32 +17,32 @@ func resourceARecord() *schema.Resource {
 		Delete: resourceARecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"address": &schema.Schema{
+			"address": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address for hostname",
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "name for host record",
 			},
-			"zone": &schema.Schema{
+			"zone": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "DNS Zone for the record",
 			},
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "TTL in seconds for host record",
 			},
-			"use_ttl": &schema.Schema{
+			"use_ttl": {
 				Type:     schema.TypeBool,
 				Required: false,
 				Optional: true,
 			},
-			"ref": &schema.Schema{
+			"ref": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Internal Reference for the record",

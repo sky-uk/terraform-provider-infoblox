@@ -44,7 +44,7 @@ func resourceCNAMERecord() *schema.Resource {
 				ValidateFunc: validateUnsignedInteger,
 				Description:  "The Time To Live assigned to CNAME",
 			},
-			"use_ttl": &schema.Schema{
+			"use_ttl": {
 				Type:     schema.TypeBool,
 				Required: false,
 				Optional: true,
