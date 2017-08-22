@@ -146,6 +146,7 @@ func resourceZoneAuth() *schema.Resource {
 				Type:        schema.TypeInt,
 				Description: "This setting defines the amount of time, in seconds, after which the secondary server stops giving out answers about the zone because the zone data is too old to be useful. The default is one week.",
 				Optional:    true,
+				Default:     2419200,
 			},
 			"copy_xfer_to_notify": {
 				Type:        schema.TypeBool,
