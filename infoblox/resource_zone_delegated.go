@@ -6,9 +6,7 @@ import (
 	"github.com/sky-uk/skyinfoblox"
 	"github.com/sky-uk/skyinfoblox/api/zonedelegated"
 	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
-	"log"
 	"net/http"
-	"reflect"
 )
 
 func resourceZoneDelegated() *schema.Resource {
@@ -150,9 +148,6 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 		for _, delegatedServer := range v.([]interface{}) {
 			delegatedServers = append(delegatedServers, delegatedServer.(map[string]interface{}))
 		}
-		log.Println(delegatedServers)
-		log.Println(reflect.TypeOf(util.BuildExternalServerListFromT(delegatedServers)))
-		log.Println(reflect.TypeOf(createZoneDelegated.DelegateTo))
 		createZoneDelegated.DelegateTo = util.BuildExternalServerListFromT(delegatedServers)
 	}
 
@@ -194,7 +189,7 @@ func resourceZoneDelegatedCreate(d *schema.ResourceData, m interface{}) error {
 func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
 	var readZoneDelegated zonedelegated.ZoneDelegated
-	returnFields := []string{"address", "comment", "fqdn", "disable", "zone_format", "delegate_to", "delegated_ttl", "locked", "use_delegated_ttl"}
+	returnFields := []string{"address", "comment", "fqdn", "disable", "zone_format", "delegate_to", "delegated_ttl", "locked", "use_delegated_ttl", "ns_group"}
 	readAPI := zonedelegated.NewGet(d.Id(), returnFields)
 	readErr := infobloxClient.Do(readAPI)
 	if readErr != nil {
@@ -215,7 +210,7 @@ func resourceZoneDelegatedRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("locked", readZoneDelegated.Locked)
 	d.Set("usedelegatedttl", readZoneDelegated.UseDelegatedTTL)
 	d.Set("zoneformat", readZoneDelegated.ZoneFormat)
-
+	d.Set("ns_group", readZoneDelegated.NsGroup)
 	return nil
 }
 
@@ -239,8 +234,6 @@ func resourceZoneDelegateUpdate(d *schema.ResourceData, m interface{}) error {
 		for _, delegatedServer := range newDelegateto.([]interface{}) {
 			delegatedServers = append(delegatedServers, delegatedServer.(map[string]interface{}))
 		}
-		log.Println(delegatedServers)
-		log.Println(reflect.TypeOf(util.BuildExternalServerListFromT(delegatedServers)))
 		updateZoneDelegated.DelegateTo = util.BuildExternalServerListFromT(delegatedServers)
 		hasChange = true
 	}

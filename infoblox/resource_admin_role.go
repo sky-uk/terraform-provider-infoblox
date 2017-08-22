@@ -54,8 +54,12 @@ func resourceAdminRoleCreate(d *schema.ResourceData, m interface{}) error {
 	createAPI := adminrole.NewCreate(adminRoleObject)
 	err := client.Do(createAPI)
 	httpStatus := createAPI.StatusCode()
-	if err != nil || httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+	if err != nil {
 		return fmt.Errorf("Infoblox Admin Role Create for %s failed with status code %d and error: %+v", adminRoleObject.Name, httpStatus, err)
+	}
+
+	if httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+		return fmt.Errorf("Infoblox Admin Role Create for %s failed with status code %d - %s", adminRoleObject.Name, httpStatus, *createAPI.ResponseObject().(*string))
 	}
 
 	adminRoleObject.Reference = *createAPI.ResponseObject().(*string)
@@ -75,8 +79,12 @@ func resourceAdminRoleRead(d *schema.ResourceData, m interface{}) error {
 		d.SetId("")
 		return nil
 	}
-	if err != nil || httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+	if err != nil {
 		return fmt.Errorf("Infoblox Admin Role Read for %s failed with status code %d and error: %+v", reference, httpStatus, err)
+	}
+
+	if httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+		return fmt.Errorf("Infoblox Admin Role Create for %s failed with status code %d - %s", d.Id(), httpStatus, *getAdminRoleAPI.ResponseObject().(*string))
 	}
 
 	response := *getAdminRoleAPI.ResponseObject().(*adminrole.AdminRole)
@@ -119,9 +127,14 @@ func resourceAdminRoleUpdate(d *schema.ResourceData, m interface{}) error {
 		err := client.Do(updateAdminRoleAPI)
 		httpStatus := updateAdminRoleAPI.StatusCode()
 
-		if err != nil || httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+		if err != nil {
 			return fmt.Errorf("Infoblox Admin Role Update for %s failed with status code %d and error: %+v", adminRoleObject.Name, httpStatus, err)
 		}
+
+		if httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+			return fmt.Errorf("Infoblox Admin Role Create for %s failed with status code %d - %s", d.Id(), httpStatus, *updateAdminRoleAPI.ResponseObject().(*string))
+		}
+
 		response := *updateAdminRoleAPI.ResponseObject().(*adminrole.AdminRole)
 
 		d.SetId(response.Reference)
@@ -145,8 +158,12 @@ func resourceAdminRoleDelete(d *schema.ResourceData, m interface{}) error {
 		return nil
 	}
 
-	if err != nil || httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+	if err != nil {
 		return fmt.Errorf("Infoblox Admin Role Delete for %s failed with status code %d and error: %+v", reference, httpStatus, err)
+	}
+
+	if httpStatus < http.StatusOK || httpStatus >= http.StatusBadRequest {
+		return fmt.Errorf("Infoblox Admin Role Create for %s failed with status code %d - %s", d.Id(), httpStatus, *deleteAdminRoleAPI.ResponseObject().(*string))
 	}
 
 	d.SetId("")
