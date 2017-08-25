@@ -1,6 +1,7 @@
 package network
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 )
@@ -13,7 +14,7 @@ type DeleteNetAPI struct {
 // NewDeleteNetwork returns a new object of type DeleteNetworkAPI.
 func NewDeleteNetwork(objRef string) *DeleteNetAPI {
 	this := new(DeleteNetAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodDelete, "/wapi/v2.3.1/"+objRef, nil, new(string))
+	this.BaseAPI = api.NewBaseAPI(http.MethodDelete, fmt.Sprintf("%s/%s", wapiVersion, objRef), nil, new(string))
 	return this
 }
 

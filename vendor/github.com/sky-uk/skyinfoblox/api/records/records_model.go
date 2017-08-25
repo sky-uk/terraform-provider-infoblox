@@ -1,5 +1,7 @@
 package records
 
+const wapiVersion = "/wapi/v2.6.1"
+
 // GenericRecord : GenericRecord data structure
 type GenericRecord struct {
 	Ref       string `json:"_ref,omitempty"`

@@ -1,6 +1,7 @@
 package records
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ func NewGetAllCNAMERecords(fields []string) *GetAllCNAMERecordsAPI {
 		returnFields = "?_return_fields=" + strings.Join(fields, ",")
 	}
 	this := new(GetAllCNAMERecordsAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodGet, "/wapi/v2.3.1/record:cname"+returnFields, nil, new([]CNAMERecord))
+	this.BaseAPI = api.NewBaseAPI(http.MethodGet, fmt.Sprintf("%s/record:cname%s", wapiVersion, returnFields), nil, new([]CNAMERecord))
 	return this
 }
 

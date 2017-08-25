@@ -1,5 +1,7 @@
 package network
 
+const wapiVersion = "/wapi/v2.6.1"
+
 // Network : base DHCP Network object model
 type Network struct {
 	Ref                              string            `json:"_ref"`

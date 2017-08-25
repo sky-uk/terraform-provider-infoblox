@@ -1,6 +1,7 @@
 package dhcprange
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 )
@@ -13,7 +14,7 @@ type CreateDHCPRangeAPI struct {
 // NewCreateDHCPRange returns a new object of type network.API.
 func NewCreateDHCPRange(dhcpRange DHCPRange) *CreateDHCPRangeAPI {
 	this := new(CreateDHCPRangeAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodPost, "/wapi/v2.3.1/range", dhcpRange, new(string))
+	this.BaseAPI = api.NewBaseAPI(http.MethodPost, fmt.Sprintf("%s/range", wapiVersion), dhcpRange, new(string))
 	return this
 }
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-const permissionEndpoint = "/wapi/v2.3.1/"
+const permissionEndpoint = "/wapi/v2.6.1/"
 const returnFields = "?_return_fields=group,object,permission,resource_type,role"
 
 // NewGet returns a new object of permissionGetAPI.

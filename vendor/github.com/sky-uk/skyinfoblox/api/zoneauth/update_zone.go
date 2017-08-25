@@ -1,6 +1,7 @@
 package zoneauth
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 	"strings"
@@ -22,7 +23,7 @@ func NewUpdate(updateDNSZone DNSZone, returnFieldList []string) *UpdateZoneAuthA
 		reference = updateDNSZone.Reference
 	}
 	this := new(UpdateZoneAuthAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodPut, "/wapi/v2.3.1/"+reference, updateDNSZone, new(DNSZone))
+	this.BaseAPI = api.NewBaseAPI(http.MethodPut, fmt.Sprintf("%s/%s", wapiVersion, reference), updateDNSZone, new(DNSZone))
 	return this
 }
 

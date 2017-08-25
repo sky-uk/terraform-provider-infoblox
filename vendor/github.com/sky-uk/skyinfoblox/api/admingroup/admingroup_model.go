@@ -1,6 +1,6 @@
 package admingroup
 
-const wapiVersion = "/wapi/v2.3.1"
+const wapiVersion = "/wapi/v2.6.1"
 const adminGroupEndpoint = "/admingroup"
 
 // IBXAdminGroup : Admin group definition

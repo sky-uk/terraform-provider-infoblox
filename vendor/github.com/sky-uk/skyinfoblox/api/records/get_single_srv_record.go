@@ -1,6 +1,7 @@
 package records
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ func NewGetSRVRecord(recordReference string, returnFields []string) *GetSingleSR
 		recordReference += returnFields
 	}
 	this := new(GetSingleSRVRecordAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodGet, "/wapi/v2.3.1/"+recordReference, nil, new(SRVRecord))
+	this.BaseAPI = api.NewBaseAPI(http.MethodGet, fmt.Sprintf("%s/%s", wapiVersion, recordReference), nil, new(SRVRecord))
 	return this
 }
 

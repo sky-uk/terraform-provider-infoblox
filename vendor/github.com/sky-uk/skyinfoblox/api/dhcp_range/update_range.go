@@ -14,7 +14,7 @@ type UpdateDHCPRangeAPI struct {
 // NewUpdateDHCPRange updates an existing object
 func NewUpdateDHCPRange(dhcpRange DHCPRange) *UpdateDHCPRangeAPI {
 	this := new(UpdateDHCPRangeAPI)
-	updateEndpoint := fmt.Sprintf("/wapi/v2.3.1/%s", dhcpRange.Ref)
+	updateEndpoint := fmt.Sprintf("%s/%s", wapiVersion, dhcpRange.Ref)
 	this.BaseAPI = api.NewBaseAPI(http.MethodPut, updateEndpoint, dhcpRange, new(string))
 	return this
 }

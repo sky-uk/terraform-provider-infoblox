@@ -1,5 +1,7 @@
 package dhcprange
 
+const wapiVersion = "/wapi/v2.6.1"
+
 // DHCPRange struct
 type DHCPRange struct {
 	Ref               string `json:"_ref"`

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-const adminRoleEndpoint = "/wapi/v2.3.1/"
+const adminRoleEndpoint = "/wapi/v2.6.1/"
 const returnFields = "?_return_fields=name,comment,disable"
 
 // NewGet : used to get an admin role

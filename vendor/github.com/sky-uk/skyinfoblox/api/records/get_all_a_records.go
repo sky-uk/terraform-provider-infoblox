@@ -1,6 +1,7 @@
 package records
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 	"strings"
@@ -15,9 +16,9 @@ type GetAllARecordsAPI struct {
 func NewGetAllARecords(fields []string) *GetAllARecordsAPI {
 	var url string
 	if len(fields) >= 1 {
-		url = "/wapi/v2.3.1/record:a?_return_fields=" + strings.Join(fields, ",")
+		url = fmt.Sprintf("%s/record:a?_return_fields=%s", wapiVersion, strings.Join(fields, ","))
 	} else {
-		url = "/wapi/v2.3.1/record:a"
+		url = fmt.Sprintf("%s/record:a", wapiVersion)
 	}
 
 	this := new(GetAllARecordsAPI)

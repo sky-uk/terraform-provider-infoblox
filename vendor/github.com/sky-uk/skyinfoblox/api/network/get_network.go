@@ -1,6 +1,7 @@
 package network
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ func NewGetNetwork(objRef string, returnFields []string) *GetNetworkAPI {
 		objRef += returnFields
 	}
 	this := new(GetNetworkAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodGet, "/wapi/v2.3.1/"+objRef, nil, new(Network))
+	this.BaseAPI = api.NewBaseAPI(http.MethodGet, fmt.Sprintf("%s/%s", wapiVersion, objRef), nil, new(Network))
 	return this
 }
 

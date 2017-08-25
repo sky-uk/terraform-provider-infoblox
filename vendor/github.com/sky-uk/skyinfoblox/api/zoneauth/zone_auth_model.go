@@ -10,6 +10,8 @@ Can't send this empty as it causes an error 'AwsRte53ZoneInfoList               
 NetworkAssociations is an array of network, networkcontainer, ipv6network, ipv6networkcontainer - can't be written or updated.
 UpdateForwarding can be one of the following: Address ac struct, TSIG ac struct array. */
 
+const wapiVersion = "/wapi/v2.6.1"
+
 // DNSZone : Contains zone configuration. Reference is used during updates and when retriving the zone.
 type DNSZone struct {
 	Reference                               string                  `json:"_ref,omitempty"`

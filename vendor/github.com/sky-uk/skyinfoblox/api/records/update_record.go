@@ -1,6 +1,7 @@
 package records
 
 import (
+	"fmt"
 	"github.com/sky-uk/skyinfoblox/api"
 	"net/http"
 )
@@ -13,14 +14,14 @@ type UpdateRecordAPI struct {
 // NewUpdateRecord returns a new object of UpdateRecordAPI.
 func NewUpdateRecord(recordReference string, requestPayload GenericRecord) *UpdateRecordAPI {
 	this := new(UpdateRecordAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodPut, "/wapi/v2.3.1/"+recordReference, requestPayload, new(string))
+	this.BaseAPI = api.NewBaseAPI(http.MethodPut, fmt.Sprintf("%s/%s", wapiVersion, recordReference), requestPayload, new(string))
 	return this
 }
 
 // NewUpdateARecord returns a new object of UpdateRecordAPI.
 func NewUpdateARecord(recordReference string, requestPayload ARecord) *UpdateRecordAPI {
 	this := new(UpdateRecordAPI)
-	this.BaseAPI = api.NewBaseAPI(http.MethodPut, "/wapi/v2.3.1/"+recordReference, requestPayload, new(string))
+	this.BaseAPI = api.NewBaseAPI(http.MethodPut, fmt.Sprintf("%s/%s", wapiVersion, recordReference), requestPayload, new(string))
 	return this
 }
 

@@ -183,17 +183,19 @@ func testZoneForwardCreateComplete(testFQDN string) string {
 func testZoneForwardUpdateTemplate(testFQDN string) string {
 	return fmt.Sprintf(`
     resource "infoblox_zone_forward" "acctest" {
-        comment = "Updated forward zone"
-        fqdn = "%s"
-        view = "default"
-        prefix = "128-189"
-        disable = true
-        locked = false
-        forward_to = [{
-            address = "10.74.233.150"
-            name = "hemnonprdigmc01.bskyb.com"
-            stealth = false
-            tsig_key_alg = "HMAC-MD5"
-        }]
-    }`, testFQDN)
+      fqdn = "%s"
+      comment = "Updated forward zone"
+      zone_format = "FORWARD"
+      view = "default"
+      prefix = "128-189"
+      disable = true
+      locked = false
+      forward_to = [{
+          address = "10.74.233.150"
+          name = "hemnonprdigmc01.bskyb.com"
+          stealth = false
+          tsig_key_alg = "HMAC-MD5"
+      }]
+      forwarders_only = false
+  }`, testFQDN)
 }

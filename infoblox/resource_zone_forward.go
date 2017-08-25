@@ -57,7 +57,6 @@ func resourceZoneForward() *schema.Resource {
 			"fqdn": {
 				Type:         schema.TypeString,
 				Description:  "The name of this DNS zone. For a reverse zone, this is in “address/cidr” format",
-				Required:     false,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: util.CheckLeadingTrailingSpaces,
@@ -164,8 +163,6 @@ func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
 		zone.Prefix = v.(string)
 	}
 
-	zone.UsingSrgAssociations = d.Get("using_srg_associations").(bool)
-
 	if v, ok := d.GetOk("view"); ok && v != "" {
 		zone.View = v.(string)
 	}
@@ -229,7 +226,6 @@ func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("ns_group", zone.NSGroup)
 	d.Set("parent", zone.Parent)
 	d.Set("prefix", zone.Prefix)
-	d.Set("using_srg_associations", zone.UsingSrgAssociations)
 	d.Set("view", zone.View)
 	d.Set("zone_format", zone.ZoneFormat)
 
