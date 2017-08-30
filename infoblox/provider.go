@@ -61,6 +61,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_zone_forward":        resourceZoneForward(),
 			"infoblox_ns_group_delegation": resourceNSGroupDelegation(),
 			"infoblox_ns_group_forward":    resourceNSGroupForward(),
+			"infoblox_ns_group_stub":       resourceNSGroupStub(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
