@@ -75,41 +75,25 @@ func BuildForwardingMemberServerListFromT(serverListFromT []map[string]interface
 
 // BuildForwardingMemberServerListFromIBX -  builds a list of forwarding member servers for terraform given
 // the corresponding struct from IBX
-func BuildForwardingMemberServerListFromIBX(IBXExtServersList []common.ExternalServer) []map[string]interface{} {
-	es := make([]map[string]interface{}, 0)
-	for _, IBXExtServer := range IBXExtServersList {
+func BuildForwardingMemberServerListFromIBX(ibxFwdMemberServerList []common.ForwardingMemberServer) []map[string]interface{} {
+
+	forwardMemberServers := make([]map[string]interface{}, 0)
+	for _, fwdMemberServer := range ibxFwdMemberServerList {
 		server := make(map[string]interface{})
 
-		if IBXExtServer.Address != "" {
-			server["address"] = IBXExtServer.Address
+		if fwdMemberServer.Name != "" {
+			server["name"] = fwdMemberServer.Name
 		}
-
-		if IBXExtServer.Name != "" {
-			server["name"] = IBXExtServer.Name
+		if fwdMemberServer.ForwardTo != nil {
+			server["forward_to"] = BuildExternalServersListFromIBX(fwdMemberServer.ForwardTo)
 		}
-
-		if IBXExtServer.Stealth != nil {
-			server["stealth"] = *IBXExtServer.Stealth
+		if fwdMemberServer.ForwardersOnly != nil {
+			server["forwarders_only"] = *fwdMemberServer.ForwardersOnly
 		}
-
-		if IBXExtServer.TsigKey != "" {
-			server["tsigkey"] = IBXExtServer.TsigKey
+		if fwdMemberServer.UseOverrideForwarders != nil {
+			server["use_override_forwarders"] = *fwdMemberServer.UseOverrideForwarders
 		}
-
-		if IBXExtServer.TsigKeyAlg != "" {
-			server["tsigkeyalg"] = IBXExtServer.TsigKeyAlg
-		}
-
-		if IBXExtServer.TsigKeyName != "" {
-			server["tsigkeyname"] = IBXExtServer.TsigKeyName
-		}
-
-		if IBXExtServer.UseTsigKeyName != nil {
-			server["usetsigkeyname"] = *IBXExtServer.UseTsigKeyName
-		}
-
-		es = append(es, server)
+		forwardMemberServers = append(forwardMemberServers, server)
 	}
-
-	return es
+	return forwardMemberServers
 }

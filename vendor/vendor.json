@@ -548,6 +548,14 @@
 			"versionExact": "0.0.27"
 		},
 		{
+			"checksumSHA1": "oVGqQmjM9YSW7R7HLpKhJarpX+w=",
+			"path": "github.com/sky-uk/skyinfoblox/api/nsgroupfwd",
+			"revision": "86fca64f3bb0578c775b1f7a74723ea8786682e4",
+			"revisionTime": "2017-08-29T12:44:35Z",
+			"version": "0.0.28",
+			"versionExact": "0.0.28"
+		},
+		{
 			"checksumSHA1": "jER89d9y0gQ0If39HF1LALnhjz4=",
 			"path": "github.com/sky-uk/skyinfoblox/api/permission",
 			"revision": "c6967e9bc828e2293818db8312d2e7fea29e8f28",
