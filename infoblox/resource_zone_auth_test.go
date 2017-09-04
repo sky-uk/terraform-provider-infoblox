@@ -116,6 +116,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "copy_xfer_to_notify", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "use_copy_xfer_to_notify", "true"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "use_external_primary", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.type", "tsigac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key", "0jnu3SdsMvzzlmToPYRceA=="),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key_alg", "HMAC-MD5"),
@@ -220,6 +221,7 @@ func testAccInfobloxZoneAuthNoFQDNTemplate() string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
 comment = "Updated a zone"
+ns_group="Sky OTT Default"
 }
 `)
 }
@@ -227,6 +229,7 @@ comment = "Updated a zone"
 func testAccInfobloxZoneAuthEmptyTemplate() string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 }
 `)
 }
@@ -234,6 +237,7 @@ resource "infoblox_zone_auth" "acctest" {
 func testAccInfobloxZoneAuthTooLongCommentTemplate(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 fqdn = "%s"
 comment = "This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string...."
 }
@@ -243,6 +247,7 @@ comment = "This is a very long string.... This is a very long string.... This is
 func testAccInfobloxZoneAuthInvalidZoneFormat(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 fqdn = "%s"
 comment = "Created a zone"
 zone_format = "SOME_INVALID_ZONE"
@@ -252,6 +257,7 @@ zone_format = "SOME_INVALID_ZONE"
 func testAccInfobloxZoneAuthInvalidSOATTL(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 fqdn = "%s"
 soa_default_ttl = -1
 }`, testFQDN)
@@ -260,6 +266,7 @@ soa_default_ttl = -1
 func testAccInfobloxZoneAuthInvalidAllowUpdatePermission(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -273,6 +280,7 @@ allow_update = [
 func testAccInfobloxZoneAuthInvalidAllowUpdateType(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -286,6 +294,7 @@ allow_update = [
 func testAccInfobloxZoneAuthInvalidAllowUpdateTSIGAlgorithm(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -301,6 +310,7 @@ allow_update = [
 func testAccInfobloxZoneAuthLeadingTrailingWhiteSpace(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
+ns_group="Sky OTT Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -337,6 +347,7 @@ dns_integrity_member = "nonprdibxdns01.bskyb.com"
 locked = true
 copy_xfer_to_notify = false
 use_copy_xfer_to_notify = false
+ns_group="Sky OTT Default"
 allow_update = [
 {
   type = "addressac"
@@ -378,6 +389,8 @@ locked = false
 copy_xfer_to_notify = true
 use_copy_xfer_to_notify = true
 use_allow_transfer = false
+use_external_primary = false
+ns_group="Sky OTT Default"
 allow_transfer = [
       {
         type = "addressac"
@@ -440,6 +453,7 @@ dns_integrity_enable = false
 dns_integrity_member = "nonprdibxdns01.bskyb.com"
 locked = false
 use_allow_transfer = true
+ns_group="Sky OTT Default"
 allow_update = [
 {
   type = "tsigac"

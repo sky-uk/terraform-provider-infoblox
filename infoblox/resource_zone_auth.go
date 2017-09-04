@@ -107,7 +107,6 @@ func resourceZoneAuth() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The name server group that serves DNS for this zone.",
 				Optional:    true,
-				Computed:    true,
 			},
 			"soa_serial_number": {
 				Type:        schema.TypeInt,
@@ -118,35 +117,30 @@ func resourceZoneAuth() *schema.Resource {
 				Type:         schema.TypeInt,
 				Description:  "The Time to Live (TTL) value of the SOA record of this zone",
 				Optional:     true,
-				Computed:     true,
 				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"soa_negative_ttl": {
 				Type:         schema.TypeInt,
 				Description:  "The negative Time to Live (TTL)",
 				Optional:     true,
-				Computed:     true,
 				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"soa_refresh": {
 				Type:         schema.TypeInt,
 				Description:  "This indicates the interval at which a secondary server sends a message to the primary server for a zone to check that its data is current, and retrieve fresh data if it is not",
 				Optional:     true,
-				Computed:     true,
 				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"soa_retry": {
 				Type:         schema.TypeInt,
 				Description:  "This indicates how long a secondary server must wait before attempting to recontact the primary server after a connection failure between the two servers occurs",
 				Optional:     true,
-				Computed:     true,
 				ValidateFunc: util.ValidateUnsignedInteger,
 			},
 			"soa_expire": {
 				Type:        schema.TypeInt,
 				Description: "This setting defines the amount of time, in seconds, after which the secondary server stops giving out answers about the zone because the zone data is too old to be useful. The default is one week.",
 				Optional:    true,
-				Default:     2419200,
 			},
 			"copy_xfer_to_notify": {
 				Type:        schema.TypeBool,
@@ -164,6 +158,11 @@ func resourceZoneAuth() *schema.Resource {
 				Type:        schema.TypeBool,
 				Description: "Apply policy to dynamic updates and inbound zone transfers (This value applies only if the host name restriction policy is set to “Strict Hostname Checking”.)",
 				Default:     false,
+				Optional:    true,
+			},
+			"use_external_primary": {
+				Type:        schema.TypeBool,
+				Description: "This flag controls whether the zone is using an external primary.",
 				Optional:    true,
 			},
 			"allow_update":   util.AccessControlSchema(),
@@ -186,7 +185,9 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	// appendDNSZone is used for the second request after the zone has been created.
 	var appendDNSZone zoneauth.DNSZone
 	gridTimer := true
-
+	if validatePrimaryZone(d) == validateSecondaryZone(d) {
+		return fmt.Errorf("Terraform Creation Error: Zone Validation Error, please refer to the Terraform Provider documentation")
+	}
 	if v, ok := d.GetOk("fqdn"); ok && v != "" {
 		dnsZone.FQDN = v.(string)
 	} else {
@@ -268,26 +269,31 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 
 	// Some attributes can't be set on creation. They need to be sent in a subsequent request after initial creation.
 	if v, ok := d.GetOk("soa_default_ttl"); ok && v != nil {
+
 		soaTTL := v.(int)
 		appendDNSZone.SOADefaultTTL = uint(soaTTL)
 		appendDNSZone.UseGridZoneTimer = &gridTimer
 	}
 	if v, ok := d.GetOk("soa_negative_ttl"); ok && v != nil {
+
 		soaNegativeTTL := v.(int)
 		appendDNSZone.SOANegativeTTL = uint(soaNegativeTTL)
 		appendDNSZone.UseGridZoneTimer = &gridTimer
 	}
 	if v, ok := d.GetOk("soa_refresh"); ok && v != nil {
+
 		soaRefresh := v.(int)
 		appendDNSZone.SOARefresh = uint(soaRefresh)
 		appendDNSZone.UseGridZoneTimer = &gridTimer
 	}
 	if v, ok := d.GetOk("soa_retry"); ok && v != nil {
+
 		soaRetry := v.(int)
 		appendDNSZone.SOARetry = uint(soaRetry)
 		appendDNSZone.UseGridZoneTimer = &gridTimer
 	}
 	if v, ok := d.GetOk("soa_expire"); ok && v != nil {
+
 		soaExpire := v.(int)
 		appendDNSZone.SOAExpire = uint(soaExpire)
 		appendDNSZone.UseGridZoneTimer = &gridTimer
@@ -303,6 +309,10 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 	if v, ok := d.GetOk("use_check_names_policy"); ok {
 		useCheckNamesPolicy := v.(bool)
 		dnsZone.UseCheckNamesPolicy = &useCheckNamesPolicy
+	}
+	if v, ok := d.GetOk("use_external_primary"); ok {
+		useExternalPrimary := v.(bool)
+		dnsZone.UseExternalPrimary = &useExternalPrimary
 	}
 
 	createAPI := zoneauth.NewCreate(dnsZone)
@@ -331,11 +341,10 @@ func resourceZoneAuthCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func returnFields() []string {
-	return []string{"fqdn", "comment", "zone_format", "view", "prefix", "soa_serial_number", "soa_default_ttl", "soa_negative_ttl", "soa_refresh", "soa_retry", "soa_expire", "copy_xfer_to_notify", "use_copy_xfer_to_notify", "disable", "dns_integrity_enable", "dns_integrity_member", "external_primaries", "external_secondaries", "grid_primary", "grid_secondaries", "grid_primary_shared_with_ms_parent_delegation", "locked", "locked_by", "network_view", "ns_group", "allow_update", "allow_transfer", "use_check_names_policy"}
+	return []string{"fqdn", "comment", "zone_format", "view", "prefix", "use_grid_zone_timer", "soa_serial_number", "soa_default_ttl", "soa_negative_ttl", "soa_refresh", "soa_retry", "soa_expire", "copy_xfer_to_notify", "use_copy_xfer_to_notify", "disable", "dns_integrity_enable", "dns_integrity_member", "external_primaries", "external_secondaries", "grid_primary", "grid_secondaries", "grid_primary_shared_with_ms_parent_delegation", "locked", "locked_by", "network_view", "ns_group", "allow_update", "allow_transfer", "use_check_names_policy", "use_external_primary"}
 }
 
 func resourceZoneAuthRead(d *schema.ResourceData, m interface{}) error {
-
 	returnFields := returnFields()
 	resourceReference := d.Id()
 	infobloxClient := m.(*skyinfoblox.InfobloxClient)
@@ -381,6 +390,7 @@ func resourceZoneAuthRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("copy_xfer_to_notify", response.CopyXferToNotify)
 	d.Set("use_copy_xfer_to_notify", response.UseCopyXferNotify)
 	d.Set("use_check_names_policy", response.UseCheckNamesPolicy)
+	d.Set("use_external_primary", response.UseExternalPrimary)
 	d.Set("allow_update", response.AllowUpdate)
 	d.Set("allow_transfer", response.AllowTransfer)
 	return nil
@@ -395,7 +405,9 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 	resourceReference := d.Id()
 	updateZoneAuth.Reference = resourceReference
 	gridTimer := true
-
+	if validatePrimaryZone(d) == validateSecondaryZone(d) {
+		return fmt.Errorf("Terraform Update Error: Zone Validation Error, please refer to the Terraform Provider documentation")
+	}
 	if d.HasChange("comment") {
 		if v, ok := d.GetOk("comment"); ok {
 			updateZoneAuth.Comment = v.(string)
@@ -409,6 +421,14 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 		hasChanges = true
 	}
+
+	if d.HasChange("use_grid_zone_timer") {
+		if v, ok := d.GetOk("use_grid_zone_timer"); ok && v != nil {
+			useZoneTimer := v.(bool)
+			updateZoneAuth.UseGridZoneTimer = &useZoneTimer
+		}
+	}
+
 	if d.HasChange("soa_default_ttl") {
 		if v, ok := d.GetOk("soa_default_ttl"); ok && v != nil {
 			soaTTL := v.(int)
@@ -531,11 +551,19 @@ func resourceZoneAuthUpdate(d *schema.ResourceData, m interface{}) error {
 		updateZoneAuth.UseCopyXferNotify = &useCopyXferToNotify
 		hasChanges = true
 	}
+
 	if d.HasChange("use_check_names_policy") {
 		useCheckNamesPolicy := d.Get("use_check_names_policy").(bool)
 		updateZoneAuth.UseCheckNamesPolicy = &useCheckNamesPolicy
 		hasChanges = true
 	}
+
+	if d.HasChange("use_external_primary") {
+		useExternalPrimary := d.Get("use_external_primary").(bool)
+		updateZoneAuth.UseExternalPrimary = &useExternalPrimary
+		hasChanges = true
+	}
+
 	if d.HasChange("allow_update") {
 		if v, ok := d.GetOk("allow_update"); ok && v != nil {
 			updateZoneAuth.AllowUpdate = util.BuildAcList(v.([]interface{}))
@@ -591,4 +619,30 @@ func resourceZoneAuthDelete(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId("")
 	return nil
+}
+
+func validatePrimaryZone(d *schema.ResourceData) bool {
+	if d.Get("use_external_primary").(bool) == true {
+		return false
+	}
+
+	if _, ok := d.GetOk("external_primaries"); ok {
+		return false
+	}
+	if _, ok := d.GetOk("grid_secondaries"); ok {
+		return false
+	}
+	return true
+}
+
+func validateSecondaryZone(d *schema.ResourceData) bool {
+	if _, ok := d.GetOk("ns_group"); ok {
+		return false
+	}
+	for _, x := range []string{"soa_default_ttl", "soa_negative_ttl", "soa_refresh", "soa_retry", "soa_expire"} {
+		if _, ok := d.GetOk(x); ok {
+			return false
+		}
+	}
+	return true
 }
