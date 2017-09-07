@@ -516,12 +516,12 @@
 			"versionExact": "0.0.27"
 		},
 		{
-			"checksumSHA1": "hpVszxMVrpAuxJ8AulDfRsKsQH4=",
+			"checksumSHA1": "DAcFdbALeMNlksK6A9hX3EhiBPc=",
 			"path": "github.com/sky-uk/skyinfoblox/api/common",
-			"revision": "c6967e9bc828e2293818db8312d2e7fea29e8f28",
-			"revisionTime": "2017-08-24T15:59:42Z",
-			"version": "0.0.27",
-			"versionExact": "0.0.27"
+			"revision": "0834f8f01e501b053cfca1b67489a8aa7d32ac5c",
+			"revisionTime": "2017-09-06T16:34:15Z",
+			"version": "0.0.32",
+			"versionExact": "0.0.32"
 		},
 		{
 			"checksumSHA1": "WnITJ93t+b/0GqjMPGvdiLJgJFk=",
@@ -530,6 +530,20 @@
 			"revisionTime": "2017-08-24T15:59:42Z",
 			"version": "0.0.27",
 			"versionExact": "0.0.27"
+		},
+		{
+			"checksumSHA1": "1KKxOGgh/Egl4iwmIVXFeDjpAQU=",
+			"path": "github.com/sky-uk/skyinfoblox/api/dnsview",
+			"revision": "0834f8f01e501b053cfca1b67489a8aa7d32ac5c",
+			"revisionTime": "2017-09-06T16:34:15Z",
+			"version": "0.0.32",
+			"versionExact": "0.0.32"
+		},
+		{
+			"path": "github.com/sky-uk/skyinfoblox/api/dnsview/*",
+			"revision": "0.0.30",
+			"version": "0.0.30",
+			"versionExact": "0.0.30"
 		},
 		{
 			"checksumSHA1": "/twbVm5DccoAhJAoRwMeOrpsIAo=",

@@ -2,7 +2,9 @@ package util
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform/helper/schema"
 	"strings"
+	"unicode/utf8"
 )
 
 // ValidateZoneFormat - Checks the Zone Format is valid
@@ -40,4 +42,14 @@ func CheckLeadingTrailingSpaces(v interface{}, k string) (ws []string, errors []
 		errors = append(errors, fmt.Errorf("%q must not contain trailing or leading white space", k))
 	}
 	return
+}
+
+// ValidateMaxLength - Checks the length of a string against the maximum allowed value
+func ValidateMaxLength(maxLength int) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		if utf8.RuneCountInString(v.(string)) > maxLength {
+			errors = append(errors, fmt.Errorf("Max length is %d", maxLength))
+		}
+		return
+	}
 }
