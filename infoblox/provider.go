@@ -63,6 +63,7 @@ func Provider() terraform.ResourceProvider {
 			"infoblox_ns_group_forward":      resourceNSGroupForward(),
 			"infoblox_ns_group_stub":         resourceNSGroupStub(),
 			"infoblox_ns_group_forward_stub": resourceNSGroupForwardStub(),
+			"infoblox_mx_record":             resourceMxRecord(),
 			"infoblox_dns_view":              resourceDNSView(),
 		},
 		ConfigureFunc: providerConfigure,

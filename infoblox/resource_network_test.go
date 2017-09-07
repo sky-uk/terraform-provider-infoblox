@@ -81,7 +81,7 @@ func testAccResourceNetworkExists(networkAddr, resourceName string) resource.Tes
 		getAllARec := network.NewGetAllNetworks(fields)
 		err := infobloxClient.Do(getAllARec)
 		if err != nil {
-			return fmt.Errorf("Error getting the A record: %q", err.Error())
+			return fmt.Errorf("Error getting the Network record: %q", err.Error())
 		}
 		for _, x := range getAllARec.GetResponse() {
 			if x.Network == networkAddr {
