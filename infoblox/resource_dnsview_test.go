@@ -5,8 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/dnsview"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"regexp"
 	"testing"
 )
@@ -24,7 +23,7 @@ func TestAccInfobloxDNSViewBasic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccInfobloxDNSViewCheckDestroy(state, dnsViewName)
+			return TestAccCheckDestroy(model.ViewObj, "name", dnsViewName)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -38,7 +37,7 @@ func TestAccInfobloxDNSViewBasic(t *testing.T) {
 			{
 				Config: testAccInfobloxDNSViewCreateTemplate(dnsViewName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccInfobloxDNSViewCheckExists(dnsViewName, dnsViewResource),
+					testAccInfobloxDNSViewCheckExists("name", dnsViewName),
 					resource.TestCheckResourceAttr(dnsViewResource, "name", dnsViewName),
 					resource.TestCheckResourceAttr(dnsViewResource, "comment", "Infoblox Terraform Acceptance test"),
 				),
@@ -46,7 +45,7 @@ func TestAccInfobloxDNSViewBasic(t *testing.T) {
 			{
 				Config: testAccInfobloxDNSViewUpdateTemplate(updateDNSViewName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccInfobloxDNSViewCheckExists(updateDNSViewName, dnsViewResource),
+					testAccInfobloxDNSViewCheckExists("name", updateDNSViewName),
 					resource.TestCheckResourceAttr(dnsViewResource, "name", updateDNSViewName),
 					resource.TestCheckResourceAttr(dnsViewResource, "comment", "Infoblox Terraform Acceptance test - updated"),
 				),
@@ -55,54 +54,9 @@ func TestAccInfobloxDNSViewBasic(t *testing.T) {
 	})
 }
 
-func testAccInfobloxDNSViewCheckDestroy(state *terraform.State, dnsViewName string) error {
-
-	client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_dns_view" {
-			continue
-		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
-			return nil
-		}
-		api := dnsview.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox - error occurred whilst retrieving a list of DNS views")
-		}
-		for _, dnsView := range *api.ResponseObject().(*[]dnsview.DNSView) {
-			if dnsView.Name == dnsViewName {
-				return fmt.Errorf("Infoblox DNS View %s still exists", dnsViewName)
-			}
-		}
-	}
-	return nil
-}
-
-func testAccInfobloxDNSViewCheckExists(dnsViewName, dnsViewResource string) resource.TestCheckFunc {
+func testAccInfobloxDNSViewCheckExists(key, value string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-
-		rs, ok := state.RootModule().Resources[dnsViewResource]
-		if !ok {
-			return fmt.Errorf("\nInfoblox DNS View %s wasn't found in resources", dnsViewName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox DNS View ID not set for %s in resources", dnsViewName)
-		}
-
-		client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		api := dnsview.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox DNS View - error whilst retrieving a list of DNS Views: %+v", err)
-		}
-		for _, dnsView := range *api.ResponseObject().(*[]dnsview.DNSView) {
-			if dnsView.Name == dnsViewName {
-				return nil
-			}
-		}
-		return fmt.Errorf("Infoblox DNS View %s wasn't found on remote Infoblox server", dnsViewName)
+		return TestAccCheckExists(model.ViewObj, key, value)
 	}
 }
 

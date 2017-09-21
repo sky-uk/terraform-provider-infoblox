@@ -5,8 +5,8 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/records/nameserver"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
+	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
 	"regexp"
 	"testing"
 )
@@ -18,8 +18,8 @@ func TestAccInfobloxNSRecordBasic(t *testing.T) {
 	createNameServer := fmt.Sprintf("acctest-infoblox-%d-nameserver.%s", randomInt, nameServerZoneName)
 	updateNameServer := fmt.Sprintf("acctest-infoblox-%d-nameserver-update.%s", randomInt, nameServerZoneName)
 	nsResourceName := "infoblox_ns_record.acctest"
-	nameServerAddressIPPattern := regexp.MustCompile(`name_server_addresses\.[0-9]+\.ip_address`)
-	nameServerAddressPTRPattern := regexp.MustCompile(`name_server_addresses\.[0-9]+\.auto_create_PTR_record`)
+	nameServerAddressIPPattern := regexp.MustCompile(`addresses\.[0-9]+\.address`)
+	nameServerAddressPTRPattern := regexp.MustCompile(`addresses\.[0-9]+\.auto_create_ptr`)
 
 	fmt.Printf("\n\nAcceptance Test Name Servers are:\n \tcreate:%s, \n\tupdate:%s\n\n", createNameServer, updateNameServer)
 
@@ -29,7 +29,7 @@ func TestAccInfobloxNSRecordBasic(t *testing.T) {
 		},
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccInfobloxNSRecordCheckDestroy(state, createNameServer, updateNameServer)
+			return TestAccCheckDestroy(model.RecordNSObj, "nameserver", createNameServer)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -44,105 +44,41 @@ func TestAccInfobloxNSRecordBasic(t *testing.T) {
 				Config: testAccInfobloxNSRecordCreateTemplate(nameServerZoneName, createNameServer),
 				Check: resource.ComposeTestCheckFunc(
 					testAccInfobloxNSRecordCheckExists(createNameServer, nsResourceName),
-					resource.TestCheckResourceAttr(nsResourceName, "zone_name", nameServerZoneName),
+					resource.TestCheckResourceAttr(nsResourceName, "name", nameServerZoneName),
 					// TODO we need a ms_delegation_name to test against resource.TestCheckResourceAttr(nsResourceName, "ms_delegation_name", "some_ms_delegation_name"),
-					resource.TestCheckResourceAttr(nsResourceName, "name_server", createNameServer),
+					resource.TestCheckResourceAttr(nsResourceName, "nameserver", createNameServer),
 					resource.TestCheckResourceAttr(nsResourceName, "view", "default"),
-					resource.TestCheckResourceAttr(nsResourceName, "name_server_addresses.#", "2"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "true"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.0.1"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "false"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.0.2"),
+					resource.TestCheckResourceAttr(nsResourceName, "addresses.#", "2"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "true"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.0.1"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "false"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.0.2"),
 				),
 			},
 			{
 				Config: testAccInfobloxNSRecordUpdateTemplate(nameServerZoneName, updateNameServer),
 				Check: resource.ComposeTestCheckFunc(
 					testAccInfobloxNSRecordCheckExists(updateNameServer, nsResourceName),
-					resource.TestCheckResourceAttr(nsResourceName, "zone_name", nameServerZoneName),
+					resource.TestCheckResourceAttr(nsResourceName, "name", nameServerZoneName),
 					// TODO we need a ms_delegation_name to test against resource.TestCheckResourceAttr(nsResourceName, "ms_delegation_name", "another_ms_delegation_name"),
-					resource.TestCheckResourceAttr(nsResourceName, "name_server", updateNameServer),
+					resource.TestCheckResourceAttr(nsResourceName, "nameserver", updateNameServer),
 					resource.TestCheckResourceAttr(nsResourceName, "view", "default"),
-					resource.TestCheckResourceAttr(nsResourceName, "name_server_addresses.#", "3"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "false"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.1.1"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "true"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.1.2"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "true"),
-					testAccInfobloxNSRecordCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.1.3"),
+					resource.TestCheckResourceAttr(nsResourceName, "addresses.#", "3"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "false"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.1.1"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "true"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.1.2"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressPTRPattern, "true"),
+					util.AccTestCheckValueInKeyPattern(nsResourceName, nameServerAddressIPPattern, "192.168.1.3"),
 				),
 			},
 		},
 	})
 }
 
-func testAccInfobloxNSRecordCheckValueInKeyPattern(nsRecordResource string, keyPattern *regexp.Regexp, checkValue string) resource.TestCheckFunc {
-	return func(state *terraform.State) error {
-
-		rs, ok := state.RootModule().Resources[nsRecordResource]
-		if ok {
-			for attributeKey, attributeValue := range rs.Primary.Attributes {
-				if keyPattern.MatchString(attributeKey) {
-					if attributeValue == checkValue {
-						return nil
-					}
-				}
-			}
-		}
-		return fmt.Errorf("Infoblox NS Record attribute %s not found", checkValue)
-	}
-}
-
-func testAccInfobloxNSRecordCheckDestroy(state *terraform.State, createNameServer, updateNameServer string) error {
-
-	client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_ns_record" {
-			continue
-		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
-			return nil
-		}
-		api := nameserver.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox - error occurred whilst retrieving a list of NS records")
-		}
-		for _, nsRecord := range *api.ResponseObject().(*[]nameserver.NSRecord) {
-			for _, checkNameServer := range []string{createNameServer, updateNameServer} {
-				if nsRecord.NameServer == checkNameServer {
-					return fmt.Errorf("Infoblox NS record for %s still exists", checkNameServer)
-				}
-			}
-		}
-	}
-	return nil
-}
-
 func testAccInfobloxNSRecordCheckExists(nameServer, nameServerResource string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-
-		rs, ok := state.RootModule().Resources[nameServerResource]
-		if !ok {
-			return fmt.Errorf("\nInfoblox NS record for %s wasn't found in resources", nameServer)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox NS record ID not set for %s in resources", nameServer)
-		}
-
-		client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		api := nameserver.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox NS record - error whilst retrieving a list of NS records: %+v", err)
-		}
-		for _, nsRecord := range *api.ResponseObject().(*[]nameserver.NSRecord) {
-			if nsRecord.NameServer == nameServer {
-				return nil
-			}
-		}
-		return fmt.Errorf("Infoblox NS record for %s wasn't found on remote Infoblox server", nameServer)
+		return TestAccCheckExists(model.RecordNSObj, "nameserver", nameServer)
 	}
 }
 
@@ -150,16 +86,16 @@ func testAccInfobloxNSRecordNoZoneNameTemplate() string {
 	return fmt.Sprintf(`
 resource "infoblox_ns_record" "acctest" {
     // TODO we need a ms_delegation_name to test against ms_delegation_name = "some_ms_delegation_name"
-    name_server = "ns1.example.com"
+    nameserver = "ns1.example.com"
     view = "default"
-    name_server_addresses = [
+    addresses = [
         {
-            ip_address = "192.168.0.1"
-            auto_create_PTR_record = true
+            address = "192.168.0.1"
+            auto_create_ptr = true
         },
         {
-            ip_address = "192.168.0.2"
-            auto_create_PTR_record = false
+            address = "192.168.0.2"
+            auto_create_ptr = false
         },
     ]
 }
@@ -169,18 +105,18 @@ resource "infoblox_ns_record" "acctest" {
 func testAccInfobloxNSRecordTestValidateWhiteSpaceTemplate(zoneName string) string {
 	return fmt.Sprintf(`
 resource "infoblox_ns_record" "acctest" {
-    zone_name = "%s"
+    name = "%s"
     // TODO we need a ms_delegation_name to test against ms_delegation_name = "some_ms_delegation_name"
-    name_server = "    ns1.example.com   "
+    nameserver = "    ns1.example.com   "
     view = "default"
-    name_server_addresses = [
+    addresses = [
         {
-            ip_address = "192.168.0.1"
-            auto_create_PTR_record = true
+            address = "192.168.0.1"
+            auto_create_ptr = true
         },
         {
-            ip_address = "192.168.0.2"
-            auto_create_PTR_record = false
+            address = "192.168.0.2"
+            auto_create_ptr = false
         },
     ]
 }
@@ -190,18 +126,18 @@ resource "infoblox_ns_record" "acctest" {
 func testAccInfobloxNSRecordCreateTemplate(zoneName, nameServer string) string {
 	return fmt.Sprintf(`
 resource "infoblox_ns_record" "acctest" {
-    zone_name = "%s"
+    name = "%s"
     // TODO we need a ms_delegation_name to test against ms_delegation_name = "some_ms_delegation_name"
-    name_server = "%s"
+    nameserver = "%s"
     view = "default"
-    name_server_addresses = [
+    addresses = [
         {
-            ip_address = "192.168.0.1"
-            auto_create_PTR_record = true
+            address = "192.168.0.1"
+            auto_create_ptr = true
         },
         {
-            ip_address = "192.168.0.2"
-            auto_create_PTR_record = false
+            address = "192.168.0.2"
+            auto_create_ptr = false
         },
     ]
 }
@@ -211,22 +147,22 @@ resource "infoblox_ns_record" "acctest" {
 func testAccInfobloxNSRecordUpdateTemplate(zoneName, nameServer string) string {
 	return fmt.Sprintf(`
 resource "infoblox_ns_record" "acctest" {
-    zone_name = "%s"
+    name = "%s"
     // TODO we need a ms_delegation_name to test against ms_delegation_name = "another_ms_delegation_name"
-    name_server = "%s"
+    nameserver = "%s"
     view = "default"
-    name_server_addresses = [
+    addresses = [
         {
-            ip_address = "192.168.1.1"
-            auto_create_PTR_record = false
+            address = "192.168.1.1"
+            auto_create_ptr = false
         },
         {
-            ip_address = "192.168.1.2"
-            auto_create_PTR_record = true
+            address = "192.168.1.2"
+            auto_create_ptr = true
         },
         {
-            ip_address = "192.168.1.3"
-            auto_create_PTR_record = true
+            address = "192.168.1.3"
+            auto_create_ptr = true
         },
     ]
 }

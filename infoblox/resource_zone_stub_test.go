@@ -5,9 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/zoneauth"
-	"github.com/sky-uk/skyinfoblox/api/zonestub"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"strconv"
 	"testing"
 )
@@ -20,7 +18,7 @@ func TestAccInfobloxZoneStub(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccInfobloxZoneStubCheckDestroy(state, testFQDN)
+			return TestAccCheckDestroy(model.ZONESTUBObj, "fqdn", testFQDN)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -29,7 +27,7 @@ func TestAccInfobloxZoneStub(t *testing.T) {
 					testAccInfobloxZoneStubExists(testFQDN, testFQDNResourceName),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "fqdn", testFQDN),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "comment", "this is a stub zone"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "zoneformat", "FORWARD"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "view", "default"),
 				),
 			},
@@ -39,7 +37,7 @@ func TestAccInfobloxZoneStub(t *testing.T) {
 					testAccInfobloxZoneStubExists(testFQDN, testFQDNResourceName),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "fqdn", testFQDN),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "comment", "this is a stub comment"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "zoneformat", "FORWARD"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "zone_format", "FORWARD"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "view", "default"),
 				),
 			},
@@ -49,55 +47,8 @@ func TestAccInfobloxZoneStub(t *testing.T) {
 
 func testAccInfobloxZoneStubExists(testFQDN, resourceName string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-
-		rs, ok := state.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("Infoblox Zone Stub resource %s not found in resources", resourceName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Infoblox Zone Stub resource ID not set in resources ")
-		}
-		client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		getAllAPI := zonestub.NewGetAll([]string{"fqdn", "comment"})
-
-		err := client.Do(getAllAPI)
-		if err != nil {
-			return fmt.Errorf("Error: %+v", err)
-		}
-		for _, dnsZoneReference := range *getAllAPI.ResponseObject().(*[]zonestub.ZoneStub) {
-			if testFQDN == dnsZoneReference.FQDN {
-				return nil
-			}
-		}
-		return fmt.Errorf("Infoblox Zone %s wasn't found", testFQDN)
+		return TestAccCheckExists(model.ZONESTUBObj, "fqdn", testFQDN)
 	}
-}
-
-func testAccInfobloxZoneStubCheckDestroy(state *terraform.State, fqdn string) error {
-
-	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_zone_stub" {
-			continue
-		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
-			return nil
-		}
-		zonestub.NewGetAll([]string{"fqdn", "comment"})
-		api := zoneauth.NewGetAllZones()
-		err := infobloxClient.Do(api)
-		if err != nil {
-			return nil
-		}
-		for _, zone := range *api.GetResponse() {
-			if zone.FQDN == fqdn {
-				return fmt.Errorf("Infoblox Zone %s still exists", fqdn)
-			}
-		}
-	}
-
-	return nil
 }
 
 func testAccInfobloxZoneStubCreateTemplate(testFQDN string) string {

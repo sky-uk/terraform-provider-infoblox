@@ -1,11 +1,9 @@
 package infoblox
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/network"
-	"net/http"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
+	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
 )
 
 func resourceNetwork() *schema.Resource {
@@ -13,96 +11,117 @@ func resourceNetwork() *schema.Resource {
 		Create: resourceNetworkCreate,
 		Read:   resourceNetworkRead,
 		Update: resourceNetworkUpdate,
-		Delete: resourceNetworkDelete,
+		Delete: DeleteResource,
 
 		Schema: map[string]*schema.Schema{
-			"ref": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Unique reference to Infoblox Network resource",
-			},
 			"network": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "The network address in IPv4 Address/CIDR format.",
 			},
-			"networkview": {
-				Type:     schema.TypeString,
-				Optional: true,
+			"network_view": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The name of the network view in which this network resides.",
 			},
 			"comment": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Description:  "Comment for the network, maximum 256 characters.",
+				ValidateFunc: util.ValidateMaxLength(256),
 			},
 			"authority": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Authority for the DHCP network. Associated with the field use_authority",
 			},
 			"use_authority": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"autocreatereversezone": {
-				Type:     schema.TypeBool,
-				Optional: true,
+			"auto_create_reversezone": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "This flag controls whether reverse zones are automatically created when the network is added. Cannot be updated, nor is readable",
 			},
 			"disable": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Disable Network for DHCP",
+				Description: "Determines whether a network is disabled or not. When this is set to False, the network is enabled.",
 			},
-			"enableddns": {
+			"enable_ddns": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "The dynamic DNS updates flag of a DHCP network object. If set to True, the DHCP server sends DDNS updates to DNS servers in the same Grid, and to external DNS servers.",
+			},
+			"use_enable_ddns": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"use_enableddns": {
+			"high_water_mark": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: util.ValidateUnsignedInteger,
+				Description:  "The percentage of DHCP network usage threshold above which network usage is not expected and may warrant your attention. When the high watermark is reached, the Infoblox appliance generates a syslog message and sends a warning (if enabled). A number that specifies the percentage of allocated addresses. The range is from 1 to 100.",
+			},
+			"high_water_mark_reset": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: util.ValidateUnsignedInteger,
+				Description:  "The percentage of DHCP network usage below which the corresponding SNMP trap is reset. A number that specifies the percentage of allocated addresses. The range is from 1 to 100. The high watermark reset value must be lower than the high watermark value.",
+			},
+			"low_water_mark": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: util.ValidateUnsignedInteger,
+				Description:  "The percentage of DHCP network usage below which the Infoblox appliance generates a syslog message and sends a warning (if enabled). A number that specifies the percentage of allocated addresses. The range is from 1 to 100.",
+			},
+			"low_water_mark_reset": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: util.ValidateUnsignedInteger,
+				Description:  "The percentage of DHCP network usage threshold below which network usage is not expected and may warrant your attention. When the low watermark is crossed, the Infoblox appliance generates a syslog message and sends a warning (if enabled).  A number that specifies the percentage of allocated addresses. The range is from 1 to 100. The low watermark reset value must be higher than the low watermark value.",
+			},
+			"enable_dhcp_thresholds": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines if DHCP thresholds are enabled for the network.",
+			},
+			"use_enable_dhcp_thresholds": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"high_watermark": {
-				Type:     schema.TypeInt,
-				Optional: true,
+			"enable_discovery": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines whether a discovery is enabled or not for this network. When this is set to False, the network discovery is disabled.",
 			},
-			"high_watermark_reset": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"low_watermark": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"low_watermark_reset": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"enabledhcpthresholds": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"use_enabledhcpthresholds": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"enablediscovery": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"use_enablediscovery": {
+			"use_enable_discovery": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"discovery_member": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The member that will run discovery for this network.",
 			},
 			"ipv4addr": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The IPv4 Address of the network.",
 			},
-			"leasescavengetime": {
-				Type:     schema.TypeInt,
-				Optional: true,
+			"lease_scavenge_time": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: "An integer that specifies the period of time (in seconds) that frees and backs up leases remained in the database before they are automatically deleted. To disable lease scavenging, set the parameter to -1. The minimum positive value must be greater than 86400 seconds (1 day).",
 			},
 			"members": {
 				Type:        schema.TypeList,
@@ -134,13 +153,16 @@ func resourceNetwork() *schema.Resource {
 				Computed:    true,
 				Description: "Number of bits in the network mask example: 8,16,24 etc ",
 			},
-			"networkcontainer": {
-				Type:     schema.TypeString,
-				Optional: true,
+			"network_container": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The network container to which this network belongs (if any). Cannot be updated nor written",
 			},
-			"option": &schema.Schema{
+			"options": &schema.Schema{
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Computed:    true,
 				Description: "DHCP Related] Options such as DNS servers, gateway, ntp, etc",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -150,21 +172,22 @@ func resourceNetwork() *schema.Resource {
 							Optional:    true,
 						},
 						"num": {
-							Type:        schema.TypeInt,
-							Description: "DHCO Option number",
-							Optional:    true,
+							Type:         schema.TypeInt,
+							Description:  "DHCO Option number",
+							Optional:     true,
+							ValidateFunc: util.ValidateUnsignedInteger,
 						},
-						"useoption": {
+						"use_option": {
 							Type:        schema.TypeBool,
 							Description: "Use the option or not",
 							Optional:    true,
 						},
 						"value": {
 							Type:        schema.TypeString,
-							Description: "Value of the option",
+							Description: "Value of the option. For an option this value is required",
 							Optional:    true,
 						},
-						"vendorclass": {
+						"vendor_class": {
 							Type:        schema.TypeString,
 							Description: "Vendor Class",
 							Default:     "DHCP",
@@ -177,384 +200,39 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"recycleleases": {
-				Type:     schema.TypeBool,
-				Optional: true,
+			"recycle_leases": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "If the field is set to True, the leases are kept in the Recycle Bin until one week after expiration. Otherwise, the leases are permanently deleted.",
 			},
-			"use_recycleleases": {
+			"use_recycle_leases": {
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  true,
 			},
-			"restartifneeded": {
-				Type:     schema.TypeBool,
-				Optional: true,
+			"restart_if_needed": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Restarts the member service. Not readable",
 			},
-			"updatednsonleaserenewal": {
-				Type:     schema.TypeBool,
-				Optional: true,
+			"update_dns_on_lease_renewal": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "This field controls whether the DHCP server updates DNS when a DHCP lease is renewed.",
 			},
 		},
 	}
 }
 
-// resourceNetworkCreate  - Creates a new netowrk resource
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	var networkCreate network.Network
-	var authority, useAuthority, createReverseZone, networkDisable, enableDdns, useEnableDdns, enableDhcpThresholds, useEnableDhcpThresholds, enableDiscovery, useEnableDiscovery, recycleLeases, useRecycleLeases, useOptions bool
-
-	if v, ok := d.GetOk("network"); ok {
-		networkCreate.Network = v.(string)
-	}
-	if v, ok := d.GetOk("networkview"); ok {
-		networkCreate.NetworkView = v.(string)
-	}
-	if v, ok := d.GetOk("comment"); ok {
-		networkCreate.Comment = v.(string)
-	}
-	if v, ok := d.GetOk("authority"); ok {
-		authority = v.(bool)
-		networkCreate.Authority = &authority
-	}
-	if v, ok := d.GetOk("use_authority"); ok {
-		useAuthority = v.(bool)
-		networkCreate.UseAuthority = &useAuthority
-	}
-	if v, ok := d.GetOk("autocreatereversezone"); ok {
-		createReverseZone = v.(bool)
-		networkCreate.AutoCreateReversezone = &createReverseZone
-	}
-	if v, ok := d.GetOk("disable"); ok {
-		networkDisable = v.(bool)
-		networkCreate.Disable = &networkDisable
-	}
-	if v, ok := d.GetOk("enableddns"); ok {
-		enableDdns = v.(bool)
-		networkCreate.EnableDdns = &enableDdns
-	}
-	if v, ok := d.GetOk("use_enableddns"); ok {
-		useEnableDdns = v.(bool)
-		networkCreate.UseEnableDdns = &useEnableDdns
-	}
-	if v, ok := d.GetOk("enabledhcpthresholds"); ok {
-		enableDhcpThresholds = v.(bool)
-		networkCreate.EnableDhcpThresholds = &enableDhcpThresholds
-	}
-	if v, ok := d.GetOk("use_enabledhcpthresholds"); ok {
-		useEnableDhcpThresholds = v.(bool)
-		networkCreate.UseEnableDhcpThresholds = &useEnableDhcpThresholds
-	}
-	if v, ok := d.GetOk("high_watermark"); ok {
-		networkCreate.HighWaterMark = v.(int)
-	}
-
-	if v, ok := d.GetOk("low_watermark"); ok {
-		networkCreate.LowWaterMark = v.(int)
-	}
-	if v, ok := d.GetOk("low_watermark_reset"); ok {
-		networkCreate.LowWaterMarkReset = v.(int)
-	}
-	if v, ok := d.GetOk("high_watermark_reset"); ok {
-		networkCreate.HighWaterMarkReset = v.(int)
-	}
-	if v, ok := d.GetOk("enablediscovery"); ok {
-		enableDiscovery = v.(bool)
-		networkCreate.EnableDiscovery = &enableDiscovery
-	}
-	if v, ok := d.GetOk("use_enablediscovery"); ok {
-		useEnableDiscovery = v.(bool)
-		networkCreate.UseEnableDiscovery = &useEnableDiscovery
-	}
-	if v, ok := d.GetOk("discovery_member"); ok {
-		networkCreate.DiscoveryMember = v.(string)
-	}
-	if v, ok := d.GetOk("ipv4addr"); ok {
-		networkCreate.Ipv4addr = v.(string)
-	}
-
-	if v, ok := d.GetOk("leasescavengetime"); ok {
-		networkCreate.LeaseScavengeTime = v.(int)
-	}
-
-	if v, ok := d.GetOk("netmask"); ok {
-		networkCreate.Netmask = uint(v.(int))
-	}
-	if v, ok := d.GetOk("members"); ok && v != nil {
-		networkCreate.Members = buildNetworkMembersList(v.([]interface{}))
-	}
-	if v, ok := d.GetOk("networkcontainer"); ok {
-		networkCreate.NetworkContainer = v.(string)
-	}
-	if v, ok := d.GetOk("option"); ok {
-		if options, ok := v.(*schema.Set); ok {
-			networkCreate.Options = buildOptionsObject(options)
-		}
-	}
-	if v, ok := d.GetOk("use_options"); ok {
-		useOptions = v.(bool)
-		networkCreate.UseOptions = &useOptions
-	}
-	if v, ok := d.GetOk("recycleleases"); ok {
-		recycleLeases = v.(bool)
-		networkCreate.RecycleLeases = &recycleLeases
-	}
-	if v, ok := d.GetOk("use_recycleleases"); ok {
-		useRecycleLeases = v.(bool)
-		networkCreate.UseRecycleLeases = &useRecycleLeases
-	}
-
-	createNetworkAPI := network.NewCreateNetwork(networkCreate)
-	createNetworkError := infobloxClient.Do(createNetworkAPI)
-	if createNetworkError != nil {
-		return fmt.Errorf("Error Creating Network %s", createNetworkError)
-	}
-
-	if createNetworkAPI.StatusCode() != http.StatusCreated {
-		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createNetworkAPI.StatusCode(), createNetworkAPI.GetResponse())
-	}
-	d.SetId(createNetworkAPI.GetResponse())
-	return resourceNetworkRead(d, m)
+	return CreateResource(model.NetworkObj, resourceNetwork(), d, m)
 }
 
-// resourceNetworkDelete  - Delete a network resource
-func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	deleteAPI := network.NewDeleteNetwork(d.Id())
-	deleteErr := infobloxClient.Do(deleteAPI)
-	if deleteErr != nil {
-		return fmt.Errorf("Cound not delete the network %s", deleteErr)
-	}
-	if deleteAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Error Deleting the Network : %s ", deleteAPI.ResponseObject())
-	}
-	d.SetId("")
-	return nil
-}
-
-// resourceNetworkRead - Reads the resource
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	fields := []string{"ipv4addr", "disable", "network", "network_view", "comment", "netmask", "members", "authority", "enable_ddns", "options"}
-	getNetworkAPI := network.NewGetNetwork(d.Id(), fields)
-	networkReadErr := infobloxClient.Do(getNetworkAPI)
-	if networkReadErr != nil {
-		return fmt.Errorf("Could not read resource %s", networkReadErr)
-	}
-
-	if getNetworkAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Http Error Reading the resource: %s", getNetworkAPI.ResponseObject())
-	}
-
-	readNetwork := getNetworkAPI.GetResponse()
-	d.Set("network", readNetwork.Network)
-	d.Set("ipv4addr", readNetwork.Ipv4addr)
-	d.Set("netmask", readNetwork.Netmask)
-	d.Set("disable", readNetwork.Disable)
-	d.Set("options", readNetwork.Options)
-	d.Set("members", readNetwork.Members)
-	d.Set("comment", readNetwork.Comment)
-	d.Set("authority", readNetwork.Authority)
-	d.Set("enable_ddns", readNetwork.EnableDdns)
-	d.Set("network_view", readNetwork.NetworkView)
-	d.Set("ref", readNetwork.Ref)
-
-	return nil
+	return ReadResource(resourceNetwork(), d, m)
 }
 
-// resourceNetworkUpdate - Updates the resource
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	hasChanges := false
-	var updateNetwork network.Network
-	if v, ok := d.GetOk("ref"); ok {
-		updateNetwork.Ref = v.(string)
-	}
-	if d.HasChange("network") {
-		_, newNetwork := d.GetChange("network")
-		updateNetwork.NetworkView = newNetwork.(string)
-		hasChanges = true
-	}
-
-	if d.HasChange("disable") {
-		_, newDisable := d.GetChange("disable")
-		Disable := newDisable.(bool)
-		updateNetwork.Disable = &Disable
-		hasChanges = true
-	}
-
-	if d.HasChange("comment") {
-		if v, ok := d.GetOk("comment"); ok {
-			updateNetwork.Comment = v.(string)
-			hasChanges = true
-		}
-	}
-
-	if d.HasChange("option") {
-		if v, ok := d.GetOk("option"); ok {
-			if options, ok := v.(*schema.Set); ok {
-				updateNetwork.Options = buildOptionsObject(options)
-			}
-			hasChanges = true
-		}
-	}
-
-	if d.HasChange("use_options") {
-		_, newUseOptions := d.GetChange("use_options")
-		useOptions := newUseOptions.(bool)
-		updateNetwork.UseOptions = &useOptions
-	}
-
-	if d.HasChange("authority") {
-		_, newAuthority := d.GetChange("authority")
-		authority := newAuthority.(bool)
-		updateNetwork.Authority = &authority
-	}
-
-	if d.HasChange("use_authority") {
-		_, newUseAuthority := d.GetChange("use_authority")
-		useAuthority := newUseAuthority.(bool)
-		updateNetwork.UseAuthority = &useAuthority
-	}
-
-	if d.HasChange("enableddns") {
-		_, newEnableDdns := d.GetChange("enableddns")
-		enableDdns := newEnableDdns.(bool)
-		updateNetwork.EnableDdns = &enableDdns
-	}
-
-	if d.HasChange("use_enableddns") {
-		_, newUseEnableDdns := d.GetChange("use_enableddns")
-		useEnableDdns := newUseEnableDdns.(bool)
-		updateNetwork.UseEnableDdns = &useEnableDdns
-	}
-
-	if d.HasChange("enabledhcpthresholds") {
-		_, newEnableDhcpThreshold := d.GetChange("enabledhcpthresholds")
-		enableDhcpThreshold := newEnableDhcpThreshold.(bool)
-		updateNetwork.EnableDhcpThresholds = &enableDhcpThreshold
-	}
-
-	if d.HasChange("use_enabledhcpthresholds") {
-		_, newUseEnableDhcpThreshold := d.GetChange("use_enabledhcpthresholds")
-		useEnableDhcpThreshold := newUseEnableDhcpThreshold.(bool)
-		updateNetwork.UseEnableDhcpThresholds = &useEnableDhcpThreshold
-	}
-
-	if d.HasChange("high_watermark") {
-		_, newHighWatermark := d.GetChange("high_watermark")
-		highWatermark := newHighWatermark.(int)
-		updateNetwork.HighWaterMark = highWatermark
-	}
-
-	if d.HasChange("high_watermark_reset") {
-		_, newHighWatermarkReset := d.GetChange("high_watermark_reset")
-		highWatermarkReset := newHighWatermarkReset.(int)
-		updateNetwork.HighWaterMarkReset = highWatermarkReset
-	}
-
-	if d.HasChange("low_watermark") {
-		_, newLowWatermark := d.GetChange("low_watermark")
-		lowWatermark := newLowWatermark.(int)
-		updateNetwork.LowWaterMark = lowWatermark
-	}
-	if d.HasChange("low_watermark_reset") {
-		_, newLowWatermarkReset := d.GetChange("low_watermark_reset")
-		lowWatermarkReset := newLowWatermarkReset.(int)
-		updateNetwork.LowWaterMarkReset = lowWatermarkReset
-	}
-
-	if d.HasChange("enablediscovery") {
-		_, newEnableDiscovery := d.GetChange("enablediscovery")
-		enableDiscovery := newEnableDiscovery.(bool)
-		updateNetwork.EnableDiscovery = &enableDiscovery
-	}
-
-	if d.HasChange("use_enablediscovery") {
-		_, newUseEnableDiscovery := d.GetChange("use_enablediscovery")
-		useEnableDiscovery := newUseEnableDiscovery.(bool)
-		updateNetwork.UseEnableDiscovery = &useEnableDiscovery
-	}
-
-	if d.HasChange("discovery_member") {
-		if v, ok := d.GetOk("discovery_member"); ok {
-			updateNetwork.DiscoveryMember = v.(string)
-		}
-	}
-
-	if d.HasChange("recycleleases") {
-		_, newRecycleLeases := d.GetChange("recycleleases")
-		recycleLeases := newRecycleLeases.(bool)
-		updateNetwork.RecycleLeases = &recycleLeases
-	}
-	if d.HasChange("use_recycleleases") {
-		_, newUseRecycleLeases := d.GetChange("use_recycleleases")
-		useRecycleLeases := newUseRecycleLeases.(bool)
-		updateNetwork.UseRecycleLeases = &useRecycleLeases
-	}
-	if d.HasChange("members") {
-		if v, ok := d.GetOk("members"); ok && v != nil {
-			updateNetwork.Members = buildNetworkMembersList(v.([]interface{}))
-		}
-		hasChanges = true
-	}
-
-	if hasChanges {
-		updateNetworkAPI := network.NewUpdateNetwork(updateNetwork)
-		updateNetworkErr := infobloxClient.Do(updateNetworkAPI)
-		if updateNetworkErr != nil {
-			return updateNetworkErr
-		}
-		if updateNetworkAPI.StatusCode() != http.StatusOK {
-			return fmt.Errorf("Error updating the Network record %s ", updateNetworkAPI.GetResponse())
-		}
-	}
-	return resourceNetworkRead(d, m)
-}
-
-// buildOptionsObject - This is to avoid having to repeat the code every time I need to read this field
-func buildOptionsObject(options *schema.Set) []network.DHCPOptions {
-	optionValues := []network.DHCPOptions{}
-	for _, option := range options.List() {
-		optionObject := option.(map[string]interface{})
-		newOption := network.DHCPOptions{}
-		if optionName, ok := optionObject["name"].(string); ok {
-			newOption.Name = optionName
-		}
-
-		if optionNum, ok := optionObject["num"].(int); ok {
-			newOption.Num = uint(optionNum)
-		}
-
-		if optionUse, ok := optionObject["useoption"].(bool); ok {
-			newOption.UseOption = &optionUse
-		}
-
-		if optionValue, ok := optionObject["value"].(string); ok {
-			newOption.Value = optionValue
-		}
-
-		if optionVendorClass, ok := optionObject["vendorclass"].(string); ok {
-			newOption.VendorClass = optionVendorClass
-		}
-		optionValues = append(optionValues, newOption)
-
-	}
-	return optionValues
-}
-
-func buildNetworkMembersList(membersList []interface{}) []network.Member {
-	members := make([]network.Member, len(membersList))
-	var memberObj network.Member
-
-	for idx, value := range membersList {
-		v, ok := value.(map[string]interface{})
-		if ok {
-			memberObj.ElementType = "dhcpmember"
-			memberObj.IPv4Address = v["ipv4addr"].(string)
-			memberObj.IPv6Address = v["ipv6addr"].(string)
-			memberObj.Name = v["name"].(string)
-			members[idx] = memberObj
-		}
-	}
-	return members
+	return UpdateResource(resourceNetwork(), d, m)
 }

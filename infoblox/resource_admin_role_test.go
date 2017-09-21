@@ -5,8 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/adminrole"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"regexp"
 	"testing"
 )
@@ -24,7 +23,7 @@ func TestAccInfobloxAdminRoleBasic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccInfobloxAdminRoleCheckDestroy(state, adminRoleName)
+			return TestAccCheckDestroy(model.AdminroleObj, "name", adminRoleName)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -34,7 +33,7 @@ func TestAccInfobloxAdminRoleBasic(t *testing.T) {
 			{
 				Config: testAccInfobloxAdminRoleCreateTemplate(adminRoleName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccInfobloxAdminRoleCheckExists(adminRoleName, adminRoleResource),
+					testAccInfobloxAdminRoleCheckExists("name", adminRoleName),
 					resource.TestCheckResourceAttr(adminRoleResource, "name", adminRoleName),
 					resource.TestCheckResourceAttr(adminRoleResource, "comment", "Infoblox Terraform Acceptance test"),
 					resource.TestCheckResourceAttr(adminRoleResource, "disable", "true"),
@@ -43,7 +42,7 @@ func TestAccInfobloxAdminRoleBasic(t *testing.T) {
 			{
 				Config: testAccInfobloxAdminRoleUpdateTemplate(updateAdminRoleName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccInfobloxAdminRoleCheckExists(updateAdminRoleName, adminRoleResource),
+					testAccInfobloxAdminRoleCheckExists("name", updateAdminRoleName),
 					resource.TestCheckResourceAttr(adminRoleResource, "name", updateAdminRoleName),
 					resource.TestCheckResourceAttr(adminRoleResource, "comment", "Infoblox Terraform Acceptance test - updated"),
 					resource.TestCheckResourceAttr(adminRoleResource, "disable", "false"),
@@ -53,54 +52,9 @@ func TestAccInfobloxAdminRoleBasic(t *testing.T) {
 	})
 }
 
-func testAccInfobloxAdminRoleCheckDestroy(state *terraform.State, adminRoleName string) error {
-
-	client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_admin_role" {
-			continue
-		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
-			return nil
-		}
-		api := adminrole.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox - error occurred whilst retrieving a list of Admin Roles")
-		}
-		for _, adminRole := range *api.ResponseObject().(*[]adminrole.AdminRole) {
-			if adminRole.Name == adminRoleName {
-				return fmt.Errorf("Infoblox Admin Role %s still exists", adminRoleName)
-			}
-		}
-	}
-	return nil
-}
-
-func testAccInfobloxAdminRoleCheckExists(adminRoleName, adminRoleResource string) resource.TestCheckFunc {
+func testAccInfobloxAdminRoleCheckExists(key, value string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-
-		rs, ok := state.RootModule().Resources[adminRoleResource]
-		if !ok {
-			return fmt.Errorf("\nInfoblox Admin Role %s wasn't found in resources", adminRoleName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox Admin Role ID not set for %s in resources", adminRoleName)
-		}
-
-		client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		api := adminrole.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox Admin Role - error whilst retrieving a list of Admin Roles: %+v", err)
-		}
-		for _, adminRole := range *api.ResponseObject().(*[]adminrole.AdminRole) {
-			if adminRole.Name == adminRoleName {
-				return nil
-			}
-		}
-		return fmt.Errorf("Infoblox Admin Role %s wasn't found on remote Infoblox server", adminRoleName)
+		return TestAccCheckExists(model.AdminroleObj, key, value)
 	}
 }
 

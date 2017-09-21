@@ -5,8 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/zonedelegated"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"testing"
 )
 
@@ -18,7 +17,7 @@ func TestAccInfobloxZoneDelegated(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccInfobloxZoneDelegatedCheckDestroy(state, zoneFqdn)
+			return TestAccCheckDestroy(model.ZONEDelegatedObj, "fqdn", zoneFqdn)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -44,53 +43,8 @@ func TestAccInfobloxZoneDelegated(t *testing.T) {
 
 func testAccInfobloxZoneDelegatedExists(zoneFqdn, resourceName string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		rs, ok := state.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("Infoblox Zone Delegated resource %s not found in resources", resourceName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Infoblox Zone Delegated resource ID not set in resources ")
-		}
-		fields := []string{"fqdn"}
-		client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		getAllAPI := zonedelegated.NewGetAll(fields)
-		err := client.Do(getAllAPI)
-		if err != nil {
-			return fmt.Errorf("Error: %+v", err)
-		}
-		for _, dnsZoneDelegated := range *getAllAPI.ResponseObject().(*[]zonedelegated.ZoneDelegated) {
-			if zoneFqdn == dnsZoneDelegated.Fqdn {
-				return nil
-			}
-		}
-		return fmt.Errorf("Infoblox Zone %s wasn't found", zoneFqdn)
+		return TestAccCheckExists(model.ZONEDelegatedObj, "fqdn", zoneFqdn)
 	}
-}
-
-func testAccInfobloxZoneDelegatedCheckDestroy(state *terraform.State, zoneFqdn string) error {
-	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_zone_delegated" {
-			continue
-		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
-			return nil
-		}
-		fields := []string{"fqdn"}
-		api := zonedelegated.NewGetAll(fields)
-		err := infobloxClient.Do(api)
-		if err != nil {
-			return fmt.Errorf("Could not destroy the resource %s", err.Error())
-		}
-		for _, zone := range *api.ResponseObject().(*[]zonedelegated.ZoneDelegated) {
-			if zone.Fqdn == zoneFqdn {
-				return fmt.Errorf("Infoblox Zone %s still exists", zoneFqdn)
-			}
-		}
-
-	}
-	return nil
-
 }
 
 func testAccInfobloxZoneDelegatedCreateTemplate(zoneName string) string {

@@ -5,8 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/nsgroupdelegation"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
 	"regexp"
 	"testing"
@@ -28,7 +27,7 @@ func TestAccInfobloxNSGroupDelegationBasic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccInfobloxNSGroupDelegationCheckDestroy(state, nsGroupDelegationName)
+			return TestAccCheckDestroy(model.NsgroupDelegationObj, "name", nsGroupDelegationName)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -67,54 +66,9 @@ func TestAccInfobloxNSGroupDelegationBasic(t *testing.T) {
 	})
 }
 
-func testAccInfobloxNSGroupDelegationCheckDestroy(state *terraform.State, name string) error {
-
-	client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_ns_group_delegation" {
-			continue
-		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
-			return nil
-		}
-		api := nsgroupdelegation.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox - error occurred whilst retrieving a list of NS Group Delegation")
-		}
-		for _, nsGroupDelegation := range *api.ResponseObject().(*[]nsgroupdelegation.NSGroupDelegation) {
-			if nsGroupDelegation.Name == name {
-				return fmt.Errorf("Infoblox NS Group Delegation %s still exists", name)
-			}
-		}
-	}
-	return nil
-}
-
 func testAccInfobloxNSGroupDelegationCheckExists(name, resourceName string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-
-		rs, ok := state.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("\nInfoblox NS Group Delegation %s wasn't found in resources", name)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox NS Group Delegation ID not set for %s in resources", name)
-		}
-
-		client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		api := nsgroupdelegation.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox NS Group Delegation - error whilst retrieving a list of NS Group Delegation: %+v", err)
-		}
-		for _, nsGroupDelegation := range *api.ResponseObject().(*[]nsgroupdelegation.NSGroupDelegation) {
-			if nsGroupDelegation.Name == name {
-				return nil
-			}
-		}
-		return fmt.Errorf("Infoblox NS Group Delegation %s wasn't found on remote Infoblox server", name)
+		return TestAccCheckExists(model.NsgroupDelegationObj, "name", name)
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/sky-uk/skyinfoblox"
+	"time"
 )
 
 // Provider : The infoblox terraform provider
@@ -34,6 +35,18 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_ALLOW_UNVERIFIED_SSL", false),
 				Description: "If set, Infoblox client will permit unverifiable SSL certificates.",
+			},
+			"wapi_version": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Infoblox WAPI server version, defaults to v2.6.1",
+				Default:     "v2.6.1",
+			},
+			"timeout": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "http response timeout, in seconds",
+				DefaultFunc: schema.EnvDefaultFunc("INFOBLOX_CLIENT_TIMEOUT", 0),
 			},
 			"client_debug": &schema.Schema{
 				Type:        schema.TypeBool,
@@ -69,15 +82,26 @@ func Provider() terraform.ResourceProvider {
 		ConfigureFunc: providerConfigure,
 	}
 }
+
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
-	username := d.Get("username").(string)
-	password := d.Get("password").(string)
-	server := d.Get("server").(string)
-	ignoreSSL := d.Get("allow_unverified_ssl").(bool)
-	clientDebug := d.Get("client_debug").(bool)
+	var seconds int64
+	seconds = int64(d.Get("timeout").(int))
 
-	ibxClient := skyinfoblox.NewInfobloxClient(server, username, password, ignoreSSL, clientDebug)
+	params := skyinfoblox.Params{
+		WapiVersion: d.Get("wapi_version").(string),
+		URL:         d.Get("server").(string),
+		User:        d.Get("username").(string),
+		Password:    d.Get("password").(string),
+		IgnoreSSL:   d.Get("allow_unverified_ssl").(bool),
+		Debug:       d.Get("client_debug").(bool),
+		Timeout:     time.Duration(seconds),
+	}
 
-	return ibxClient, nil
+	client := skyinfoblox.Connect(params)
+
+	outParams := make(map[string]interface{})
+	outParams["ibxClient"] = client
+
+	return outParams, nil
 }

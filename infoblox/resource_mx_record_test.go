@@ -5,9 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/records/mxrecord"
-	"net/http"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"strconv"
 	"testing"
 )
@@ -19,13 +17,13 @@ func TestResourceMXRecord(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccResourceMXRecordDestroy(state, mailExchanger)
+			return TestAccCheckDestroy(model.RecordMXObj, "mail_exchanger", mailExchanger)
 		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceMXRecordCreateTemplate(mailExchanger),
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceMXRecordExists(mailExchanger, resourceName),
+					testAccResourceMXRecordExists("mail_exchanger", mailExchanger),
 					resource.TestCheckResourceAttr(resourceName, "mail_exchanger", mailExchanger),
 					resource.TestCheckResourceAttr(resourceName, "name", "slupaas.bskyb.com"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is a comment"),
@@ -39,7 +37,7 @@ func TestResourceMXRecord(t *testing.T) {
 			{
 				Config: testAccResourceMXRecordUpdateTemplate(mailExchanger),
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceMXRecordExists(mailExchanger, resourceName),
+					testAccResourceMXRecordExists("mail_exchanger", mailExchanger),
 					resource.TestCheckResourceAttr(resourceName, "mail_exchanger", mailExchanger),
 					resource.TestCheckResourceAttr(resourceName, "name", "slupaas.bskyb.com"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is a comment edited for a disabled zone"),
@@ -55,58 +53,9 @@ func TestResourceMXRecord(t *testing.T) {
 
 }
 
-func testAccResourceMXRecordDestroy(state *terraform.State, mailExchanger string) error {
-	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_mx_record" {
-			continue
-		}
-		if res, ok := rs.Primary.Attributes["ref"]; ok && res != "" {
-			return nil
-		}
-
-		api := mxrecord.NewGetAll()
-		err := infobloxClient.Do(api)
-		if err != nil {
-			return nil
-		}
-
-		if api.StatusCode() != http.StatusOK {
-			return fmt.Errorf("MXRecord still exists: %+v", *api.ResponseObject().(*string))
-		}
-
-		for _, x := range *api.ResponseObject().(*[]mxrecord.MxRecord) {
-			if x.MailExchanger == mailExchanger {
-				return nil
-			}
-		}
-
-	}
-	return nil
-}
-
-func testAccResourceMXRecordExists(mailExchanger, resourceName string) resource.TestCheckFunc {
+func testAccResourceMXRecordExists(key, value string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		rs, ok := state.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("\nInfoblox MX Record resource %s not found in resources", resourceName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox MX Record resource %s ID not set", resourceName)
-		}
-		infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		getAllMX := mxrecord.NewGetAll()
-		err := infobloxClient.Do(getAllMX)
-		if err != nil {
-			return fmt.Errorf("Error getting the Infoblox MX records: %q", err.Error())
-		}
-		for _, x := range *getAllMX.ResponseObject().(*[]mxrecord.MxRecord) {
-			if x.MailExchanger == mailExchanger {
-				return nil
-			}
-		}
-		return fmt.Errorf("Could not find %s", resourceName)
-
+		return TestAccCheckExists(model.RecordMXObj, key, value)
 	}
 }
 

@@ -1,12 +1,9 @@
 package infoblox
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/records"
-	"log"
-	"net/http"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
+	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
 )
 
 func resourceARecord() *schema.Resource {
@@ -14,173 +11,110 @@ func resourceARecord() *schema.Resource {
 		Create: resourceARecordCreate,
 		Read:   resourceARecordRead,
 		Update: resourceARecordUpdate,
-		Delete: resourceARecordDelete,
+		Delete: DeleteResource,
 
 		Schema: map[string]*schema.Schema{
-			"address": {
+			"comment": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: util.ValidateMaxLength(256),
+				Description:  "Comment for the record; maximum 256 characters", // TODO add validation function
+			},
+			"creation_time": {
+				Type:        schema.TypeFloat,
+				Computed:    true,
+				Description: "The time of the record creation in Epoch seconds format.",
+			},
+			"creator": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The record creator.Valid values:DYNAMIC,STATIC,SYSTEM.Defaults to STATIC",
+			},
+			"ddns_protected": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines if the DDNS updates for this record are allowed or not",
+			},
+			"ddns_principal": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The GSS-TSIG principal that owns this record",
+			},
+			"disable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines if the record is disabled or not. False means that the record is enabled.",
+			},
+			"dns_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The name for an A record in punycode format. Values with leading or trailing white space are not valid for this field. Cannot be written nor updated.",
+			},
+			"forbid_reclamation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines if the reclamation is allowed for the record or not.",
+			},
+			"ipv4addr": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "IP address for hostname",
 			},
 			"name": {
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: util.CheckLeadingTrailingSpaces,
+				Description:  "Name for A record in FQDN format. This value can be in unicode format. Values with leading or trailing white space are not valid for this field.",
+			},
+			"reclaimable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Determines if the record is reclaimable or not. Cannot be updated/written",
+			},
+			"shared_record_group": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "name for host record",
+				Optional:    true,
+				Computed:    true,
+				Description: "The name of the shared record group in which the record resides. This field exists only on db_objects if this record is a shared record. Cannot be updated/written",
+			},
+			"ttl": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: util.ValidateUnsignedInteger,
+				Description:  "TTL in seconds for host record",
+			},
+			"use_ttl": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Use flag for: ttl",
+			},
+			"view": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The name of the DNS view in which the record resides. Example: “external”.",
 			},
 			"zone": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "DNS Zone for the record",
 			},
-			"ttl": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "TTL in seconds for host record",
-			},
-			"use_ttl": {
-				Type:     schema.TypeBool,
-				Required: false,
-				Optional: true,
-			},
-			"ref": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Internal Reference for the record",
-			},
 		},
 	}
 }
 
 func resourceARecordCreate(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	var name, address string
-	var ttl int
-	var createARecord records.ARecord
-	if v, ok := d.GetOk("name"); ok {
-		name = v.(string)
-		createARecord.Name = name
-	} else {
-		return fmt.Errorf("name argument is required")
-	}
-
-	if v, ok := d.GetOk("address"); ok {
-		address = v.(string)
-		createARecord.IPv4 = address
-	} else {
-		return fmt.Errorf("address argument is required")
-	}
-
-	if v, ok := d.GetOk("ttl"); ok {
-		ttl = v.(int)
-		createARecord.TTL = uint(ttl)
-	}
-
-	useTTL := false
-	if v, ok := d.GetOk("use_ttl"); ok {
-		useTTL = v.(bool)
-	}
-	createARecord.UseTTL = &useTTL
-
-	createAPI := records.NewCreateARecord(createARecord)
-	createARecordErr := infobloxClient.Do(createAPI)
-	if createARecordErr != nil {
-		return createARecordErr
-	}
-	if createAPI.StatusCode() != http.StatusCreated {
-		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createAPI.StatusCode(), createAPI.GetResponse())
-	}
-	response := createAPI.GetResponse()
-	d.SetId(response)
-	return resourceARecordRead(d, m)
+	return CreateResource(model.RecordAObj, resourceARecord(), d, m)
 }
 
 func resourceARecordRead(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	fields := []string{"name", "ipv4addr", "use_ttl", "ttl", "zone"}
-	getSingleARecordAPI := records.NewGetARecord(d.Id(), fields)
-	readErr := infobloxClient.Do(getSingleARecordAPI)
-	if readErr != nil {
-		d.SetId("")
-		return fmt.Errorf("Record does not exist")
-	}
-	if getSingleARecordAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Error reading A record : %s", getSingleARecordAPI.ResponseObject())
-	}
-	readData := getSingleARecordAPI.GetResponse()
-	d.Set("name", readData.Name)
-	d.Set("zone", readData.Zone)
-	d.Set("address", readData.IPv4)
-	d.Set("ttl", readData.TTL)
-	d.Set("ref", readData.Ref)
-
-	return nil
+	return ReadResource(resourceARecord(), d, m)
 }
 
 func resourceARecordUpdate(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	var recordReference string
-	var hasChanges bool
-	if v, ok := d.GetOk("ref"); ok {
-		recordReference = v.(string)
-
-	} else {
-		return fmt.Errorf("cannot delete without reference")
-	}
-	fields := []string{"name", "ipv4addr", "ttl"}
-	updateARecordAPI := records.NewGetARecord(recordReference, fields)
-	updateErr := infobloxClient.Do(updateARecordAPI)
-	if updateErr != nil {
-		return fmt.Errorf("Unable to read the A record")
-	}
-	recordToUpdate := updateARecordAPI.GetResponse()
-	if d.HasChange("name") {
-		hasChanges = true
-		_, newName := d.GetChange("name")
-		recordToUpdate.Name = newName.(string)
-	}
-
-	if d.HasChange("ttl") {
-		hasChanges = true
-		var TTL int
-		_, newTTL := d.GetChange("ttl")
-		TTL = newTTL.(int)
-		recordToUpdate.TTL = uint(TTL)
-	}
-
-	if d.HasChange("address") {
-		hasChanges = true
-		_, newAddress := d.GetChange("address")
-		recordToUpdate.IPv4 = newAddress.(string)
-	}
-
-	if hasChanges {
-		updateAPI := records.NewUpdateARecord(recordReference, recordToUpdate)
-		changeErr := infobloxClient.Do(updateAPI)
-		if changeErr != nil {
-			log.Printf(fmt.Sprintf("[DEBUG] Error updating  A record: %s", changeErr))
-		}
-		if updateAPI.StatusCode() != http.StatusOK {
-			return fmt.Errorf("Error updating A Record : %s", updateAPI.ResponseObject())
-		}
-		d.SetId(updateAPI.GetResponse())
-		return resourceARecordRead(d, m)
-
-	}
-
-	return nil
-
-}
-
-func resourceARecordDelete(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	deleteAPI := records.NewDelete(d.Id())
-	deleteRecordErr := infobloxClient.Do(deleteAPI)
-	if deleteRecordErr != nil {
-		return deleteRecordErr
-	}
-	if deleteAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Error deleting A Record : %s", deleteAPI.ResponseObject())
-	}
-	d.SetId("")
-	return nil
+	return UpdateResource(resourceARecord(), d, m)
 }

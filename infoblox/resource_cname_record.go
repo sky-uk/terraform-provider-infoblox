@@ -1,11 +1,9 @@
 package infoblox
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/records"
-	"strings"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
+	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
 )
 
 func resourceCNAMERecord() *schema.Resource {
@@ -13,23 +11,73 @@ func resourceCNAMERecord() *schema.Resource {
 		Create: resourceCNAMECreate,
 		Read:   resourceCNAMERead,
 		Update: resourceCNAMEUpdate,
-		Delete: resourceCNAMEDelete,
+		Delete: DeleteResource,
 
 		Schema: map[string]*schema.Schema{
+			"canonical": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Canonical name in FQDN format",
+			},
+			"comment": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: util.ValidateMaxLength(256),
+				Description:  "Comment for the record; maximum 256 characters",
+			},
+			"creation_time": {
+				Type:        schema.TypeFloat,
+				Computed:    true,
+				Description: "The time of the record creation in Epoch seconds format.",
+			},
+			"creator": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The record creator.Valid values:DYNAMIC,STATIC,SYSTEM.Defaults to STATIC",
+			},
+			"ddns_principal": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The GSS-TSIG principal that owns this record",
+			},
+			"ddns_protected": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines if the DDNS updates for this record are allowed or not",
+			},
+			"disable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines if the record is disabled or not. False means that the record is enabled.",
+			},
+			"dns_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The name for the CNAME record in punycode format. Values with leading or trailing white space are not valid for this field. Cannot be written nor updated.",
+			},
+			"forbid_reclamation": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Determines if the reclamation is allowed for the record or not.",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name for a CNAME record in FQDN format",
 			},
-			"ref": {
-				Type:        schema.TypeString,
+			"reclaimable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
 				Computed:    true,
-				Description: "Unique reference to Infoblox resource",
+				Description: "Determines if the record is reclaimable or not. Cannot be updated/written",
 			},
-			"comment": {
+			"shared_record_group": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Comment for the record; maximum 256 characters",
+				Computed:    true,
+				Description: "The name of the shared record group in which the record resides. This field exists only on db_objects if this record is a shared record. Cannot be updated/written",
 			},
 			"view": {
 				Type:        schema.TypeString,
@@ -41,196 +89,32 @@ func resourceCNAMERecord() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateUnsignedInteger,
+				ValidateFunc: util.ValidateUnsignedInteger,
 				Description:  "The Time To Live assigned to CNAME",
 			},
 			"use_ttl": {
-				Type:     schema.TypeBool,
-				Required: false,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Use flag for: ttl",
 			},
-			"canonical": {
+			"zone": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Canonical name in FQDN format",
+				Computed:    true,
+				Description: "DNS Zone for the record",
 			},
 		},
 	}
 }
 
-func validateUnsignedInteger(v interface{}, k string) (ws []string, errors []error) {
-	ttl := v.(int)
-	if ttl < 0 {
-		errors = append(errors, fmt.Errorf("%q can't be negative", k))
-	}
-	return
-}
-
 func resourceCNAMECreate(d *schema.ResourceData, m interface{}) error {
-
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	var cnameRecord records.GenericRecord
-	recordType := "cname"
-
-	if v, ok := d.GetOk("name"); ok {
-		cnameRecord.Name = v.(string)
-	} else {
-		return fmt.Errorf("Infoblox Create Error: name argument required")
-	}
-	if v, ok := d.GetOk("comment"); ok {
-		cnameRecord.Comment = v.(string)
-	}
-	if v, ok := d.GetOk("view"); ok {
-		cnameRecord.View = v.(string)
-	}
-	if v, ok := d.GetOk("ttl"); ok {
-		ttl := v.(int)
-		cnameRecord.TTL = uint(ttl)
-	}
-
-	useTTL := false
-	if v, ok := d.GetOk("use_ttl"); ok {
-		useTTL = v.(bool)
-	}
-	cnameRecord.UseTTL = &useTTL
-
-	if v, ok := d.GetOk("canonical"); ok {
-		cnameRecord.Canonical = v.(string)
-	}
-
-	createAPI := records.NewCreateRecord(recordType, cnameRecord)
-
-	err := infobloxClient.Do(createAPI)
-	if err != nil {
-		return fmt.Errorf("Infoblox Create Error: %+v", err)
-	}
-
-	if createAPI.StatusCode() != 201 {
-		return fmt.Errorf("Infoblox Create Error: Invalid HTTP response code %+v returned. Response object was %+v", createAPI.StatusCode(), createAPI.GetResponse())
-	}
-
-	id := strings.Replace(createAPI.GetResponse(), "\"", "", -1)
-	d.SetId(id)
-	return resourceCNAMERead(d, m)
+	return CreateResource(model.RecordCnameObj, resourceCNAMERecord(), d, m)
 }
 
 func resourceCNAMERead(d *schema.ResourceData, m interface{}) error {
-
-	returnFields := []string{"name", "comment", "view", "use_ttl", "ttl", "canonical"}
-
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	resourceReference := d.Id()
-	getSingleCNAMEAPI := records.NewGetCNAMERecord(resourceReference, returnFields)
-
-	err := infobloxClient.Do(getSingleCNAMEAPI)
-	if err != nil {
-		return fmt.Errorf("Infoblox Read Error: %+v", err)
-	}
-	if getSingleCNAMEAPI.StatusCode() == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	response := getSingleCNAMEAPI.GetResponse()
-	d.SetId(response.Ref)
-	d.Set("name", response.Name)
-	d.Set("comment", response.Comment)
-	d.Set("view", response.View)
-	d.Set("ttl", response.TTL)
-	d.Set("canonical", response.Canonical)
-
-	return nil
+	return ReadResource(resourceCNAMERecord(), d, m)
 }
 
 func resourceCNAMEUpdate(d *schema.ResourceData, m interface{}) error {
-
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	hasChanges := false
-	resourceReference := d.Id()
-	var updateCNAME records.GenericRecord
-
-	if d.HasChange("name") {
-		if v, ok := d.GetOk("name"); ok {
-			updateCNAME.Name = v.(string)
-		}
-		hasChanges = true
-	}
-	if d.HasChange("comment") {
-		if v, ok := d.GetOk("comment"); ok {
-			updateCNAME.Comment = v.(string)
-		}
-		hasChanges = true
-	}
-	if d.HasChange("view") {
-		if v, ok := d.GetOk("view"); ok {
-			updateCNAME.View = v.(string)
-		}
-		hasChanges = true
-	}
-	if d.HasChange("ttl") {
-		if v, ok := d.GetOk("ttl"); ok {
-			ttl := v.(int)
-			updateCNAME.TTL = uint(ttl)
-		}
-		hasChanges = true
-	}
-
-	useTTL := false
-	if d.HasChange("use_ttl") {
-		hasChanges = true
-		value := d.Get("use_ttl")
-		useTTL = value.(bool)
-		updateCNAME.UseTTL = &useTTL
-	}
-
-	if d.HasChange("canonical") {
-		if v, ok := d.GetOk("canonical"); ok {
-			updateCNAME.Canonical = v.(string)
-		}
-		hasChanges = true
-	}
-
-	if hasChanges {
-		updateAPI := records.NewUpdateRecord(resourceReference, updateCNAME)
-		err := infobloxClient.Do(updateAPI)
-		if err != nil {
-			return fmt.Errorf("Infoblox Update Error: %+v", err)
-		}
-		if updateAPI.StatusCode() != 200 {
-			return fmt.Errorf("Infoblox Update Error: Invalid HTTP response code %+v returned. Response was %+v", updateAPI.StatusCode(), updateAPI.GetResponse())
-		}
-		id := strings.Replace(updateAPI.GetResponse(), "\"", "", -1)
-		d.SetId(id)
-	}
-
-	return resourceCNAMERead(d, m)
-}
-
-func resourceCNAMEDelete(d *schema.ResourceData, m interface{}) error {
-
-	returnFields := []string{}
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	resourceReference := d.Id()
-	getSingleCNAMEAPI := records.NewGetCNAMERecord(resourceReference, returnFields)
-
-	err := infobloxClient.Do(getSingleCNAMEAPI)
-	if err != nil {
-		return fmt.Errorf("Infoblox Delete Error when fetching resource: %+v", err)
-	}
-	if getSingleCNAMEAPI.StatusCode() == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	deleteAPI := records.NewDelete(resourceReference)
-	err = infobloxClient.Do(deleteAPI)
-	if err != nil {
-		return fmt.Errorf("Infobox Delete - Error deleting resource %+v", err)
-	}
-	if deleteAPI.StatusCode() != 200 {
-		return fmt.Errorf("Infoblox Delete - Error deleting resource %s - return code != 200", resourceReference)
-	}
-
-	d.SetId("")
-	return nil
+	return UpdateResource(resourceCNAMERecord(), d, m)
 }

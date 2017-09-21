@@ -1,22 +1,25 @@
 package infoblox
 
 import (
-	"fmt"
+	//	"fmt"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/dhcp_range"
+	//	"github.com/sky-uk/skyinfoblox"
+	//	"github.com/sky-uk/skyinfoblox/api/dhcp_range"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"testing"
 )
 
 func TestAccResourceDHCPRange(t *testing.T) {
-	/*network := "10.0.0.0/24"
-	resourceName := "infoblox_network_net"*/
+	network := "10.0.0.0/24"
+	//resourceName := "infoblox_network_net"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccResourceDHCPRangeDestroy,
-		Steps:        []resource.TestStep{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: func(state *terraform.State) error {
+			return TestAccCheckDestroy(model.RangeObj, "network", network)
+		},
+		Steps: []resource.TestStep{
 		/* DO NOT UNCOMMENT THESE LINES UNLESS YOU KNOW WHAT YOU ARE DOING !!!
 		{
 			Config: testAccResourceDHCPRangeCreateTemplate(network),
@@ -44,8 +47,9 @@ func TestAccResourceDHCPRange(t *testing.T) {
 
 }
 
+/*
 func testAccResourceDHCPRangeDestroy(state *terraform.State) error {
-	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
+	client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
 	for _, rs := range state.RootModule().Resources {
 		if rs.Type != "infoblox_dhcp_range" {
 			continue
@@ -68,7 +72,8 @@ func testAccResourceDHCPRangeDestroy(state *terraform.State) error {
 	}
 	return nil
 }
-
+*/
+/*
 func testAccResourceDHCPRangeExists(networkAddr, resourceName string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		var fields []string
@@ -92,19 +97,21 @@ func testAccResourceDHCPRangeExists(networkAddr, resourceName string) resource.T
 		return fmt.Errorf("Could not find %s", networkAddr)
 	}
 }
+*/
 
+/*
 func testAccResourceDHCPRangeCreateTemplate(network string) string {
 	return fmt.Sprintf(`
 	resource "infoblox_dhcp_range" "infoblox_network_net" {
 		network = "%s"
 		network_view = "default"
-		start = "10.154.0.30"
-		end = "10.154.0.40"
+		start_addr = "10.154.0.30"
+		end _addr= "10.154.0.40"
 		member = {
-			ipv4_addr = "10.90.233.150"
+			ipv4addr = "10.90.233.150"
 			name  = "nonprdibxdns01.bskyb.com"
 		}
-		server_association = "MEMBER"
+		server_association_type = "MEMBER"
 	}`, network)
 }
 
@@ -113,12 +120,13 @@ func testAccResourceDHCPRangeUpdateTemplate(network string) string {
 	resource "infoblox_dhcp_range" "infoblox_network_net" {
 		network = "%s"
 		network_view = "new_view"
-		start = "10.154.0.30"
-		end = "10.154.0.50"
+		start_addr = "10.154.0.30"
+		end_addr = "10.154.0.50"
 		member = {
-			ipv4_addr = "10.74.233.150"
+			ipv4addr = "10.74.233.150"
 			name  = "nonprdibxdns02.bskyb.com"
 		}
-		server_association = "MEMBER"
+		server_association_type = "MEMBER"
 	}`, network)
 }
+*/

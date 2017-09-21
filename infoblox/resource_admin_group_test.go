@@ -5,8 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/admingroup"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"regexp"
 	"testing"
 )
@@ -25,7 +24,7 @@ func TestAccInfobloxAdminGroupBasic(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccInfobloxAdminGroupCheckDestroy(state, adminGroupName)
+			return TestAccCheckDestroy(model.AdmingroupObj, "name", adminGroupName)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -35,7 +34,7 @@ func TestAccInfobloxAdminGroupBasic(t *testing.T) {
 			{
 				Config: testAccInfobloxAdminGroupCreateTemplate(adminGroupName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccInfobloxAdminGroupCheckExists(adminGroupName, adminGroupResource),
+					testAccInfobloxAdminGroupCheckExists("name", adminGroupName),
 					resource.TestCheckResourceAttr(adminGroupResource, "name", adminGroupName),
 					resource.TestCheckResourceAttr(adminGroupResource, "comment", "Infoblox Terraform Acceptance test"),
 					resource.TestCheckResourceAttr(adminGroupResource, "superuser", "true"),
@@ -57,7 +56,7 @@ func TestAccInfobloxAdminGroupBasic(t *testing.T) {
 			{
 				Config: testAccInfobloxAdminGroupUpdateTemplate(updateAdminGroupName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccInfobloxAdminGroupCheckExists(updateAdminGroupName, adminGroupResource),
+					testAccInfobloxAdminGroupCheckExists("name", updateAdminGroupName),
 					resource.TestCheckResourceAttr(adminGroupResource, "name", updateAdminGroupName),
 					resource.TestCheckResourceAttr(adminGroupResource, "comment", "Infoblox Terraform Acceptance test - updated"),
 					resource.TestCheckResourceAttr(adminGroupResource, "superuser", "false"),
@@ -97,54 +96,9 @@ func testAccInfobloxAdminGroupCheckValueInKeyPattern(adminGroupResource string, 
 	}
 }
 
-func testAccInfobloxAdminGroupCheckDestroy(state *terraform.State, adminGroupName string) error {
-
-	client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_admin_group" {
-			continue
-		}
-		if id, ok := rs.Primary.Attributes["id"]; ok && id == "" {
-			return nil
-		}
-		api := admingroup.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox - error occurred whilst retrieving a list of Admin Groups")
-		}
-		for _, adminGroup := range *api.ResponseObject().(*[]admingroup.IBXAdminGroupReference) {
-			if adminGroup.AdminGroupName == adminGroupName {
-				return fmt.Errorf("Infoblox Admin Group %s still exists", adminGroupName)
-			}
-		}
-	}
-	return nil
-}
-
-func testAccInfobloxAdminGroupCheckExists(adminGroupName, adminGroupResource string) resource.TestCheckFunc {
+func testAccInfobloxAdminGroupCheckExists(key, value string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-
-		rs, ok := state.RootModule().Resources[adminGroupResource]
-		if !ok {
-			return fmt.Errorf("\nInfoblox Admin Group %s wasn't found in resources", adminGroupName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox Admin Group ID not set for %s in resources", adminGroupName)
-		}
-
-		client := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		api := admingroup.NewGetAll()
-		err := client.Do(api)
-		if err != nil {
-			return fmt.Errorf("Infoblox Admin Group - error whilst retrieving a list of Admin Groups: %+v", err)
-		}
-		for _, adminGroup := range *api.ResponseObject().(*[]admingroup.IBXAdminGroupReference) {
-			if adminGroup.AdminGroupName == adminGroupName {
-				return nil
-			}
-		}
-		return fmt.Errorf("Infoblox Admin Group %s wasn't found on remote Infoblox server", adminGroupName)
+		return TestAccCheckExists(model.AdmingroupObj, key, value)
 	}
 }
 

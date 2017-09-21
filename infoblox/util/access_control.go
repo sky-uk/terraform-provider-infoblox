@@ -3,7 +3,6 @@ package util
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/sky-uk/skyinfoblox/api/zoneauth"
 )
 
 // AccessControlSchema - returns the schema for an access control
@@ -14,7 +13,7 @@ func AccessControlSchema() *schema.Schema {
 		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"type": {
+				"_struct": {
 					Type:         schema.TypeString,
 					Description:  "Specifies the type of struct we're passing",
 					Optional:     true,
@@ -76,34 +75,4 @@ func ValidateAddressAcPermission(v interface{}, k string) (ws []string, errors [
 		errors = append(errors, fmt.Errorf("%q must be one of ALLOW or DENY", k))
 	}
 	return
-}
-
-// BuildAcList - builds a list of access controls
-func BuildAcList(acList []interface{}) []interface{} {
-
-	builtAc := make([]interface{}, len(acList))
-	var addressAccessControl zoneauth.AddressAC
-	var tsigAccessControl zoneauth.TsigAC
-
-	for idx, value := range acList {
-		permission, ok := value.(map[string]interface{})
-		if ok {
-			if permission["type"] == "addressac" {
-				addressAccessControl.StructType = permission["type"].(string)
-				addressAccessControl.Address = permission["address"].(string)
-				addressAccessControl.Permission = permission["permission"].(string)
-				builtAc[idx] = addressAccessControl
-			}
-			if permission["type"] == "tsigac" {
-				tsigAccessControl.StructType = permission["type"].(string)
-				tsigAccessControl.TsigKey = permission["tsig_key"].(string)
-				tsigAccessControl.TsigKeyAlg = permission["tsig_key_alg"].(string)
-				tsigAccessControl.TsigKeyName = permission["tsig_key_name"].(string)
-				useTSIGKeyName := permission["use_tsig_key_name"].(bool)
-				tsigAccessControl.UseTsigKeyName = &useTSIGKeyName
-				builtAc[idx] = tsigAccessControl
-			}
-		}
-	}
-	return builtAc
 }

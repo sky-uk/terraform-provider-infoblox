@@ -40,4 +40,6 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("INFOBLOX_SERVER"); v == "" {
 		t.Fatal("INFOBLOX_SERVER must be set for acceptance tests")
 	}
+
+	os.Setenv("INFOBLOX_CLIENT_TIMEOUT", "60")
 }

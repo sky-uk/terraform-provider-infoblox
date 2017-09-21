@@ -5,8 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/records"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"testing"
 )
 
@@ -22,7 +21,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		CheckDestroy: func(state *terraform.State) error {
-			return testAccResourceSRVRecordDestroy(state, recordName)
+			return TestAccCheckDestroy(model.RecordSRVObj, "name", recordName)
 		},
 		Steps: []resource.TestStep{
 			{
@@ -57,64 +56,14 @@ func TestAccResourceSRVRecord(t *testing.T) {
 
 func testAccResourceSRVRecordExists(recordName, resourceName string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		rs, ok := state.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("\nInfoblox SRV record resource %s not found in resources", resourceName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox SRV record resource %s ID not set", resourceName)
-		}
-
-		infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-
-		returnFields := []string{"name"}
-
-		getAllSRVRecords := records.NewGetAllSRVRecords(returnFields)
-
-		err := infobloxClient.Do(getAllSRVRecords)
-
-		if err != nil {
-			return fmt.Errorf("Error getting the SRV record: %q", err.Error())
-		}
-		for _, x := range getAllSRVRecords.GetResponse() {
-			if x.Name == recordName {
-				return nil
-			}
-		}
-		return fmt.Errorf("Could not find %s", recordName)
-
+		return TestAccCheckExists(model.RecordSRVObj, "name", recordName)
 	}
-}
-
-func testAccResourceSRVRecordDestroy(state *terraform.State, recordName string) error {
-	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-	returnFields := []string{"name"}
-
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_srv_record" {
-			continue
-		}
-		if res, ok := rs.Primary.Attributes["ref"]; ok && res == "" {
-			return nil
-		}
-		api := records.NewGetSRVRecord(rs.Primary.Attributes["res"], returnFields)
-		err := infobloxClient.Do(api)
-		if err != nil {
-			return nil
-		}
-		response := *api.ResponseObject().(*string)
-
-		if response == recordName {
-			return fmt.Errorf("A record %s still exists", recordName)
-		}
-	}
-	return nil
 }
 
 func testAccResourceSRVRecordCreateTemplate(srvRecordName string) string {
 	return fmt.Sprintf(`
 	resource "infoblox_srv_record" "acctest" {
-   	name = "%s"
+   	    name = "%s"
     	port = 8080
     	priority = 99
     	target = "craig4test.testzone.slupaas.bskyb.com"
@@ -127,7 +76,7 @@ func testAccResourceSRVRecordCreateTemplate(srvRecordName string) string {
 func testAccResourceSRVRecordUpdateTemplate(srvRecordName string) string {
 	return fmt.Sprintf(`
 	resource "infoblox_srv_record" "acctest" {
-   	name = "%s"
+   	    name = "%s"
     	port = 65
     	priority = 50
     	target = "craig4test.testzone.slupaas.bskyb.com"

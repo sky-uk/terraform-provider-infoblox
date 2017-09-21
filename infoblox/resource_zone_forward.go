@@ -1,12 +1,9 @@
 package infoblox
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/zoneforward"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"github.com/sky-uk/terraform-provider-infoblox/infoblox/util"
-	"net/http"
 )
 
 func resourceZoneForward() *schema.Resource {
@@ -14,7 +11,7 @@ func resourceZoneForward() *schema.Resource {
 		Create: resourceZoneForwardCreate,
 		Read:   resourceZoneForwardRead,
 		Update: resourceZoneForwardUpdate,
-		Delete: resourceZoneForwardDelete,
+		Delete: DeleteResource,
 
 		Schema: map[string]*schema.Schema{
 			"address": {
@@ -127,224 +124,13 @@ func resourceZoneForward() *schema.Resource {
 }
 
 func resourceZoneForwardCreate(d *schema.ResourceData, m interface{}) error {
-
-	ibxClient := m.(*skyinfoblox.InfobloxClient)
-	var zone zoneforward.ZoneForward
-
-	if v, ok := d.GetOk("comment"); ok && v != "" {
-		zone.Comment = v.(string)
-	}
-
-	zone.Disable = d.Get("disable").(bool)
-
-	if v, ok := d.GetOk("forward_to"); ok {
-		serverList := util.GetMapList(v.([]interface{}))
-		zone.ForwardTo = util.BuildExternalServerListFromT(serverList)
-	}
-
-	zone.ForwardersOnly = d.Get("forwarders_only").(bool)
-
-	if v, ok := d.GetOk("forwarding_servers"); ok {
-		serverList := util.GetMapList(v.([]interface{}))
-		zone.ForwardingServers = util.BuildForwardingMemberServerListFromT(serverList)
-	}
-
-	if v, ok := d.GetOk("fqdn"); ok && v != "" {
-		zone.Fqdn = v.(string)
-	}
-
-	zone.Locked = d.Get("locked").(bool)
-
-	if v, ok := d.GetOk("ns_group"); ok && v != "" {
-		zone.NSGroup = v.(string)
-	}
-
-	if v, ok := d.GetOk("prefix"); ok && v != "" {
-		zone.Prefix = v.(string)
-	}
-
-	if v, ok := d.GetOk("view"); ok && v != "" {
-		zone.View = v.(string)
-	}
-
-	if v, ok := d.GetOk("zone_format"); ok && v != "" {
-		zone.ZoneFormat = v.(string)
-	}
-
-	api := zoneforward.NewCreate(zone)
-	err := ibxClient.Do(api)
-
-	if err != nil {
-		return fmt.Errorf(fmt.Sprintf("Error creating a new forward zone, error:\n%s\n", err))
-	}
-
-	if api.StatusCode() != http.StatusCreated {
-		return fmt.Errorf(fmt.Sprintf("Error creating a new forward zone, status: %d, error:\n%s\n",
-			api.StatusCode(), api.RawResponse()))
-	}
-
-	ref := *api.ResponseObject().(*string)
-	d.SetId(ref)
-
-	return resourceZoneForwardRead(d, m)
-}
-
-func zoneForwardReturnFields() []string {
-	return []string{"address", "comment", "disable", "display_domain", "dns_fqdn", "forward_to", "forwarders_only", "forwarding_servers", "fqdn", "locked", "locked_by", "mask_prefix", "ms_ad_integrated", "ms_ddns_mode", "ms_managed", "ms_read_only", "ms_sync_master_name", "parent", "prefix", "using_srg_associations", "view", "zone_format"}
+	return CreateResource(model.ZONEForwardObj, resourceZoneForward(), d, m)
 }
 
 func resourceZoneForwardRead(d *schema.ResourceData, m interface{}) error {
-	ibxClient := m.(*skyinfoblox.InfobloxClient)
-	resourceReference := d.Id()
-	if resourceReference == "" {
-		return nil
-	}
-	api := zoneforward.NewGet(resourceReference, zoneForwardReturnFields())
-	err := ibxClient.Do(api)
-	if err != nil {
-		return fmt.Errorf("Could not read the resource %s", err.Error())
-	}
-	if api.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Could not read the resource %s", string(api.RawResponse()))
-	}
-
-	zone := *api.ResponseObject().(*zoneforward.ZoneForward)
-
-	d.SetId(zone.Ref)
-	d.Set("address", zone.Address)
-	d.Set("comment", zone.Comment)
-	d.Set("disable", zone.Disable)
-	d.Set("display_domain", zone.DisplayDomain)
-	d.Set("dns_fqdn", zone.DNSFqdn)
-	d.Set("forward_to", zone.ForwardTo)
-	d.Set("forwarders_only", zone.ForwardersOnly)
-	d.Set("forwarding_servers", zone.ForwardingServers)
-	d.Set("fqdn", zone.Fqdn)
-	d.Set("locked", zone.Locked)
-	d.Set("locked_by", zone.LockedBy)
-	d.Set("mask_prefix", zone.MaskPrefix)
-	d.Set("ns_group", zone.NSGroup)
-	d.Set("parent", zone.Parent)
-	d.Set("prefix", zone.Prefix)
-	d.Set("view", zone.View)
-	d.Set("zone_format", zone.ZoneFormat)
-
-	return nil
+	return ReadResource(resourceZoneForward(), d, m)
 }
 
 func resourceZoneForwardUpdate(d *schema.ResourceData, m interface{}) error {
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	var updatedZone zoneforward.ZoneForward
-	hasChanges := false
-	returnFields := zoneForwardReturnFields()
-	resourceReference := d.Id()
-	updatedZone.Ref = resourceReference
-
-	if d.HasChange("comment") {
-		if v, ok := d.GetOk("comment"); ok {
-			updatedZone.Comment = v.(string)
-			hasChanges = true
-		}
-	}
-
-	updatedZone.Disable = d.Get("disable").(bool)
-	oldV, newV := d.GetChange("disable")
-	updatedZone.Disable = newV.(bool)
-	if oldV.(bool) != newV.(bool) {
-		hasChanges = true
-	}
-
-	if d.HasChange("forward_to") {
-		servers := util.GetMapList(d.Get("forward_to").([]interface{}))
-		updatedZone.ForwardTo = util.BuildExternalServerListFromT(servers)
-		hasChanges = true
-	}
-
-	updatedZone.ForwardersOnly = d.Get("forwarders_only").(bool)
-	oldV, newV = d.GetChange("forwarders_only")
-	updatedZone.ForwardersOnly = newV.(bool)
-	if oldV.(bool) != newV.(bool) {
-		hasChanges = true
-	}
-
-	if d.HasChange("forwarding_servers") {
-		servers := util.GetMapList(d.Get("forwarding_servers").([]interface{}))
-		updatedZone.ForwardingServers = util.BuildForwardingMemberServerListFromT(servers)
-		hasChanges = true
-	}
-
-	updatedZone.Locked = d.Get("locked").(bool)
-	oldV, newV = d.GetChange("locked")
-	updatedZone.Locked = newV.(bool)
-	if oldV.(bool) != newV.(bool) {
-		hasChanges = true
-	}
-
-	if d.HasChange("ns_group") {
-		if v, ok := d.GetOk("ns_group"); ok {
-			updatedZone.NSGroup = v.(string)
-			hasChanges = true
-		}
-	}
-
-	if d.HasChange("prefix") {
-		if v, ok := d.GetOk("prefix"); ok {
-			updatedZone.Prefix = v.(string)
-			hasChanges = true
-		}
-	}
-
-	if d.HasChange("view") {
-		if v, ok := d.GetOk("view"); ok {
-			updatedZone.View = v.(string)
-			hasChanges = true
-		}
-	}
-
-	if hasChanges == true {
-		updateAPI := zoneforward.NewUpdate(updatedZone, returnFields)
-		err := infobloxClient.Do(updateAPI)
-		if err != nil {
-			return fmt.Errorf("Infoblox Zone Forward Update Error: %+v", err)
-		}
-		if updateAPI.StatusCode() != http.StatusOK {
-			return fmt.Errorf("Error updating Zone Forward with objRef: %s, Error:\n%s", resourceReference, string(updateAPI.RawResponse()))
-		}
-
-		updatedZone = *updateAPI.ResponseObject().(*zoneforward.ZoneForward)
-
-		d.SetId(updatedZone.Ref)
-	}
-
-	return resourceZoneForwardRead(d, m)
-}
-
-func resourceZoneForwardDelete(d *schema.ResourceData, m interface{}) error {
-	returnFields := []string{"fqdn"}
-
-	infobloxClient := m.(*skyinfoblox.InfobloxClient)
-	resourceReference := d.Id()
-	getAPI := zoneforward.NewGet(resourceReference, returnFields)
-
-	err := infobloxClient.Do(getAPI)
-	if err != nil {
-		return fmt.Errorf("Infoblox Delete Error when fetching resource: %+v", err)
-	}
-	if getAPI.StatusCode() == http.StatusNotFound {
-		d.SetId("")
-		return nil
-	}
-
-	deleteAPI := zoneforward.NewDelete(resourceReference)
-	err = infobloxClient.Do(deleteAPI)
-	if err != nil {
-		return fmt.Errorf("Infoblox Delete - Error deleting resource %+v", err)
-	}
-
-	if deleteAPI.StatusCode() != http.StatusOK {
-		return fmt.Errorf("Infoblox Delete - Error deleting resource %s - return code != 200 error: %v", resourceReference, deleteAPI.ResponseObject())
-	}
-
-	d.SetId("")
-	return nil
+	return UpdateResource(resourceZoneForward(), d, m)
 }

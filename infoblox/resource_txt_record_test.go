@@ -5,9 +5,7 @@ import (
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/sky-uk/skyinfoblox"
-	"github.com/sky-uk/skyinfoblox/api/records"
-	"net/http"
+	"github.com/sky-uk/skyinfoblox/api/common/v261/model"
 	"testing"
 )
 
@@ -20,9 +18,11 @@ func TestAccResourceTXTRecord(t *testing.T) {
 	fmt.Printf("\n\nAcc Test record name is %s\n\n", recordName)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccResourceTXTRecordDestroy,
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		CheckDestroy: func(state *terraform.State) error {
+			return TestAccCheckDestroy(model.RecordTXTObj, "name", recordName)
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceTXTRecordCreateTemplate(recordName),
@@ -50,47 +50,8 @@ func TestAccResourceTXTRecord(t *testing.T) {
 
 func testAccResourceTXTRecordExists(recordName, resourceName string) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
-		rs, ok := state.RootModule().Resources[resourceName]
-		if !ok {
-			return fmt.Errorf("\nResource not found: %s", resourceName)
-		}
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("\nInfoblox TXT record resource %s ID not set", resourceName)
-		}
-		ref := rs.Primary.ID
-		infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-		fields := []string{"name", "view", "zone", "ttl", "use_ttl", "text", "comment"}
-		recAPI := records.NewGetTXTRecord(ref, fields)
-		err := infobloxClient.Do(recAPI)
-		if err != nil {
-			return fmt.Errorf("Error getting the TXT record: %q", err.Error())
-		}
-		if recAPI.StatusCode() == http.StatusOK {
-			return nil
-		}
-		return fmt.Errorf("Could not find %s", resourceName)
+		return TestAccCheckExists(model.RecordTXTObj, "name", recordName)
 	}
-}
-
-func testAccResourceTXTRecordDestroy(state *terraform.State) error {
-	infobloxClient := testAccProvider.Meta().(*skyinfoblox.InfobloxClient)
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "infoblox_txtrecord" {
-			continue
-		}
-		ref := rs.Primary.ID
-		api := records.NewGetTXTRecord(ref, nil)
-		err := infobloxClient.Do(api)
-		if err != nil {
-			return err
-		}
-
-		if api.StatusCode() == http.StatusOK {
-			return fmt.Errorf("TXT record still exists, ref: %v", ref)
-		}
-		return nil
-	}
-	return nil
 }
 
 func testAccResourceTXTRecordCreateTemplate(txtrecordName string) string {
