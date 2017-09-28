@@ -48,4 +48,3 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.ssh/id
 
 #REMOVE BEFORE COMMITING TO GIT 
 
-RUN echo "48c8a220-b9ec-1213-fd6b-84d5248790cc" > /.vault-token
