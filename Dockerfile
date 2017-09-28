@@ -45,6 +45,3 @@ RUN cd /gows/src/github.com/sky-uk/terraform-provider-infoblox; make fmt; make ;
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.ssh/id_rsa*
-
-#REMOVE BEFORE COMMITING TO GIT 
-
