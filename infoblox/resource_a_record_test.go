@@ -12,7 +12,7 @@ import (
 func TestAccResourceARecord(t *testing.T) {
 
 	randInt := acctest.RandInt()
-	recordName := fmt.Sprintf("a-record-test-%d.slupaas.bskyb.com", randInt)
+	recordName := fmt.Sprintf("a-record-test-%d.example.com", randInt)
 	resourceName := "infoblox_arecord.acctest"
 
 	fmt.Printf("\n\nAcc Test record name is %s\n\n", recordName)

@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccInfobloxZoneDelegated(t *testing.T) {
-	zoneFqdn := fmt.Sprintf("prd%d.hempaas.bskyb.com", acctest.RandInt())
+	zoneFqdn := fmt.Sprintf("prd%d.example.com", acctest.RandInt())
 	resourceName := "infoblox_zone_delegated.delegationtest"
 
 	resource.Test(t, resource.TestCase{

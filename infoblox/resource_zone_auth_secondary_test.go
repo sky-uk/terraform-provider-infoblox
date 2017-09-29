@@ -12,7 +12,7 @@ import (
 
 func TestAccInfobloxZoneAuthSecondary(t *testing.T) {
 
-	testFQDN := "acctest-infoblox-zone-auth-secondary" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
+	testFQDN := "acctest-infoblox-zone-auth-secondary" + strconv.Itoa(acctest.RandInt()) + ".example.com"
 	testFQDNResourceName := "infoblox_zone_auth.acctestsecondary"
 
 	fmt.Printf("\n\nForward FQDN is %s\n\n", testFQDN)
@@ -36,7 +36,7 @@ func TestAccInfobloxZoneAuthSecondary(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "prefix", "128/16"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_enable", "false"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "nonprdibxdns01.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "infoblox.localdomain"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "copy_xfer_to_notify", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "use_copy_xfer_to_notify", "false"),
@@ -47,7 +47,7 @@ func TestAccInfobloxZoneAuthSecondary(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1.address", "192.168.101.10"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1.permission", "ALLOW"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2._struct", "tsigac"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key", "0jnu3SdsMvzzlmTDPYRceA=="),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key", "zPpXDZqUcmTOkInh8Vn74Q=="),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key_alg", "HMAC-SHA256"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key_name", "acc-test.key"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.use_tsig_key_name", "false"),
@@ -64,7 +64,7 @@ func TestAccInfobloxZoneAuthSecondary(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "prefix", "128-189"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_enable", "false"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "nonprdibxdns01.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "infoblox.localdomain"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "copy_xfer_to_notify", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "use_copy_xfer_to_notify", "true"),
@@ -102,7 +102,7 @@ resource "infoblox_zone_auth" "acctestsecondary" {
     prefix = "128/16"
     disable = false
     dns_integrity_enable = false
-    dns_integrity_member = "nonprdibxdns01.bskyb.com"
+    dns_integrity_member = "infoblox.localdomain"
     locked = true
     copy_xfer_to_notify = false
     use_copy_xfer_to_notify = false
@@ -112,7 +112,7 @@ resource "infoblox_zone_auth" "acctestsecondary" {
                 address = "10.0.0.2"
                 name = "ns1.example.com"
                 stealth = false
-                tsig_key = "dFghJkcXb5tyUio3eWo021=="
+                tsig_key = "zPpXDZqUcmTOkInh8Vn74Q=="
                 tsig_key_alg = "HMAC-SHA256"
                 tsig_key_name = "example-key"
                 use_tsig_key_name = false
@@ -121,7 +121,7 @@ resource "infoblox_zone_auth" "acctestsecondary" {
     grid_secondaries = [
         {
             lead = false
-            name = "slunonprdigm01.bskyb.com"
+            name = "infoblox.localdomain"
             enable_preferred_primaries = false
             stealth = false
         },
@@ -139,7 +139,7 @@ resource "infoblox_zone_auth" "acctestsecondary" {
     },
     {
         _struct = "tsigac"
-        tsig_key = "0jnu3SdsMvzzlmTDPYRceA=="
+        tsig_key = "zPpXDZqUcmTOkInh8Vn74Q=="
         tsig_key_alg = "HMAC-SHA256"
         tsig_key_name = "acc-test.key"
         use_tsig_key_name = false
@@ -157,7 +157,7 @@ resource "infoblox_zone_auth" "acctestsecondary" {
     prefix = "128-189"
     disable = true
     dns_integrity_enable = false
-    dns_integrity_member = "nonprdibxdns01.bskyb.com"
+    dns_integrity_member = "infoblox.localdomain"
     locked = false
     copy_xfer_to_notify = true
     use_copy_xfer_to_notify = true
@@ -176,7 +176,7 @@ resource "infoblox_zone_auth" "acctestsecondary" {
     grid_secondaries = [
         {
             lead = false
-            name = "slunonprdigm01.bskyb.com"
+            name = "infoblox.localdomain"
             enable_preferred_primaries = false
             stealth = false
         },

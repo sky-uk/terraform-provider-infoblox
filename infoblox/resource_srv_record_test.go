@@ -12,7 +12,7 @@ import (
 func TestAccResourceSRVRecord(t *testing.T) {
 
 	randInt := acctest.RandInt()
-	recordName := fmt.Sprintf("srv-recordcreated-%d.slupaas.bskyb.com", randInt)
+	recordName := fmt.Sprintf("srv-recordcreated-%d.example.com", randInt)
 	resourceName := "infoblox_srv_record.acctest"
 
 	fmt.Printf("\n\nAcc Test record name is %s\n\n", recordName)
@@ -31,7 +31,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", recordName),
 					resource.TestCheckResourceAttr(resourceName, "port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "priority", "99"),
-					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.testzone.slupaas.bskyb.com"),
+					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.testzone.example.com"),
 					resource.TestCheckResourceAttr(resourceName, "weight", "10"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "test test"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "900"),
@@ -44,7 +44,7 @@ func TestAccResourceSRVRecord(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", recordName),
 					resource.TestCheckResourceAttr(resourceName, "port", "65"),
 					resource.TestCheckResourceAttr(resourceName, "priority", "50"),
-					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.testzone.slupaas.bskyb.com"),
+					resource.TestCheckResourceAttr(resourceName, "target", "craig4test.testzone.example.com"),
 					resource.TestCheckResourceAttr(resourceName, "weight", "20"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "test test test test"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "4000"),
@@ -66,7 +66,7 @@ func testAccResourceSRVRecordCreateTemplate(srvRecordName string) string {
    	    name = "%s"
     	port = 8080
     	priority = 99
-    	target = "craig4test.testzone.slupaas.bskyb.com"
+    	target = "craig4test.testzone.example.com"
     	weight = 10
     	comment = "test test"
     	ttl = 900
@@ -79,7 +79,7 @@ func testAccResourceSRVRecordUpdateTemplate(srvRecordName string) string {
    	    name = "%s"
     	port = 65
     	priority = 50
-    	target = "craig4test.testzone.slupaas.bskyb.com"
+    	target = "craig4test.testzone.example.com"
     	weight = 20
     	comment = "test test test test"
     	ttl = 4000

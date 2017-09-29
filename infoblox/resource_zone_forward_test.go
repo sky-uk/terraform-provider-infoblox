@@ -14,7 +14,7 @@ import (
 
 func TestAccInfobloxZoneForwardBasic(t *testing.T) {
 
-	testFQDN := "acctest-infoblox-zone-forward-" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
+	testFQDN := "acctest-infoblox-zone-forward-" + strconv.Itoa(acctest.RandInt()) + ".example.com"
 	zoneForwardName := "infoblox_zone_forward.acctest"
 
 	fmt.Printf("\n\nForward FQDN is %s\n\n", testFQDN)
@@ -52,8 +52,8 @@ func TestAccInfobloxZoneForwardBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(zoneForwardName, "locked", "true"),
 					resource.TestCheckResourceAttr(zoneForwardName, "locked_by", os.Getenv("INFOBLOX_USERNAME")),
 					resource.TestCheckResourceAttr(zoneForwardName, "forwarders_only", "false"),
-					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.address", "10.90.233.150"),
-					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.name", "slupaas.bskyb.com"),
+					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.address", "10.93.59.2"),
+					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.name", "slupaas.example.com"),
 					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.stealth", "false"),
 					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.tsig_key_alg", "HMAC-SHA256"),
 				),
@@ -68,7 +68,7 @@ func TestAccInfobloxZoneForwardBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(zoneForwardName, "prefix", "128-189"),
 					resource.TestCheckResourceAttr(zoneForwardName, "disable", "true"),
 					resource.TestCheckResourceAttr(zoneForwardName, "locked", "false"),
-					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.address", "10.74.233.150"),
+					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.address", "10.93.59.2"),
 					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.name", "hemnonprdigmc01.bskyb.com"),
 					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.stealth", "false"),
 					resource.TestCheckResourceAttr(zoneForwardName, "forward_to.0.tsig_key_alg", "HMAC-MD5"),
@@ -120,8 +120,8 @@ func testZoneForwardCreateComplete(testFQDN string) string {
       disable = false
       locked = true
       forward_to = [{
-          address = "10.90.233.150"
-          name = "slupaas.bskyb.com"
+          address = "10.93.59.2"
+          name = "slupaas.example.com"
           stealth = false
           tsig_key_alg = "HMAC-SHA256"
       }]
@@ -140,7 +140,7 @@ func testZoneForwardUpdateTemplate(testFQDN string) string {
       disable = true
       locked = false
       forward_to = [{
-          address = "10.74.233.150"
+          address = "10.93.59.2"
           name = "hemnonprdigmc01.bskyb.com"
           stealth = false
           tsig_key_alg = "HMAC-MD5"

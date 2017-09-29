@@ -11,7 +11,7 @@ import (
 )
 
 func TestAccInfobloxZoneStub(t *testing.T) {
-	testFQDN := "acctest-infoblox-zone-stub-" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
+	testFQDN := "acctest-infoblox-zone-stub-" + strconv.Itoa(acctest.RandInt()) + ".example.com"
 	testFQDNResourceName := "infoblox_zone_stub.stub1"
 
 	resource.Test(t, resource.TestCase{

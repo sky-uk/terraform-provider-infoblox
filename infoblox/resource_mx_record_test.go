@@ -25,7 +25,7 @@ func TestResourceMXRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceMXRecordExists("mail_exchanger", mailExchanger),
 					resource.TestCheckResourceAttr(resourceName, "mail_exchanger", mailExchanger),
-					resource.TestCheckResourceAttr(resourceName, "name", "slupaas.bskyb.com"),
+					resource.TestCheckResourceAttr(resourceName, "name", "example.com"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is a comment"),
 					resource.TestCheckResourceAttr(resourceName, "disable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "preference", "120"),
@@ -39,7 +39,7 @@ func TestResourceMXRecord(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceMXRecordExists("mail_exchanger", mailExchanger),
 					resource.TestCheckResourceAttr(resourceName, "mail_exchanger", mailExchanger),
-					resource.TestCheckResourceAttr(resourceName, "name", "slupaas.bskyb.com"),
+					resource.TestCheckResourceAttr(resourceName, "name", "example.com"),
 					resource.TestCheckResourceAttr(resourceName, "comment", "this is a comment edited for a disabled zone"),
 					resource.TestCheckResourceAttr(resourceName, "disable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "preference", "10"),
@@ -62,7 +62,7 @@ func testAccResourceMXRecordExists(key, value string) resource.TestCheckFunc {
 func testAccResourceMXRecordCreateTemplate(mailExchanger string) string {
 	return fmt.Sprintf(`
 	resource "infoblox_mx_record" "mxtest1" {
-        	name = "slupaas.bskyb.com"
+        	name = "example.com"
         	comment = "this is a comment"
         	disable = false
         	mail_exchanger = "%s"
@@ -78,7 +78,7 @@ func testAccResourceMXRecordCreateTemplate(mailExchanger string) string {
 func testAccResourceMXRecordUpdateTemplate(mailExchanger string) string {
 	return fmt.Sprintf(`
 	resource "infoblox_mx_record" "mxtest1" {
-        	name = "slupaas.bskyb.com"
+        	name = "example.com"
         	comment = "this is a comment edited for a disabled zone"
         	disable = true
         	mail_exchanger = "%s"

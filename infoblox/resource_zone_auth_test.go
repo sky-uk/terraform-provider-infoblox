@@ -13,7 +13,7 @@ import (
 
 func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 
-	testFQDN := "acctest-infoblox-zone-auth-" + strconv.Itoa(acctest.RandInt()) + ".slupaas.bskyb.com"
+	testFQDN := "acctest-infoblox-zone-auth-" + strconv.Itoa(acctest.RandInt()) + ".example.com"
 	testFQDNResourceName := "infoblox_zone_auth.acctest"
 
 	fmt.Printf("\n\nForward FQDN is %s\n\n", testFQDN)
@@ -78,7 +78,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_expire", "444444"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_enable", "false"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "nonprdibxdns01.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "infoblox.localdomain"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "copy_xfer_to_notify", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "use_copy_xfer_to_notify", "false"),
@@ -89,7 +89,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1.address", "192.168.101.10"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1.permission", "ALLOW"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2._struct", "tsigac"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key", "0jnu3SdsMvzzlmTDPYRceA=="),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key", "zPpXDZqUcmTOkInh8Vn74Q=="),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key_alg", "HMAC-SHA256"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.tsig_key_name", "acc-test.key"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.2.use_tsig_key_name", "true"),
@@ -111,7 +111,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_expire", "888888"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_enable", "false"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "nonprdibxdns01.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "infoblox.localdomain"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "copy_xfer_to_notify", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "use_copy_xfer_to_notify", "true"),
@@ -119,7 +119,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0._struct", "tsigac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key", "0jnu3SdsMvzzlmTDPYRceA=="),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key_alg", "HMAC-MD5"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key_name", "acc-test.key"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key_name", "acc-test2.key"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.use_tsig_key_name", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1._struct", "addressac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1.address", "192.168.120.10"),
@@ -145,12 +145,12 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(testFQDNResourceName, "soa_expire", "888888"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "disable", "true"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_enable", "false"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "nonprdibxdns01.bskyb.com"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "dns_integrity_member", "infoblox.localdomain"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "locked", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0._struct", "tsigac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key", "0jnu3SdsMvzzlmTDPYRceA=="),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key_alg", "HMAC-MD5"),
-					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key_name", "acc-test.key"),
+					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.tsig_key_name", "acc-test2.key"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.0.use_tsig_key_name", "false"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1._struct", "addressac"),
 					resource.TestCheckResourceAttr(testFQDNResourceName, "allow_update.1.address", "192.168.120.10"),
@@ -174,7 +174,7 @@ func testAccInfobloxZoneAuthNoFQDNTemplate() string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
 comment = "Updated a zone"
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 }
 `)
 }
@@ -182,7 +182,7 @@ ns_group="Sky OTT Default"
 func testAccInfobloxZoneAuthEmptyTemplate() string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 }
 `)
 }
@@ -190,7 +190,7 @@ ns_group="Sky OTT Default"
 func testAccInfobloxZoneAuthTooLongCommentTemplate(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 fqdn = "%s"
 comment = "This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string.... This is a very long string...."
 }
@@ -200,7 +200,7 @@ comment = "This is a very long string.... This is a very long string.... This is
 func testAccInfobloxZoneAuthInvalidZoneFormat(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 fqdn = "%s"
 comment = "Created a zone"
 zone_format = "SOME_INVALID_ZONE"
@@ -210,7 +210,7 @@ zone_format = "SOME_INVALID_ZONE"
 func testAccInfobloxZoneAuthInvalidSOATTL(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 fqdn = "%s"
 soa_default_ttl = -1
 }`, testFQDN)
@@ -219,7 +219,7 @@ soa_default_ttl = -1
 func testAccInfobloxZoneAuthInvalidAllowUpdatePermission(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -233,7 +233,7 @@ allow_update = [
 func testAccInfobloxZoneAuthInvalidAllowUpdateStruct(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -249,7 +249,7 @@ func testAccInfobloxZoneAuthInvalidAllowUpdateTSIGAlgorithm(testFQDN string) str
 	// set to true here but is not returned back...
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -265,7 +265,7 @@ allow_update = [
 func testAccInfobloxZoneAuthLeadingTrailingWhiteSpace(testFQDN string) string {
 	return fmt.Sprintf(`
 resource "infoblox_zone_auth" "acctest" {
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 fqdn = "%s"
 allow_update = [
 {
@@ -298,11 +298,11 @@ resource "infoblox_zone_auth" "acctest" {
     soa_expire = 444444
     disable = false
     dns_integrity_enable = false
-    dns_integrity_member = "nonprdibxdns01.bskyb.com"
+    dns_integrity_member = "infoblox.localdomain"
     locked = true
     copy_xfer_to_notify = false
     use_copy_xfer_to_notify = false
-    ns_group="Sky OTT Default"
+    ns_group="Sky Test Default"
     allow_update = [
         {
             _struct = "addressac"
@@ -316,7 +316,7 @@ resource "infoblox_zone_auth" "acctest" {
         },
         {
             _struct = "tsigac"
-            tsig_key = "0jnu3SdsMvzzlmTDPYRceA=="
+            tsig_key = "zPpXDZqUcmTOkInh8Vn74Q=="
             tsig_key_alg = "HMAC-SHA256"
             tsig_key_name = "acc-test.key"
             use_tsig_key_name = true
@@ -340,12 +340,12 @@ resource "infoblox_zone_auth" "acctest" {
   soa_expire = 888888
   disable = true
   dns_integrity_enable = false
-  dns_integrity_member = "nonprdibxdns01.bskyb.com"
+  dns_integrity_member = "infoblox.localdomain"
   locked = false
   copy_xfer_to_notify = true
   use_copy_xfer_to_notify = true
   use_external_primary = false
-  ns_group="Sky OTT Default"
+  ns_group="Sky Test Default"
   allow_transfer = [
         {
           _struct = "addressac"
@@ -354,7 +354,7 @@ resource "infoblox_zone_auth" "acctest" {
         },
         {
           _struct = "tsigac"
-          tsig_key = "0jnu3SdsMvzzlmTDPYRceA=="
+          tsig_key = "zPpXDZqUcmTOkInh8Vn74Q=="
           tsig_key_alg = "HMAC-SHA256"
           tsig_key_name = "acc-test.key"
           use_tsig_key_name = true
@@ -375,7 +375,7 @@ resource "infoblox_zone_auth" "acctest" {
       _struct = "tsigac"
       tsig_key = "0jnu3SdsMvzzlmTDPYRceA=="
       tsig_key_alg = "HMAC-MD5"
-      tsig_key_name = "acc-test.key"
+      tsig_key_name = "acc-test2.key"
       use_tsig_key_name = false
     },
     {
@@ -406,15 +406,15 @@ soa_retry = 150
 soa_expire = 888888
 disable = true
 dns_integrity_enable = false
-dns_integrity_member = "nonprdibxdns01.bskyb.com"
+dns_integrity_member = "infoblox.localdomain"
 locked = false
-ns_group="Sky OTT Default"
+ns_group="Sky Test Default"
 allow_update = [
 {
   _struct = "tsigac"
   tsig_key = "0jnu3SdsMvzzlmTDPYRceA=="
   tsig_key_alg = "HMAC-MD5"
-  tsig_key_name = "acc-test.key"
+  tsig_key_name = "acc-test2.key"
   use_tsig_key_name = false
 },
 {

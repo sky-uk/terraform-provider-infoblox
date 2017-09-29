@@ -14,7 +14,7 @@ import (
 func TestAccInfobloxNSRecordBasic(t *testing.T) {
 
 	randomInt := acctest.RandInt()
-	nameServerZoneName := "paas-testing.com"
+	nameServerZoneName := "example.com"
 	createNameServer := fmt.Sprintf("acctest-infoblox-%d-nameserver.%s", randomInt, nameServerZoneName)
 	updateNameServer := fmt.Sprintf("acctest-infoblox-%d-nameserver-update.%s", randomInt, nameServerZoneName)
 	nsResourceName := "infoblox_ns_record.acctest"
