@@ -88,15 +88,14 @@ func (client Client) Create(objType string, profile interface{}) (string, error)
 	)
 
 	err := client.restClient.Do(restAPI)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
 	if errStruct.Error != "" {
 		log.Printf("Error creating object %s, Error: %s, code: %s, text: %s\n",
 			objType, errStruct.Error, errStruct.Code, errStruct.Text)
 		return "", errors.New(errStruct.Error)
+	}
+	if err != nil {
+		log.Println(err)
+		return "", err
 	}
 
 	return objRef, nil
@@ -178,17 +177,15 @@ func (client Client) Delete(objRef string) (string, error) {
 	)
 
 	err := client.restClient.Do(restAPI)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
 	if errStruct.Error != "" {
 		log.Printf("Error deleting object %s, Error: %s, code: %s, text: %s",
 			objRef, errStruct.Error, errStruct.Code, errStruct.Text)
 		return "", errors.New(errStruct.Error)
 	}
-
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
 	return objRef, nil
 }
 
@@ -217,15 +214,14 @@ func (client Client) Read(objRef string, returnFields []string, obj interface{})
 	)
 
 	err := client.restClient.Do(restAPI)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
 	if errStruct.Error != "" {
 		log.Printf("Error deleting object %s, Error: %s, code: %s, text: %s",
 			objRef, errStruct.Error, errStruct.Code, errStruct.Text)
 		return errors.New(errStruct.Error)
+	}
+	if err != nil {
+		log.Println(err)
+		return err
 	}
 
 	return nil
@@ -245,17 +241,15 @@ func (client Client) ReadAll(objType string) ([]map[string]interface{}, error) {
 	)
 
 	err := client.restClient.Do(restAPI)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
 	if errStruct.Error != "" {
 		log.Printf("Error reading all objects of type %s, Error: %s, code: %s, text: %s",
 			objType, errStruct.Error, errStruct.Code, errStruct.Text)
 		return nil, errors.New(errStruct.Error)
 	}
-
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	return objs, nil
 }
 
@@ -281,15 +275,14 @@ func (client Client) Update(objRef string, newProfile interface{}) (string, erro
 	)
 
 	err := client.restClient.Do(restAPI)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
 	if errStruct.Error != "" {
 		log.Printf("Error updating object %s, Error: %s, code: %s, text: %s",
 			objRef, errStruct.Error, errStruct.Code, errStruct.Text)
 		return "", errors.New(errStruct.Error)
+	}
+	if err != nil {
+		log.Println(err)
+		return "", err
 	}
 
 	return updatedObjRef, nil
@@ -495,17 +488,15 @@ func (client Client) GetObjectSchema(objType string) (map[string]interface{}, er
 	)
 
 	err := client.restClient.Do(api)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
 	if errStruct.Error != "" {
 		log.Printf("Error getting schema for object type %s, Error: %s, code: %s, text: %s",
 			objType, errStruct.Error, errStruct.Code, errStruct.Text)
 		return nil, errors.New(errStruct.Error)
 	}
-
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	return schema, nil
 }
 

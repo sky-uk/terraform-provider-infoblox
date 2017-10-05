@@ -36,7 +36,7 @@ func TestAccInfobloxZoneAuthBasic(t *testing.T) {
 			},
 			{
 				Config:      testAccInfobloxZoneAuthTooLongCommentTemplate(testFQDN),
-				ExpectError: regexp.MustCompile("Response status code: 400"),
+				ExpectError: regexp.MustCompile("AdmConDataError: Comment length cannot exceed 256 characters"),
 			},
 			{
 				Config:      testAccInfobloxZoneAuthInvalidZoneFormat(testFQDN),

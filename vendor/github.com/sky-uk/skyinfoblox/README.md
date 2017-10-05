@@ -2,9 +2,7 @@
 
 This is the GoLang API wrapper for Infoblox. This is currently used for building terraform provider for the same appliance.
 This package is based on the Infoblox WAPI library version v2.6.1.
-Wapi library documentation can be accessed here:
-
-https://h1infoblox.devops.int.ovp.bskyb.com/wapidoc/index.html
+Wapi library documentation can be accessed directly on Infoblox web site.
 
 
 ## Run Unit tests
@@ -26,6 +24,15 @@ Note: starting from release 0.1.0, a new API has been provided. The new API supp
 
 ## WAPI version used
 The Server WAPI version can be configured at client creation time (it defaults anyhow to v2.6.1). Support for older versions schemes is driven by the Infoblox WAPI server itself (query your server schema to find out the list of supported versions).
+
+### Importing the skyinfoblox library
+
+```
+import(
+    "github.com/sky-uk/skyinfoblox"
+    "github.com/sky-uk/skyinfoblox/api/common/v261" // only if you want to use (a limited set of) v261 objects as defined structs
+    )
+```
 
 ### Getting an API client object
 In order to get an API client object first set a list of connnection parameters and pass it to the Connect() function:

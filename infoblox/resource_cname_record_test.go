@@ -64,7 +64,7 @@ func TestAccInfobloxCNAMEBasic(t *testing.T) {
 			},
 			{
 				Config:      testAccInfobloxCNAMEBadViewUpdateTemplate(cname, canonical),
-				ExpectError: regexp.MustCompile("Response status code: 404"),
+				ExpectError: regexp.MustCompile("AdmConDataNotFoundError: View A_VIEW_WHICH_DOESNT_EXIST not found"),
 			},
 		},
 	})
