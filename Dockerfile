@@ -12,16 +12,32 @@ CMD ["/sbin/my_init"]
 RUN apt-get update; apt-get -y install aptitude wget unzip git
 
 # Install Golang binaries
-RUN wget https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz
-RUN tar -xvf go1.8.linux-amd64.tar.gz; mv go /usr/local/
+RUN wget https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz
+RUN tar -xvf go1.9.1.linux-amd64.tar.gz; mv go /usr/local/
 
 # Install Terraform.
 RUN mkdir /terraform;
 WORKDIR /terraform
-RUN wget https://releases.hashicorp.com/terraform/0.10.0/terraform_0.10.0_linux_amd64.zip
-RUN unzip terraform_0.10.0_linux_amd64.zip
+RUN wget https://releases.hashicorp.com/terraform/0.10.7/terraform_0.10.7_linux_amd64.zip
+RUN unzip terraform_0.10.7_linux_amd64.zip
 WORKDIR /
 RUN mv /terraform /usr/local/
+
+# Set up environment
+RUN mkdir -p /gows
+ENV GOPATH /gows
+ENV GOBIN $GOPATH/bin
+ENV PATH $PATH:/usr/local/terraform:/usr/local/go/bin:$GOBIN
+
+# Setup golang deps
+RUN go get -v github.com/tools/godep
+RUN go get -v github.com/golang/lint/golint
+RUN go get -v github.com/axw/gocov
+# gocov isn't automatically building and placing binary in $GOBIN
+RUN cd ${GOPATH}/src/github.com/axw/gocov/gocov && go build -o ${GOBIN}/gocov
+RUN go get -v github.com/AlekSi/gocov-xml
+RUN go get -v github.com/matm/gocov-html
+RUN go get -v github.com/go-playground/overalls
 
 # Install Terraform linter.
 RUN mkdir /terraform-linter
@@ -32,11 +48,6 @@ WORKDIR /
 RUN mv /terraform-linter/tflint /usr/bin/
 ENV PATH $PATH:/usr/local/terraform:/usr/local/go/bin
 
-# Setup golang deps
-RUN mkdir -p /gows
-ENV GOPATH /gows
-RUN go get github.com/tools/godep
-
 RUN apt-get -y install make binutils
 
 # Build the Infoblox provider
@@ -45,3 +56,4 @@ RUN cd /gows/src/github.com/sky-uk/terraform-provider-infoblox; make fmt; make ;
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.ssh/id_rsa*
+
